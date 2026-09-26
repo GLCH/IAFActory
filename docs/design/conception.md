@@ -1,6 +1,6 @@
 # Conception v2 : classification documentaire, agents spécialisés, sessions
 
-Statut : proposition du 2026-09-26, mise à jour le même jour (glossaire commun structuré en taxonomie de domaines, passerelle LLM, traçabilité, formats de documents). Les seuils et choix d'algorithmes sont des hypothèses à mesurer (voir IAF-E7 US7.7). Remplace la vue d'ensemble de [architecture.md](../architecture.md).
+Statut : proposition du 2026-09-26, mise à jour le même jour (glossaire commun structuré en taxonomie de domaines, passerelle LLM, traçabilité, formats de documents, ontologies structurelles et sémantiques, métadonnées, pipeline documentaire). Les seuils et choix d'algorithmes sont des hypothèses à mesurer (voir IAF-E7 US7.7). Remplace la vue d'ensemble de [architecture.md](../architecture.md).
 
 ## 1. Vocabulaire
 
@@ -9,8 +9,12 @@ Statut : proposition du 2026-09-26, mise à jour le même jour (glossaire commun
 | Glossaire métier | Glossaire **commun** à tous les projets : les termes du métier (SKOS). Il est structuré en taxonomie de domaines. |
 | Taxonomie de domaines | Arbre (relations plus large / plus étroit, SKOS `broader`/`narrower`) des domaines métier. Chaque terme du glossaire est rattaché à un domaine. |
 | Domaine | Nœud de la taxonomie (ex. « Contrats », « Contrats > Clauses de résiliation »). Porte des termes et des éléments d'ontologie. |
-| Ontologie | Classes OWL et propriétés, rattachées aux domaines du glossaire. |
-| Classe documentaire | Type de document (ex. contrat, fiche technique). Utilise un ou plusieurs domaines ; son ontologie est l'union de celles de ses domaines. À ne pas confondre avec une classe OWL. |
+| Ontologie sémantique | Décrit le **contenu** : types d'entités, types de relations, attributs. Rattachée aux domaines de la taxonomie. |
+| Ontologie structurelle | Décrit l'**organisation** du contenu : types d'éléments (section, diapositive, tableau, figure, liste, légende, note) et leur agencement (imbrication, ordre, rôle). Vocabulaire de base commun ; un profil par classe documentaire. |
+| Squelette | Arbre d'éléments typés extrait d'un document (type, niveau, ordre, libellé, nom de mise en page). Sert à reconnaître sa forme. |
+| Métadonnées | Propriétés que le document porte lui-même, quand il en a (titre, auteur, sujet, mots-clés, dates, révision, application productrice, gabarit). |
+| Pipeline documentaire | Chaîne applicative Ingestion, Reconnaissance, (Création de classe), Structuration. Sans rapport avec les pipelines GitHub CI/CD. |
+| Classe documentaire | Type de document (ex. contrat, fiche technique). Réunit un **profil structurel** (son ontologie structurelle) et un ou plusieurs domaines, dont les ontologies sémantiques forment son contenu attendu. À ne pas confondre avec une classe OWL. |
 | Terme candidat | Terme induit d'un document non reconnu. Reste propre au projet, hors du glossaire commun, tant qu'il n'est pas promu. |
 | Passerelle LLM | Service unique par lequel tout appel à un modèle passe ; il décide qui peut utiliser quel modèle et mesure l'usage. |
 | Alias d'usage | Nom stable d'un usage (extraction, agent, cadrage, jugement, embedding) que la passerelle associe à un modèle concret. |
@@ -31,11 +35,11 @@ flowchart LR
   end
   U --> ING
   X --> CG[Passerelle de connecteurs]
-  CG --> ING[Ingestion : chunks + embeddings]
-  ING --> OIE[Extraction ouverte sans a priori]
-  OIE --> MAP[Mapping vers taxonomie de domaines et ontologies candidates]
+  CG --> ING[Ingestion : structure, métadonnées, chunks, embeddings]
+  ING --> OIE[Squelette + extraction ouverte sans a priori]
+  OIE --> MAP[Reconnaissance structurelle et sémantique]
   MAP --> DEC{Reconnu ?}
-  DEC -- oui, 1..n classes --> EXT[Extraction guidée par les ontologies des classes]
+  DEC -- oui, 1..n classes --> EXT[Structuration guidée par les ontologies des classes]
   DEC -- non --> NEW[Création d'une classe provisoire]
   NEW --> EXT
   EXT --> KG[(Neo4j : graphe de connaissances)]
@@ -75,18 +79,44 @@ Neo4j (graphe de connaissances) :
 - `(:DocumentClass {status})` avec `status` parmi `provisoire`, `validee`, `rejetee`.
 - `(:DocumentClass)-[:USES_DOMAIN]->(:Domain)` : une classe utilise un ou plusieurs domaines ; `(:Domain)-[:NARROWER]->(:Domain)` forme la taxonomie ; `(:Term)-[:IN_DOMAIN]->(:Domain)` ; `(:Domain)-[:HAS_ONTOLOGY]->(:Ontology)`. La taxonomie et le glossaire sont communs à tous les projets ; classes, documents et termes candidats sont propres au projet.
 - `(:Chunk)-[:MENTIONS]->(:Entity)`, `(:Entity)-[:REL {type}]->(:Entity)`, `(:Entity)-[:INSTANCE_OF]->(:OntologyElement)`.
+- Structure : `(:Document)-[:HAS_ELEMENT]->(:StructElement {kind, level, position, label, layout})`, `(:StructElement)-[:CHILD]->(:StructElement)`, `(:StructElement)-[:HAS_CHUNK]->(:Chunk)`. Un fait sémantique se situe donc dans le document (quelle section, quelle diapositive).
+- Ontologies de la classe : `(:DocumentClass)-[:HAS_STRUCTURAL_ONTOLOGY]->(:Ontology {kind: 'structural'})` et `(:Domain)-[:HAS_ONTOLOGY]->(:Ontology {kind: 'semantic'})`. `(:DocumentClass)-[:HAS_STRUCTURE_PROFILE]->(:StructuralProfile)` porte le squelette type.
+- Métadonnées : propriétés normalisées sur `(:Document)` (titre, auteur, sujet, mots-clés, dates, révision, application, gabarit, langue) plus la valeur brute et sa source.
 
-Fuseki (RDF, source de vérité des ontologies, décision à confirmer dans l'ADR 0002) : un graphe nommé par glossaire, par version d'ontologie et par schéma induit d'un document ou d'une classe provisoire. Import vers Neo4j par n10s.
+Fuseki (RDF, source de vérité des ontologies, décision à confirmer dans l'ADR 0002) : un graphe nommé par glossaire, par version d'ontologie structurelle ou sémantique, et par schéma induit d'une classe provisoire. Ontologie structurelle de base : [ontologies/structure/iaf-structure-base.ttl](../../ontologies/structure/iaf-structure-base.ttl). Import vers Neo4j par n10s.
 
-## 4. Classification : un document est-il reconnu ?
+### 3.1 Ontologies structurelles et sémantiques
 
-Principe : extraire d'abord sans a priori, puis comparer au connu. Les documents n'ont pas besoin d'être étiquetés par le creator.
+| | Structurelle | Sémantique |
+|---|---|---|
+| Décrit | l'organisation : types d'éléments et agencement | le contenu : types d'entités, de relations, attributs |
+| Exemple | fiche technique : Titre, Résumé, Tableau de caractéristiques, Section Normes | Matériau, Norme, Fournisseur ; « conforme à » ; résistance (MPa) |
+| Rattachée à | la classe documentaire (profil structurel) | les domaines de la taxonomie, via la classe |
+| Sert à | reconnaître la forme d'un document, découper, situer les faits | reconnaître le sujet, guider l'extraction d'entités et de relations |
+| Reconnaissance | peu coûteuse, déterministe, sans LLM | coûteuse, appuyée sur un LLM |
 
-1. **Extraction ouverte** : triplets libres, types d'entités et relations propres au document. Approche de référence : EDC (Extract, Define, Canonicalize), qui fonctionne avec ou sans schéma cible et récupère les éléments de schéma pertinents pour limiter la taille du prompt ([arXiv 2404.03868](https://arxiv.org/abs/2404.03868)). Sortie : schéma du document `Sd`, chaque élément `e` pondéré par sa fréquence normalisée `w_e`.
-2. **Pré-filtrage** des classes candidates (top-k) : comparaison bon marché de `Sd` avec chaque classe. La taxonomie sert ici : les termes de `Sd` sont projetés sur les domaines (via les termes du glossaire), ce qui donne un profil de domaines du document ; un terme apparié à un domaine étroit crédite aussi ses domaines plus larges, avec un poids décroissant par niveau. Le profil est comparé aux domaines de chaque classe.
-3. **Mapping fin** de `Sd` vers l'ontologie de chaque classe candidate : correspondances élément par élément.
-4. **Décision** multi-classes par couverture (section 4.2).
-5. **Non reconnu** : la classe est créée à partir de `Sd` (section 4.3).
+Les deux axes sont indépendants : un même contenu en Word et en PowerPoint a la même sémantique mais une structure différente. Le vocabulaire structurel de base (Document, Section, Slide, Paragraph, Table, Figure, List, ListItem, Caption, Note, CodeBlock, Formula, avec `hasPart`, `precedes`, `headingLevel`, `layoutName`...) est commun ; l'ontologie structurelle d'une classe le spécialise (rôles de sections, imbrications attendues, éléments obligatoires). Le fichier de base est écrit, non chargé dans Fuseki ni validé par un parseur RDF (Docker arrêté ; validation prévue en CI, ci-infra).
+
+### 3.2 Métadonnées des documents
+
+Conservées quand le document en porte, jamais inventées quand il n'en a pas (champ absent, pas de valeur par défaut). Champs normalisés : titre, auteur, dernier modificateur, sujet, mots-clés, dates de création et de modification, révision, application productrice, nom du gabarit, langue ; pour PowerPoint, noms des mises en page utilisées. La valeur brute et sa source (propriétés du document selon le format) sont gardées à côté de la valeur normalisée. Le nom exact des champs par format et leur accessibilité via l'outil d'analyse retenu sont à vérifier (US3.13).
+
+- **Signal faible** : les métadonnées aident la reconnaissance (gabarit, mises en page, titre type) mais ne décident jamais seules : elles sont modifiables par n'importe qui, donc non fiables.
+- **Données personnelles** : auteur et dernier modificateur sont des noms de personnes. Ils suivent les mêmes règles d'accès que le document (exclusions viewer comprises), sont soumis à la rétention (E12) et ne sont pas envoyés à un LLM par défaut.
+- **Contenu non fiable** : traité comme une donnée, jamais comme une instruction.
+
+
+## 4. Reconnaissance : un document est-il reconnu ?
+
+Principe : extraire d'abord sans a priori, puis comparer au connu, sur **deux axes indépendants** : la forme (structure) et le contenu (sémantique). Les documents n'ont pas besoin d'être étiquetés par le creator. Cette section est l'étape R du pipeline documentaire (section 13).
+
+1. **Squelette et métadonnées** (produits par l'ingestion) : arbre `Ss` d'éléments typés du document et métadonnées éventuelles.
+2. **Reconnaissance structurelle** (peu coûteuse, sans LLM) : `Ss` est comparé aux profils structurels des classes. Mesures candidates : similarité de Jaccard, accélérée par MinHash, sur les libellés de titres de section normalisés ; cosinus des histogrammes de types d'éléments ; forme de l'imbrication. Les métadonnées (gabarit, noms de mises en page PowerPoint) servent de signal faible. Sortie : un score structurel par classe candidate.
+3. **Extraction ouverte sémantique** : triplets libres, types d'entités et relations propres au document. Approche de référence : EDC (Extract, Define, Canonicalize), qui fonctionne avec ou sans schéma cible et récupère les éléments de schéma pertinents pour limiter la taille du prompt ([arXiv 2404.03868](https://arxiv.org/abs/2404.03868)). Sortie : schéma du document `Sd`, chaque élément `e` pondéré par sa fréquence normalisée `w_e`.
+4. **Pré-filtrage sémantique** des classes candidates (top-k) : comparaison bon marché de `Sd` avec chaque classe. La taxonomie sert ici : les termes de `Sd` sont projetés sur les domaines (via les termes du glossaire), ce qui donne un profil de domaines du document ; un terme apparié à un domaine étroit crédite aussi ses domaines plus larges, avec un poids décroissant par niveau. Le profil est comparé aux domaines de chaque classe.
+5. **Mapping fin** de `Sd` vers les ontologies sémantiques de chaque classe candidate : correspondances élément par élément.
+6. **Décision croisée** structure x sémantique, y compris multi-classes (section 4.2).
+7. **Non reconnu ou partiellement reconnu** : création de classe ou de variante (section 4.3).
 
 ### 4.1 Algorithmes de comparaison
 
@@ -100,6 +130,8 @@ Cascade du moins cher au plus précis, chaque étage ne traitant que les surviva
 | 2 | Appariement neuronal de type BERTMap | Meilleure sémantique que le lexical seul ; annoncé supérieur à LogMap et AML sur des tâches OAEI dans son article | Demande un entraînement ou un fine-tuning | Vérifié : article AAAI |
 | 3 | Propagation structurelle (voisins compatibles se renforcent) | Corrige les correspondances ambiguës par la structure du graphe | Coût, sensibilité au bruit | À vérifier (Similarity Flooding, Weisfeiler-Lehman) : non consulté dans cette session |
 | 4 | Arbitrage LLM sur la zone grise seulement | Trancher les paires ambiguës | Coût et latence, non déterminisme | LLMs4OM référence cette approche |
+| S | Jaccard pondéré / MinHash sur les libellés de titres normalisés ; cosinus d'histogrammes de types d'éléments | Reconnaissance structurelle bon marché, sans LLM | Sensible aux titres renommés ou traduits | MinHash vérifié (datasketch) |
+| S | Distance d'édition d'arbres entre squelettes | Forme exacte de l'imbrication | Coût quadratique, bruit d'extraction | À vérifier : non consulté dans cette session |
 
 Recommandation initiale : étages 1 puis 2 (embeddings + lexical), étage 4 en zone grise, étage 3 seulement si le banc d'évaluation le justifie. Le choix final vient de US7.7, pas de cette table.
 
@@ -114,13 +146,25 @@ Pour un document `d` et une classe `C` d'ontologie `O_C` :
 - Chaque affectation garde son explication : éléments appariés, score, algorithme, version des seuils.
 - `tau_*`, `delta` et le seuil d'appariement sont calibrés sur un jeu annoté hors échantillon, jamais sur les documents ayant servi à les régler.
 
-### 4.3 Document non reconnu
+**Axe structurel** : `structure(d, C)` est le meilleur score de `Ss` contre le profil structurel de `C` (et ses variantes). Reconnu structurellement si `structure(d, C) >= tau_struct`, seuil calibré comme les autres.
 
-1. Le schéma `Sd` est normalisé (canonicalisation, fusion des synonymes) puis publié comme ontologie induite dans un graphe nommé Fuseki propre au projet.
-2. Une classe documentaire `provisoire` est créée. Ses termes non reconnus deviennent des **termes candidats** propres au projet : le glossaire commun n'est jamais modifié automatiquement. La classe est rattachée aux domaines existants les plus proches, s'il y en a ; sinon elle n'a pas de domaine jusqu'à la revue. La promotion d'un terme candidat vers le glossaire commun est une action gouvernée (US3.10).
-3. Anti-prolifération : avant création, comparaison de `Sd` aux classes provisoires existantes (même cascade) ; si proche, le document rejoint la classe existante.
-4. Le creator revoit les classes provisoires : valider, renommer, fusionner, rejeter (US7.6).
-5. Un document rejeté ou fusionné est reclassé automatiquement.
+**Décision croisée** (hypothèse de travail, à valider avec le creator et à mesurer) :
+
+| Sémantique | Structure | Issue |
+|---|---|---|
+| reconnue | reconnue | Document rattaché à la classe ; structuration directe. |
+| reconnue | nouvelle | **Variante structurelle** : le document rejoint la classe sémantique ; un profil structurel variante (provisoire) est créé. |
+| nouvelle | reconnue | Contenu nouveau dans une forme connue : ontologie sémantique induite (provisoire), rattachée à une classe existante ou à une nouvelle classe selon la revue. |
+| nouvelle | nouvelle | Classe entièrement nouvelle : ontologies structurelle et sémantique induites. |
+
+### 4.3 Document non reconnu ou partiellement reconnu (étape C)
+
+1. **Ontologie sémantique induite** : le schéma `Sd` est normalisé (canonicalisation, fusion des synonymes) puis publié comme ontologie induite dans un graphe nommé Fuseki propre au projet.
+2. **Ontologie structurelle induite** : le squelette `Ss` est généralisé en profil structurel (types d'éléments, imbrication, ordre, rôles de sections). Un seul document donne un profil très spécifique : il s'affine quand des documents voisins le rejoignent.
+3. Une classe documentaire `provisoire` est créée (ou une variante, ou une ontologie ajoutée, selon la décision croisée). Les termes non reconnus deviennent des **termes candidats** propres au projet : le glossaire commun n'est jamais modifié automatiquement. La classe est rattachée aux domaines existants les plus proches, s'il y en a ; sinon elle n'a pas de domaine jusqu'à la revue. La promotion d'un terme candidat vers le glossaire commun est une action gouvernée (US3.10).
+4. Anti-prolifération : avant création, comparaison de `Sd` et `Ss` aux classes provisoires existantes (même cascade) ; si proche, le document rejoint la classe existante.
+5. Le creator revoit les classes provisoires : valider, renommer, fusionner, rejeter (US7.6).
+6. Un document rejeté ou fusionné est reclassé automatiquement, puis restructuré (étape S).
 
 ## 5. Agents spécialisés
 
@@ -210,4 +254,51 @@ Consultation, volontairement simple pour l'instant :
 6. Gouvernance du glossaire commun : qui modifie la taxonomie, qui promeut un terme candidat ? (à traiter avec les capacités des creators, US5.6).
 7. Rétention du journal d'activité, et durée de conservation des sessions.
 
-Tranché le 2026-09-26 : glossaire commun structuré en taxonomie de domaines ; une classe documentaire utilise un ou plusieurs domaines ; documents PDF, PowerPoint et Word, sans manuscrit.
+8. Ontologies structurelles : le vocabulaire de base est commun ; les profils structurels sont-ils propres à chaque classe (hypothèse) ou partageables entre classes et projets ?
+9. Une variante structurelle appartient-elle à la même classe (hypothèse) ou devient-elle une classe distincte ?
+10. Métadonnées : lesquelles le creator souhaite-t-il exploiter, et l'auteur peut-il apparaître dans les réponses des agents ?
+11. Orchestration du pipeline documentaire : file dans Postgres (proposition) ou moteur de workflow (ADR 0006).
+
+Tranché le 2026-09-26 : glossaire commun structuré en taxonomie de domaines ; une classe documentaire utilise un ou plusieurs domaines ; documents PDF, PowerPoint et Word, sans manuscrit ; ontologies structurelles et sémantiques distinguées ; métadonnées conservées quand elles existent ; pipeline documentaire Ingestion, Reconnaissance, Structuration, Création de classe.
+
+## 13. Pipeline documentaire
+
+Chaîne applicative qui traite chaque document. Sans rapport avec les pipelines GitHub CI/CD (écrits, inactifs). Décision d'orchestration : [ADR 0006](../adr/0006-orchestration-pipeline-documentaire.md).
+
+| Étape | Entrée | Sortie | Détail |
+|---|---|---|---|
+| **I** Ingestion | Fichier PDF, PowerPoint ou Word | Document, métadonnées, squelette `Ss`, chunks par structure, embeddings (alias `iaf-embedding` de la passerelle) | US3.1, US3.8, US3.13 |
+| **R** Reconnaissance | `Ss`, métadonnées, chunks | `Sd`, scores structurels et sémantiques, issue de la décision croisée | IAF-E7 (section 4) |
+| **C** Création de classe | Issue non ou partiellement reconnue | Classe ou variante provisoire, ontologies induites | US7.5 (section 4.3) |
+| **S** Structuration | Classes du document et leurs ontologies | Éléments structurels et faits sémantiques (entités, relations, attributs) dans Neo4j, avec provenance | US13.4 |
+
+Enchaînement : **I, puis R, puis (C si l'issue n'est pas « reconnu »), puis S.** Tu as listé la création de classe en dernier ; elle précède pourtant la structuration pour un document dont la classe n'existe pas encore, car S a besoin des ontologies que C produit. Un document reconnu saute C.
+
+```mermaid
+stateDiagram-v2
+  [*] --> recu
+  recu --> ingere: I
+  ingere --> reconnu: R (reconnu)
+  ingere --> a_creer: R (nouveau ou partiel)
+  a_creer --> classe_creee: C
+  reconnu --> structure: S
+  classe_creee --> structure: S
+  structure --> [*]
+  recu --> en_erreur
+  ingere --> en_erreur
+  reconnu --> en_erreur
+  a_creer --> en_erreur
+  classe_creee --> en_erreur
+  en_erreur --> recu: reprise
+```
+
+Propriétés exigées :
+
+- **État par document et par étape** (`pipeline_runs`, `stage_runs` en Postgres : document, étape, statut, empreinte des entrées, version de configuration, durées, erreur, métriques).
+- **Idempotence** : rejouer une étape avec les mêmes entrées et la même configuration ne crée aucun doublon.
+- **Reprise** : un document en erreur reprend à l'étape échouée.
+- **Retraitement en cascade** : modifier une classe, une ontologie ou un seuil refait R et S (jamais I) pour les documents concernés.
+- **Appels LLM** uniquement par la passerelle, avec un alias par étape et un budget.
+- **Isolation** : l'analyse de fichier (I) s'exécute dans un conteneur sans réseau.
+- **Observabilité** : chaque transition est un événement d'activité (E12) ; durée, taux d'échec et coût par étape apparaissent au tableau de bord.
+- **Lots** : traitement de nombreux documents avec concurrence bornée par étape.

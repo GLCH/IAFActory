@@ -22,8 +22,8 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 - Exemples : un document dont 80 pour cent des termes sont ceux de la classe « contrat » place « contrat » dans le top-3.
 - Questions : valeur de k, taille des signatures.
 
-## US7.3 Mapper le schéma du document vers les ontologies candidates
-- En tant que système, je veux apparier les éléments de `Sd` aux éléments d'ontologie de chaque classe candidate.
+## US7.3 Mapper le schéma du document vers les ontologies sémantiques candidates
+- En tant que système, je veux apparier les éléments de `Sd` aux éléments des ontologies sémantiques de chaque classe candidate (l'axe structurel est traité par US7.8).
 - Prérequis : US7.2, US3.3 (ontologies), US3.6 (glossaires).
 - Acceptance criteria : correspondances `(e, o, score)` par appariement lexical (labels, synonymes du glossaire) et embeddings ; seuil d'appariement calibré hors échantillon ; les correspondances ambiguës (zone grise) sont marquées ; chaque correspondance est explicable (label, synonyme, distance).
 - Contexte : systèmes de référence : LogMap, AML, BERTMap (article AAAI), LLMs4OM. Choix final par US7.7.
@@ -33,7 +33,7 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 ## US7.4 Décider la reconnaissance, y compris multi-classes
 - En tant que creator, je veux qu'un document soit rattaché à toutes les classes qui l'expliquent.
 - Prérequis : US7.3.
-- Acceptance criteria : couverture pondérée et typicité calculées ; sélection gloutonne des classes sur la couverture résiduelle ; relation `IN_CLASS` avec score, couverture, méthode, version des seuils ; explication consultable ; seuils calibrés sur un jeu annoté, validés sur un jeu retenu jamais utilisé pour régler.
+- Acceptance criteria : décision croisée structure x sémantique selon la matrice de la conception 4.2 (reconnu, variante structurelle, contenu nouveau, classe nouvelle) ; couverture pondérée et typicité calculées ; sélection gloutonne des classes sur la couverture résiduelle ; relation `IN_CLASS` avec score, couverture, méthode, version des seuils ; explication consultable ; seuils calibrés sur un jeu annoté, validés sur un jeu retenu jamais utilisé pour régler.
 - Contexte : formules dans conception.md 4.2.
 - Exemples : une annexe technique de contrat couvre 55 pour cent en « contrat » et 40 pour cent en « fiche technique » : deux classes ; un document couvert à 30 pour cent au total : non reconnu.
 - Questions : un document peut-il avoir plus de trois classes ?
@@ -41,7 +41,7 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 ## US7.5 Créer automatiquement la classe d'un document non reconnu
 - En tant que système, je veux ingérer un document inconnu et créer sa classe pour l'utiliser tout de suite.
 - Prérequis : US7.4, IAF-22.
-- Acceptance criteria : schéma normalisé (fusion de synonymes) publié comme ontologie induite dans un graphe nommé Fuseki ; classe `provisoire` ; termes non reconnus enregistrés comme termes candidats propres au projet (le glossaire commun n'est jamais modifié automatiquement) ; avant création, comparaison aux classes provisoires existantes et rattachement si proche (anti-prolifération) ; le document est utilisable par les agents dès la création selon leur spécialité.
+- Acceptance criteria : selon l'issue de US7.4 : classe provisoire complète, variante structurelle, ou ontologie sémantique ajoutée ; squelette généralisé en profil structurel induit ; schéma normalisé (fusion de synonymes) publié comme ontologie sémantique induite dans un graphe nommé Fuseki ; classe `provisoire` ; termes non reconnus enregistrés comme termes candidats propres au projet (le glossaire commun n'est jamais modifié automatiquement) ; avant création, comparaison aux classes provisoires existantes et rattachement si proche (anti-prolifération) ; le document est utilisable par les agents dès la création selon leur spécialité.
 - Contexte : risque principal : explosion de classes quasi identiques. Mesurer le nombre de classes créées sur un lot de documents homogènes.
 - Exemples : 20 factures d'un même fournisseur donnent 1 classe, pas 20.
 - Questions : nommage automatique de la classe.
@@ -59,3 +59,12 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 - Contexte : règle du projet : bénéfices validés hors échantillon.
 - Exemples : le rapport indique F1 travail 0.92 et retenu 0.81 pour la stratégie B : c'est le chiffre retenu qui compte.
 - Questions : qui annote, combien de documents (ordre de grandeur : une centaine par classe pour commencer, à confirmer).
+
+## US7.8 Reconnaissance structurelle
+- Jira : IAF-95.
+- En tant que système, je veux reconnaître la forme d'un document à bas coût, sans LLM, à partir de son squelette et de ses métadonnées.
+- Prérequis : US3.8 (squelette), US3.11 (profils structurels), US3.13 (métadonnées).
+- Acceptance criteria : score structurel par classe candidate calculé à partir de : similarité des libellés de titres normalisés (Jaccard, accéléré par MinHash), cosinus des histogrammes de types d'éléments, forme de l'imbrication ; métadonnées (gabarit, noms de mises en page) en signal faible qui ne suffit jamais seul ; aucun appel LLM ; résultat déterministe ; explication (éléments qui ont fait correspondre) ; seuil `tau_struct` calibré sur un jeu annoté hors échantillon ; rappel@k et latence mesurés (US7.7).
+- Contexte : réduit les appels LLM en écartant tôt les classes de forme incompatible. Point faible attendu : titres renommés ou traduits. Distance d'édition d'arbres : à vérifier avant d'être envisagée.
+- Exemples : deux fiches techniques au même gabarit Word obtiennent un score structurel élevé sans appel LLM ; la même fiche exportée en PowerPoint obtient un score faible et une issue « variante structurelle ».
+- Questions : poids relatifs des trois mesures, à mesurer.

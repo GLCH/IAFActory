@@ -36,4 +36,7 @@ Les workflows GitHub Actions sont ecrits mais **desactives** (declenchement manu
 - [ADR 0002 : Jena et Fuseki, glossaires, classes documentaires](docs/adr/0002-jena-fuseki-glossaires-classes.md)
 - [ADR 0003 : connecteurs securises](docs/adr/0003-connecteurs-securises.md)
 - [ADR 0004 : passerelle LLM et routage](docs/adr/0004-passerelle-llm.md)
+- [ADR 0005 : ontologies structurelles et semantiques, metadonnees](docs/adr/0005-ontologies-structurelles-semantiques-metadonnees.md)
+- [ADR 0006 : orchestration du pipeline documentaire](docs/adr/0006-orchestration-pipeline-documentaire.md)
+- [Ontologie structurelle de base](ontologies/structure/iaf-structure-base.ttl)
 - [Epics (Definition of Ready)](docs/epics)

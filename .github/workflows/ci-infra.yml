@@ -35,6 +35,10 @@ jobs:
           dockerfile: infra/llm-gateway/Dockerfile
       - name: Shellcheck
         run: shellcheck infra/fuseki/entrypoint.sh
+      - name: Valider les ontologies Turtle
+        run: |
+          pip install rdflib
+          python -c "import glob, rdflib; [rdflib.Graph().parse(f, format='turtle') for f in glob.glob('ontologies/**/*.ttl', recursive=True)]"
 
   secrets:
     runs-on: ubuntu-latest

@@ -1,0 +1,147 @@
+@prefix iafs: <urn:iaf:ns:structure#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontologie structurelle de base d'IAFActory : le vocabulaire commun qui decrit
+# l'ORGANISATION d'un document (pas son contenu). Les ontologies structurelles des
+# classes documentaires la specialisent (roles de sections, imbrications attendues).
+# Formats couverts : PDF, PowerPoint, Word. Version 1, non chargee dans Fuseki.
+
+<urn:iaf:ns:structure> a owl:Ontology ;
+    rdfs:label "Ontologie structurelle de base IAFactory"@fr ;
+    rdfs:comment "Vocabulaire commun de l'organisation du contenu des documents."@fr ;
+    owl:versionInfo "1" .
+
+# --- Classes ---------------------------------------------------------------
+
+iafs:Element a owl:Class ;
+    rdfs:label "Element de structure"@fr ;
+    rdfs:comment "Tout element identifiable de l'organisation d'un document."@fr .
+
+iafs:Document a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Document"@fr .
+
+iafs:Section a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Section"@fr ;
+    rdfs:comment "Partie titree d'un document Word ou PDF."@fr .
+
+iafs:Slide a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Diapositive"@fr .
+
+iafs:Paragraph a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Paragraphe"@fr .
+
+iafs:Table a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Tableau"@fr .
+
+iafs:Figure a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Figure"@fr .
+
+iafs:List a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Liste"@fr .
+
+iafs:ListItem a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Element de liste"@fr .
+
+iafs:Caption a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Legende"@fr .
+
+iafs:Note a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Note"@fr ;
+    rdfs:comment "Note de bas de page ou notes du presentateur."@fr .
+
+iafs:CodeBlock a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Bloc de code"@fr .
+
+iafs:Formula a owl:Class ;
+    rdfs:subClassOf iafs:Element ;
+    rdfs:label "Formule"@fr .
+
+# --- Relations -------------------------------------------------------------
+
+iafs:hasPart a owl:ObjectProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range iafs:Element ;
+    owl:inverseOf iafs:isPartOf ;
+    rdfs:label "contient"@fr .
+
+iafs:isPartOf a owl:ObjectProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range iafs:Element ;
+    rdfs:label "fait partie de"@fr .
+
+iafs:precedes a owl:ObjectProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range iafs:Element ;
+    rdfs:label "precede"@fr ;
+    rdfs:comment "Ordre de lecture entre elements freres."@fr .
+
+iafs:hasCaption a owl:ObjectProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range iafs:Caption ;
+    rdfs:label "a pour legende"@fr .
+
+# --- Attributs -------------------------------------------------------------
+
+iafs:title a owl:DatatypeProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range xsd:string ;
+    rdfs:label "titre ou libelle"@fr .
+
+iafs:position a owl:DatatypeProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range xsd:integer ;
+    rdfs:label "rang parmi les freres"@fr .
+
+iafs:headingLevel a owl:DatatypeProperty ;
+    rdfs:domain iafs:Section ;
+    rdfs:range xsd:integer ;
+    rdfs:label "niveau de titre"@fr .
+
+iafs:pageNumber a owl:DatatypeProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range xsd:integer ;
+    rdfs:label "numero de page"@fr .
+
+iafs:slideNumber a owl:DatatypeProperty ;
+    rdfs:domain iafs:Slide ;
+    rdfs:range xsd:integer ;
+    rdfs:label "numero de diapositive"@fr .
+
+iafs:layoutName a owl:DatatypeProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range xsd:string ;
+    rdfs:label "nom de la mise en page ou du style"@fr .
+
+iafs:rowCount a owl:DatatypeProperty ;
+    rdfs:domain iafs:Table ;
+    rdfs:range xsd:integer ;
+    rdfs:label "nombre de lignes"@fr .
+
+iafs:columnCount a owl:DatatypeProperty ;
+    rdfs:domain iafs:Table ;
+    rdfs:range xsd:integer ;
+    rdfs:label "nombre de colonnes"@fr .
+
+iafs:hasHeaderRow a owl:DatatypeProperty ;
+    rdfs:domain iafs:Table ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "a une ligne d'en-tete"@fr .
+
+iafs:role a owl:DatatypeProperty ;
+    rdfs:domain iafs:Element ;
+    rdfs:range xsd:string ;
+    rdfs:label "role dans la classe documentaire"@fr ;
+    rdfs:comment "Renseigne par le profil structurel d'une classe (ex. caracteristiques, normes)."@fr .

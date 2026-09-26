@@ -27,8 +27,8 @@ Questions transverses : volumes ? langue des documents ? qui modifie la taxonomi
 - Exemples : un document de 40 pages produit N chunks tous relies a leur Document ; relancer l'ingestion ne cree pas de doublon.
 - Questions : strategie de decoupage (taille, recouvrement, structure) a comparer sur un jeu de questions.
 
-## US3.3 Charger une ontologie
-- En tant que creator, je charge une ontologie (Turtle, RDF/XML, OWL) pour guider l'extraction.
+## US3.3 Charger une ontologie semantique
+- En tant que creator, je charge une ontologie semantique (contenu : types d'entites, de relations, attributs ; Turtle, RDF/XML, OWL) pour guider l'extraction. Les ontologies structurelles font l'objet de US3.11.
 - Prerequis : IAF-1 T5 (Fuseki) et T4 (n10s) ; decision de source de verite (ADR 0001).
 - Acceptance criteria : l'ontologie est stockee dans un graphe nomme Fuseki propre au projet ; un fichier invalide est refuse avec la ligne en cause ; les classes et proprietes sont importees dans Neo4j via n10s ; recharger cree une nouvelle version sans perdre l'ancienne.
 - Contexte : `n10s.graphconfig.init()` reste a appeler ; le mode de graphe depend du modele retenu.
@@ -67,12 +67,13 @@ Questions transverses : volumes ? langue des documents ? qui modifie la taxonomi
 ## US3.8 Analyse structurelle des documents PDF, PowerPoint, Word
 - En tant que systeme, je transforme un document technique en contenu structure (titres, paragraphes, tableaux, diapositives) pour un decoupage fidele.
 - Prerequis : US3.1.
-- Acceptance criteria : titres, tableaux et ordre de lecture conserves pour les 3 formats ; decoupage en chunks selon la structure (section, diapositive, tableau), pas seulement par taille ; chaque chunk garde sa provenance (page ou diapositive, section) ; l'analyse tourne dans un conteneur isole sans acces reseau ; un fichier qui echoue a l'analyse passe en statut « en erreur » avec la cause ; qualite mesuree sur un jeu de documents reels du creator (tableaux correctement restitues, ordre de lecture).
+- Acceptance criteria : squelette structurel (arbre d'elements types : section, diapositive, tableau, figure, liste, legende, note) produit pour chaque document, exprime avec le vocabulaire de `ontologies/structure/iaf-structure-base.ttl` ; titres, tableaux et ordre de lecture conserves pour les 3 formats ; decoupage en chunks selon la structure (section, diapositive, tableau), pas seulement par taille ; chaque chunk garde sa provenance (page ou diapositive, section) ; l'analyse tourne dans un conteneur isole sans acces reseau ; un fichier qui echoue a l'analyse passe en statut « en erreur » avec la cause ; qualite mesuree sur un jeu de documents reels du creator (tableaux correctement restitues, ordre de lecture).
 - Contexte : outil candidat Docling (open source, PDF, DOCX et PPTX, OCR optionnel et desactivable, d'apres sa documentation) ; licence, empreinte et qualite sur vos documents a verifier avant adoption. Les documents sont non fiables : analyse isolee.
 - Exemples : un tableau de specifications de 12 lignes est restitue en 12 lignes rattachees a leur section ; une diapositive avec titre et 3 puces donne un chunk avec son numero de diapositive.
 - Questions : documents avec schemas ou images techniques (legendes seulement, ou description par modele a vision) ?
 
 ## US3.9 Classe documentaire utilisant un ou plusieurs domaines
+- Complement 2026-09-26 : la classe a aussi un profil structurel (US3.11) ; sa partie semantique vient des domaines ci-dessous.
 - En tant que creator, je veux qu'une classe documentaire utilise un ou plusieurs domaines de la taxonomie.
 - Prerequis : US3.6, US3.7.
 - Acceptance criteria : une classe a au moins un domaine (sauf classe provisoire, voir US7.5) ; relation `USES_DOMAIN` ; l'ontologie de la classe est l'union des ontologies de ses domaines et de leurs descendants ; ajouter ou retirer un domaine recalcule l'ontologie de la classe et declenche le reclassement des documents concernes ; requete « classes utilisant le domaine D (sous-arbre compris) ».
@@ -86,3 +87,29 @@ Questions transverses : volumes ? langue des documents ? qui modifie la taxonomi
 - Statut : a preciser avec la definition des capacites des creators (US5.6).
 - Exemples : un creator propose « Joint torique » sous « Materiaux » ; tant que la demande n'est pas validee, le terme reste candidat dans son projet.
 - Questions : qui valide (admin, role de curateur, creators pairs) ?
+
+## US3.11 Ontologie structurelle et profil structurel de classe
+- Jira : IAF-92.
+- En tant que creator, je veux que l'organisation attendue d'une classe de documents soit decrite par une ontologie structurelle, distincte de son contenu.
+- Prerequis : US3.8 (squelette), IAF-11 (Fuseki).
+- Acceptance criteria : le vocabulaire structurel de base (`ontologies/structure/iaf-structure-base.ttl`) est valide par un parseur RDF (CI) puis charge dans un graphe nomme Fuseki versionne ; l'ontologie structurelle d'une classe specialise ce vocabulaire (roles de sections, imbrications attendues, elements obligatoires ou facultatifs) ; un profil structurel resume le squelette type de la classe et sert a la reconnaissance (US7.8) ; relations `HAS_STRUCTURAL_ONTOLOGY` et `HAS_STRUCTURE_PROFILE` ; modification versionnee, les classes pointent vers une version.
+- Contexte : ADR 0005. Les profils structurels sont propres a chaque classe (hypothese) ; le vocabulaire de base est commun.
+- Exemples : la classe « Fiche technique » exige un Titre, un Tableau au role « caracteristiques » et accepte une Section « Normes » ; un profil sans element obligatoire est signale.
+- Questions : profils partageables entre classes ? profondeur d'imbrication maximale ?
+
+## US3.12 Ontologie semantique par domaine
+- Jira : IAF-93.
+- En tant que creator, je veux que le contenu attendu d'un domaine soit decrit par une ontologie semantique (types d'entites, de relations, attributs).
+- Prerequis : US3.3, US3.6.
+- Acceptance criteria : une ontologie semantique est rattachee a un ou plusieurs domaines de la taxonomie (`HAS_ONTOLOGY`) ; elle ne contient aucun terme purement structurel (section, tableau : ils relevent de l'ontologie structurelle) ; controle a l'import ; les elements portent des labels alignes sur les termes du glossaire ; versionnee.
+- Contexte : separation structure et contenu, ADR 0005.
+- Exemples : le domaine « Materiaux » a les types Materiau, Norme, Fournisseur, la relation « conforme a » et l'attribut « resistance (MPa) » ; un type « Tableau » y est refuse.
+
+## US3.13 Conserver les metadonnees des documents
+- Jira : IAF-94.
+- En tant que creator, je veux que les metadonnees portees par un document soient conservees et exploitables.
+- Prerequis : US3.1, US3.8.
+- Acceptance criteria : champs normalises quand presents (titre, auteur, dernier modificateur, sujet, mots-cles, dates de creation et de modification, revision, application productrice, nom du gabarit, langue ; noms des mises en page pour PowerPoint) ; valeur brute et source conservees ; un champ absent reste vide, jamais invente ; metadonnees soumises aux memes droits d'acces que le document (exclusions viewer) ; auteur et dernier modificateur exclus des prompts LLM par defaut ; signal faible de reconnaissance (jamais decisif seul) ; suppression ou anonymisation avec le document ou selon la retention (US12.4).
+- Contexte : ADR 0005. Les noms de champs par format et leur accessibilite via l'outil d'analyse retenu sont a verifier. Les metadonnees sont non fiables : traitees comme donnees.
+- Exemples : un `.docx` avec titre et auteur : conserves ; un PDF sans propriete : aucune valeur ; un auteur renseigne ne fait pas reconnaitre une classe a lui seul.
+- Questions : quelles metadonnees le creator veut-il exploiter ? l'auteur peut-il apparaitre dans une reponse d'agent ?
