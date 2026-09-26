@@ -34,7 +34,8 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - Prerequis : US5.3.
 - Acceptance criteria : lecture seule partout (toute ecriture : 403) ; une ressource exclue est absente des listes, des recherches et du graph RAG, et son URL directe renvoie 404 ; teste par un jeu de cas croises viewer x creator x ressource.
 - Exemples : V exclu de X : la recherche graph RAG de V ne renvoie aucun passage des documents de X.
-- Questions : un viewer peut-il lancer un agent ? (hypothese : non).
+- Decision 2026-09-26 : un viewer peut utiliser les agents dans des sessions (voir [IAF-E10](EPIC-IAF-E10-sessions.md)), sans droit de modification de l'agent ni du projet. Les exclusions s'appliquent aussi en session. Un viewer ne peut toujours pas creer, modifier, arreter ou supprimer un agent.
+- Exemples complementaires : V (viewer) ouvre une session avec l'agent Y (non exclu) : autorise ; V tente de changer la consigne de Y : 403.
 
 ## US5.5 Arreter et effacer un projet (admin)
 - En tant qu'admin, j'arrete ou j'efface tout projet de tout creator.

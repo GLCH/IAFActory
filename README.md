@@ -1,6 +1,6 @@
 # IAFActory
 
-Fabrique d'agents IA simple : un graph RAG alimente les agents en documents, un site permet de creer et gerer des agents, qui tournent seuls ou en groupes. Beaucoup de graphes et d'ontologies (Neo4j pour le graphe de proprietes, Apache Jena Fuseki pour le RDF/SPARQL).
+Fabrique d'agents IA simple : un graph RAG alimente les agents en documents (classes documentaires reconnues ou creees automatiquement, ontologies organisees en glossaires metiers), un site permet de creer et gerer des agents specialises, qui tournent seuls ou en groupes ; les viewers les utilisent en sessions. Beaucoup de graphes et d'ontologies (Neo4j pour le graphe de proprietes, Apache Jena Fuseki pour le RDF/SPARQL).
 
 Etat : socle infra et pipelines (desactives). Le metier n'est pas commence. Suivi : projet Jira [IAF](https://gurvanleclech.atlassian.net/jira/core/projects/IAF/board), specification dans [docs/epics](docs/epics).
 
@@ -30,6 +30,9 @@ Les workflows GitHub Actions sont ecrits mais **desactives** (declenchement manu
 
 ## Documentation
 
-- [Architecture cible](docs/architecture.md)
+- [Conception v2 : classification, agents specialises, sessions, connecteurs](docs/design/conception.md)
+- [Architecture initiale](docs/architecture.md) (remplacee par la conception v2)
 - [ADR 0001 : choix des magasins de donnees](docs/adr/0001-magasins-de-donnees.md)
+- [ADR 0002 : Jena et Fuseki, glossaires, classes documentaires](docs/adr/0002-jena-fuseki-glossaires-classes.md)
+- [ADR 0003 : connecteurs securises](docs/adr/0003-connecteurs-securises.md)
 - [Epics (Definition of Ready)](docs/epics)

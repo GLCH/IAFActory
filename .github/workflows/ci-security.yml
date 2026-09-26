@@ -1,0 +1,54 @@
+# PIPELINE DESACTIVE : declenchement manuel uniquement (voir
+# docs/runbooks/activer-les-pipelines.md). Controles de securite transverses,
+# pensés pour les connecteurs (IAF-E9, ADR 0003).
+name: ci-security
+
+on:
+  workflow_dispatch:
+  # pull_request:
+  # schedule:
+  #   - cron: "0 5 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-review:
+    # Ne s'execute que sur une pull request : l'action compare deux etats de dependances.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+
+  trivy-fs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy (vulnerabilites, secrets et mauvaises configurations)
+        run: |
+          docker run --rm -v "$PWD:/src" aquasec/trivy:latest fs \
+            --scanners vuln,secret,misconfig --severity HIGH,CRITICAL \
+            --ignore-unfixed --exit-code 1 /src
+
+  codeql:
+    # Actif seulement quand du code applicatif existe (langages a declarer alors).
+    if: hashFiles('**/*.py', '**/*.ts', '**/*.js') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: python,javascript-typescript
+      - uses: github/codeql-action/analyze@v3
+
+  connector-intrusion:
+    # Squelette : cette suite (URL vers 127.0.0.1 et 169.254.169.254, redirection
+    # 302 vers un hote interne, fichier hostile, valeur sentinelle absente des
+    # journaux) sera branchee quand US9.3 et US9.2 existeront.
+    if: hashFiles('connectors/**') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "suite d'intrusion des connecteurs a brancher (IAF-E9)"

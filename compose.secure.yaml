@@ -1,0 +1,31 @@
+# Surcharge de durcissement : les magasins de donnees ne sont plus publies sur
+# l'hote et vivent sur un reseau interne sans sortie. Usage :
+#   docker compose -f compose.yaml -f compose.secure.yaml up -d
+# Les services applicatifs a venir (API, passerelle de connecteurs) rejoindront
+# le reseau `data` ; seul le reseau `edge` recevra un point d'entree public.
+# Necessite Docker Compose avec support de `!reset` (verifie par `docker compose config`).
+
+services:
+  postgres:
+    ports: !reset []
+    networks: [data]
+  neo4j:
+    ports: !reset []
+    networks: [data]
+  neo4j-init:
+    networks: [data]
+  fuseki:
+    ports: !reset []
+    networks: [data]
+  ollama:
+    ports: !reset []
+    networks: [data]
+
+networks:
+  # internal: true coupe toute sortie vers Internet : un service compromis sur
+  # ce reseau ne peut pas exfiltrer. Les plugins Neo4j (apoc, n10s) et l'archive
+  # Jena sont telecharges au build/premier demarrage : les executer d'abord avec
+  # compose.yaml seul, puis passer en mode durci.
+  data:
+    internal: true
+  edge: {}

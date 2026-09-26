@@ -4,6 +4,8 @@ Jira : IAF-4, stories IAF-25 a IAF-28 (US4.1 a US4.4). Statut : user stories red
 
 Objectif : un creator deploie des agents simples qui accomplissent une mission en s'appuyant sur le graph RAG, seuls ou en groupes.
 
+Mise a jour 2026-09-26 : chaque agent a une specialite (classes documentaires et glossaires), qui determine les informations qu'il utilise (US4.5, IAF-65). Les viewers utilisent les agents en session : voir [IAF-E10](EPIC-IAF-E10-sessions.md).
+
 Questions transverses : qu'est-ce qu'un agent (prompt + outils + ontologie + modele) ? fournisseur LLM (API Claude ou local) ? comment des agents d'un groupe communiquent ? isolation d'execution (un conteneur par agent ?) ? budget de jetons ?
 
 ## US4.1 Definir un agent
@@ -33,3 +35,11 @@ Questions transverses : qu'est-ce qu'un agent (prompt + outils + ontologie + mod
 - Acceptance criteria : outils exposes : recherche graph RAG, requete SPARQL en lecture, lecture d'ontologie ; ecriture interdite par defaut ; chaque appel est rattache a l'agent et au projet et journalise ; un appel hors projet est refuse.
 - Contexte : version du protocole MCP et du SDK a verifier dans la doc avant choix.
 - Exemples : un agent du projet A demande un noeud du projet B : refus journalise.
+
+## US4.5 Specialite d'agent
+- En tant que creator, je donne a chaque agent une specialite pour qu'il n'utilise que les informations de son domaine.
+- Prerequis : US4.1, IAF-E7 (classes documentaires), US3.6.
+- Acceptance criteria : une specialite est un ensemble non vide de classes documentaires et de glossaires du projet ; un agent sans specialite est refuse a la creation ; la recuperation est filtree par `classes du document ∩ specialite de l'agent` ; un document multi-classes est utilisable des qu'une de ses classes est dans la specialite, et seules les parties rattachees a cette classe sont utilisees ; changer la specialite cree une nouvelle version de l'agent.
+- Contexte : conception.md section 5. Les exclusions du viewer s'ajoutent a ce filtre en session (IAF-E10 US10.3).
+- Exemples : l'agent « Analyste contrats » (specialite {Contrat}) ne remonte aucun passage d'une facture ; une annexe classee {Contrat, Fiche technique} lui fournit ses passages « Contrat » uniquement.
+- Questions : une specialite peut-elle etre exprimee par glossaire seul ?

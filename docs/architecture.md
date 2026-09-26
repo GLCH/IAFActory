@@ -1,4 +1,6 @@
-# Architecture cible
+# Architecture cible (version initiale)
+
+Remplacee par [conception.md](design/conception.md) (2026-09-26). Conservee pour l'historique.
 
 Ce qui existe : les magasins de donnees (compose). Le reste est la cible, a raffiner par epic.
 

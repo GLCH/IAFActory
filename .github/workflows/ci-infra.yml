@@ -24,6 +24,7 @@ jobs:
           cp .env.example .env
           sed -i -E 's/^(POSTGRES_PASSWORD|NEO4J_PASSWORD|FUSEKI_ADMIN_PASSWORD)=$/\1=ci-placeholder/' .env
           docker compose config -q
+          docker compose -f compose.yaml -f compose.secure.yaml config -q
       - name: Hadolint (Dockerfile Fuseki)
         uses: hadolint/hadolint-action@v3.1.0
         with:

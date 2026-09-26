@@ -31,7 +31,7 @@ Statut : taches 1 a 5 ecrites, 6 a faire (rien n'a encore ete demarre : daemon D
 - Description : Postgres 17, Neo4j 5.26 Community avec apoc et n10s, job `neo4j-init` (contrainte d'URI n10s).
 - Prerequis : T2.
 - Acceptance criteria : `up -d --wait` sain ; ports lies a 127.0.0.1 ; volumes nommes ; `RETURN n10s.version()` repond ; rejouer `neo4j-init` ne produit aucune erreur.
-- Contexte : `NEO4J_PLUGINS` et le tag 5.26-community verifies dans la doc et sur Docker Hub. Le telechargement des plugins se fait au premier demarrage (reseau requis).
+- Contexte : ajouts 2026-09-26 : `infra/neo4j/init/02-model.cypher` (contraintes du modele de graphe) et `compose.secure.yaml` (magasins sans port publie, reseau `data` interne ; `docker compose config` valide, jamais demarre). `NEO4J_PLUGINS` et le tag 5.26-community verifies dans la doc et sur Docker Hub. Le telechargement des plugins se fait au premier demarrage (reseau requis).
 - Exemples : mot de passe Neo4j absent de `.env` : `docker compose config` echoue avec "voir .env.example".
 - Questions ouvertes : dimension et modele d'embedding pour l'index vectoriel (IAF-E3).
 
