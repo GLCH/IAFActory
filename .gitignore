@@ -1,0 +1,11 @@
+.env
+*.env.local
+node_modules/
+__pycache__/
+.venv/
+dist/
+build/
+*.log
+.idea/
+.vscode/
+.claude/settings.local.json

@@ -1,0 +1,106 @@
+name: iafactory
+
+# Magasins de donnees de l'IA Factory. Tous les ports sont lies a 127.0.0.1 :
+# rien n'est expose hors de la machine. Les secrets viennent de .env
+# (genere par scripts/init-env.ps1), jamais de valeurs par defaut.
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?voir .env.example}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?voir .env.example}
+      POSTGRES_DB: ${POSTGRES_DB:?voir .env.example}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  neo4j:
+    image: neo4j:5.26-community
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?voir .env.example}
+      # n10s (neosemantics) importe/exporte du RDF et des ontologies dans Neo4j.
+      NEO4J_PLUGINS: '["apoc","n10s"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*,n10s.*"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*,n10s.*"
+      NEO4J_server_memory_heap_initial__size: ${NEO4J_HEAP:-512m}
+      NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP:-512m}
+      # Variable hors espace NEO4J_ (sinon lue comme un reglage) pour le healthcheck.
+      IAF_NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+    volumes:
+      - neo4j_data:/data
+      - neo4j_plugins:/plugins
+    ports:
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -a bolt://localhost:7687 -u neo4j -p \"$$IAF_NEO4J_PASSWORD\" 'RETURN 1' >/dev/null"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 40s
+
+  # Job unique : applique les contraintes Cypher idempotentes une fois Neo4j pret.
+  neo4j-init:
+    image: neo4j:5.26-community
+    restart: "no"
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    environment:
+      IAF_NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+    volumes:
+      - ./infra/neo4j/init:/init:ro
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        for f in /init/*.cypher; do
+          echo "apply $$f"
+          cypher-shell -a bolt://neo4j:7687 -u neo4j -p "$$IAF_NEO4J_PASSWORD" -f "$$f"
+        done
+
+  fuseki:
+    build:
+      context: ./infra/fuseki
+      args:
+        JENA_VERSION: ${JENA_VERSION:-6.2.0}
+    restart: unless-stopped
+    environment:
+      FUSEKI_ADMIN_PASSWORD: ${FUSEKI_ADMIN_PASSWORD:?voir .env.example}
+      JAVA_OPTIONS: ${FUSEKI_JAVA_OPTIONS:--Xmx1g}
+    volumes:
+      - fuseki_data:/fuseki/databases
+    ports:
+      - "127.0.0.1:${FUSEKI_PORT:-3030}:3030"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3030/$$/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  # LLM et embeddings locaux, optionnel : docker compose --profile llm up -d
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["llm"]
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+
+volumes:
+  pgdata:
+  neo4j_data:
+  neo4j_plugins:
+  fuseki_data:
+  ollama_data:

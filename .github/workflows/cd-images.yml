@@ -1,0 +1,34 @@
+# PIPELINE DESACTIVE : publie les images de l'IA Factory sur GHCR.
+# Le deploiement (cible, environnement) est hors perimetre tant que la partie
+# metier n'existe pas. Pour l'instant seule l'image Fuseki existe.
+name: cd-images
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de l'image (ex: v0.1.0)"
+        required: true
+  # push:
+  #   tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  fuseki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: infra/fuseki
+          push: true
+          tags: ghcr.io/glch/iaf-fuseki:${{ inputs.tag || github.ref_name }}

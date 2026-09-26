@@ -1,0 +1,84 @@
+# PIPELINE DESACTIVE : declenchement manuel uniquement.
+# Pour l'activer, remplacer le bloc `on:` par le bloc commente ci-dessous
+# (voir docs/runbooks/activer-les-pipelines.md).
+name: ci-infra
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  #   paths: ["infra/**", "compose.yaml", ".github/workflows/ci-infra.yml"]
+  # pull_request:
+  #   paths: ["infra/**", "compose.yaml", ".github/workflows/ci-infra.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Valider compose
+        run: |
+          cp .env.example .env
+          sed -i -E 's/^(POSTGRES_PASSWORD|NEO4J_PASSWORD|FUSEKI_ADMIN_PASSWORD)=$/\1=ci-placeholder/' .env
+          docker compose config -q
+      - name: Hadolint (Dockerfile Fuseki)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infra/fuseki/Dockerfile
+      - name: Shellcheck
+        run: shellcheck infra/fuseki/entrypoint.sh
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  smoke:
+    needs: [lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generer .env de CI
+        run: |
+          cp .env.example .env
+          for v in POSTGRES_PASSWORD NEO4J_PASSWORD FUSEKI_ADMIN_PASSWORD; do
+            sed -i -E "s/^$v=\$/$v=$(openssl rand -hex 16)/" .env
+          done
+      - name: Demarrer les magasins de donnees
+        run: docker compose up -d --build --wait postgres neo4j fuseki
+      - name: Appliquer l'init Neo4j
+        run: docker compose run --rm neo4j-init
+      - name: Verifier n10s et Fuseki
+        run: |
+          set -a; . ./.env; set +a
+          docker compose exec -T neo4j \
+            cypher-shell -u neo4j -p "$NEO4J_PASSWORD" "RETURN n10s.version() AS n10s"
+          curl -fsS "http://localhost:${FUSEKI_PORT}/iaf/sparql" \
+            --data-urlencode 'query=ASK {}' -H 'Accept: application/sparql-results+json'
+      - name: Logs en cas d'echec
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Nettoyer
+        if: always()
+        run: docker compose down -v
+
+  scan-images:
+    needs: [smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construire l'image Fuseki
+        run: docker build -t iaf-fuseki:ci infra/fuseki
+      - name: Trivy (HIGH et CRITICAL corrigeables)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest \
+            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 iaf-fuseki:ci

@@ -1,2 +1,35 @@
 # IAFActory
-Set of agent + mcp + db + graph db (neo4j + apache jena) all in docker pod. Security is based on 3 roles, the viewer who can view all but restricted to others. Creator who will use the site to create and manage new agents.
+
+Fabrique d'agents IA simple : un graph RAG alimente les agents en documents, un site permet de creer et gerer des agents, qui tournent seuls ou en groupes. Beaucoup de graphes et d'ontologies (Neo4j pour le graphe de proprietes, Apache Jena Fuseki pour le RDF/SPARQL).
+
+Etat : socle infra et pipelines (desactives). Le metier n'est pas commence. Suivi : projet Jira [IAF](https://gurvanleclech.atlassian.net/jira/core/projects/IAF/board), specification dans [docs/epics](docs/epics).
+
+## Roles
+
+| Role | Droits |
+|---|---|
+| viewer | Voit tout, sauf ce que le creator du projet lui interdit (uniquement sur les projets de ce creator). |
+| creator | Cree un agent (ce qu'il doit realiser) et definit comment le valider (tests). Gere ses projets et leurs restrictions. |
+| admin | Cree les creators. Peut arreter et effacer tout projet de tout creator. |
+
+## Demarrage local (Windows)
+
+```powershell
+scripts/bootstrap.ps1            # simulation ; -Apply pour installer ce qui manque (winget)
+scripts/init-env.ps1             # genere .env avec des mots de passe aleatoires
+scripts/doctor.ps1               # verifie les prerequis, dont le daemon Docker
+docker compose up -d --build
+docker compose run --rm neo4j-init
+```
+
+Services (127.0.0.1 uniquement) : Postgres 5432, Neo4j 7474 (navigateur) et 7687 (bolt), Fuseki 3030 (dataset `iaf`). LLM local optionnel : `--profile llm`.
+
+## Pipelines
+
+Les workflows GitHub Actions sont ecrits mais **desactives** (declenchement manuel seulement). Voir [docs/runbooks/activer-les-pipelines.md](docs/runbooks/activer-les-pipelines.md).
+
+## Documentation
+
+- [Architecture cible](docs/architecture.md)
+- [ADR 0001 : choix des magasins de donnees](docs/adr/0001-magasins-de-donnees.md)
+- [Epics (Definition of Ready)](docs/epics)

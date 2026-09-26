@@ -1,0 +1,53 @@
+# PIPELINE DESACTIVE et volontairement generique : le code applicatif (API, site,
+# runtime d'agents) n'existe pas encore. Les jobs se sautent tant que leur
+# manifeste est absent ; a raffiner quand la pile metier est choisie (EPIC IAF-E2).
+name: ci-app
+
+on:
+  workflow_dispatch:
+  # pull_request:
+  # push:
+  #   branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      node: ${{ steps.d.outputs.node }}
+      python: ${{ steps.d.outputs.python }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: d
+        run: |
+          echo "node=$([ -f package.json ] || [ -f web/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "python=$([ -f pyproject.toml ] || [ -f api/pyproject.toml ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  node:
+    needs: detect
+    if: needs.detect.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm test --if-present
+      - run: npm run build --if-present
+
+  python:
+    needs: detect
+    if: needs.detect.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest
