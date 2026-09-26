@@ -43,3 +43,11 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - Acceptance criteria : l'arret stoppe agents et groupes du projet ; l'effacement demande une confirmation explicite et supprime donnees Postgres, graphe Neo4j, graphe nomme Fuseki et fichiers ; action journalisee avec l'admin auteur ; un creator ne peut pas effacer le projet d'un autre.
 - Exemples : apres effacement du projet P, plus aucun noeud Neo4j ni triplet Fuseki associe a P (verifie par requete).
 - Questions : suppression definitive ou corbeille avec delai ?
+
+## US5.6 Definir les capacites des creators
+- Jira : IAF-82.
+- En tant que responsable produit, je definis precisement ce que peuvent faire les creators, avant de coder les droits.
+- Prerequis : aucun (atelier avec l'utilisateur) ; alimente US3.10, US11.3, IAF-E9.
+- Acceptance criteria : une matrice creator (action x ressource) validee par l'utilisateur, couvrant au minimum : glossaire commun (proposer, modifier, promouvoir), classes documentaires (creer, fusionner, valider, rejeter), agents (creer, modifier, arreter), choix du modele et du budget LLM de ses agents, connecteurs (types autorises, sources), exclusions viewer, tests de validation, consultation de l'activite ; chaque ligne indique creator, admin, ou les deux ; les cas limites sont listes ; la matrice remplace la section 9 de la conception.
+- Statut : a faire apres cette etape (demande de l'utilisateur : « on va donc apres definir ce que peuvent faire les creators »).
+- Exemples : « Un creator peut-il choisir un modele plus cher pour son agent, dans la limite de son budget ? » a trancher ligne par ligne.

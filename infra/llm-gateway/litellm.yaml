@@ -1,0 +1,62 @@
+# Configuration de la passerelle LLM (LiteLLM proxy).
+#
+# Les services demandent un ALIAS D'USAGE (model_name) ; l'admin peut le remapper
+# vers un autre modele sans toucher au code. Les modeles ci-dessous sont un
+# point de depart : hypothese de travail (fournisseur Anthropic par API), a
+# confirmer (question ouverte 2 de la conception) puis a mesurer par usage.
+# Les identifiants de modeles viennent de la liste de modeles en vigueur au
+# 2026-09-26 ; les prix ne sont pas renseignes ici (voir router.yaml).
+#
+# Cles virtuelles, equipes, budgets : crees a l'execution par l'API IAFActory
+# (stockes dans la base `litellm`), pas dans ce fichier. La cle maitre et la cle de
+# sel viennent des variables LITELLM_MASTER_KEY et LITELLM_SALT_KEY.
+
+model_list:
+  # Modeles concrets (candidats du routeur, voir router.yaml)
+  - model_name: claude-haiku
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: claude-sonnet
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: claude-opus
+    litellm_params:
+      model: anthropic/claude-opus-5-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # Alias d'usage
+  - model_name: iaf-extraction   # extraction ouverte et guidee : gros volume, texte
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: iaf-agent        # agents en session
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: iaf-cadrage      # assistant de cadrage du besoin du creator
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: iaf-judge        # arbitrage d'appariement, jugement des tests
+    litellm_params:
+      model: anthropic/claude-opus-5-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+  # Routage automatique par jev-router. La cible ci-dessous n'est qu'un modele
+  # valide de repli si le hook ne s'execute pas.
+  - model_name: iaf-auto
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # Embeddings : a declarer une fois le modele choisi (IAF-1 T7, US3.2). Exemple
+  # local via Ollama (profil `llm`), avec le nom de modele a renseigner :
+  # - model_name: iaf-embedding
+  #   litellm_params:
+  #     model: ollama/<modele-d-embedding>
+  #     api_base: http://ollama:11434
+
+litellm_settings:
+  callbacks: jev_router.hook.proxy_handler_instance
+  drop_params: true

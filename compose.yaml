@@ -12,6 +12,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?voir .env.example}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?voir .env.example}
       POSTGRES_DB: ${POSTGRES_DB:?voir .env.example}
+      # Lu par infra/postgres/init/02-litellm.sh (role et base de la passerelle LLM).
+      LITELLM_DB_PASSWORD: ${LITELLM_DB_PASSWORD:?voir .env.example}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -87,6 +89,33 @@ services:
       timeout: 5s
       retries: 20
       start_period: 20s
+
+  # Passerelle LLM : tout appel a un modele passe par ici (ADR 0004).
+  # Admin et API : http://127.0.0.1:4000 (UI sur /ui, protegee par la cle maitre).
+  llm-gateway:
+    build:
+      context: ./infra/llm-gateway
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["--config", "/etc/iaf/litellm.yaml", "--port", "4000"]
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?voir .env.example}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:?voir .env.example}
+      DATABASE_URL: postgresql://litellm:${LITELLM_DB_PASSWORD}@postgres:5432/litellm
+      # Vide = les modeles Anthropic echouent a l'appel mais la passerelle demarre.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Jev (TypeSafe) reste desactive : ne PAS definir TYPESAFE_API_KEY sans avoir
+      # lu docs/adr/0004-passerelle-llm.md (un resume des requetes part chez un tiers).
+    ports:
+      - "127.0.0.1:${LLM_GATEWAY_PORT:-4000}:4000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4000/health/readiness', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
 
   # LLM et embeddings locaux, optionnel : docker compose --profile llm up -d
   ollama:

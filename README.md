@@ -22,7 +22,7 @@ docker compose up -d --build
 docker compose run --rm neo4j-init
 ```
 
-Services (127.0.0.1 uniquement) : Postgres 5432, Neo4j 7474 (navigateur) et 7687 (bolt), Fuseki 3030 (dataset `iaf`). LLM local optionnel : `--profile llm`.
+Services (127.0.0.1 uniquement) : Postgres 5432, Neo4j 7474 (navigateur) et 7687 (bolt), Fuseki 3030 (dataset `iaf`), passerelle LLM 4000 (LiteLLM + jev-router, Jev desactive). LLM local optionnel : `--profile llm`. Renseigner `ANTHROPIC_API_KEY` dans `.env` pour utiliser les modeles par defaut. Mode durci : `docker compose -f compose.yaml -f compose.secure.yaml up -d`.
 
 ## Pipelines
 
@@ -35,4 +35,5 @@ Les workflows GitHub Actions sont ecrits mais **desactives** (declenchement manu
 - [ADR 0001 : choix des magasins de donnees](docs/adr/0001-magasins-de-donnees.md)
 - [ADR 0002 : Jena et Fuseki, glossaires, classes documentaires](docs/adr/0002-jena-fuseki-glossaires-classes.md)
 - [ADR 0003 : connecteurs securises](docs/adr/0003-connecteurs-securises.md)
+- [ADR 0004 : passerelle LLM et routage](docs/adr/0004-passerelle-llm.md)
 - [Epics (Definition of Ready)](docs/epics)

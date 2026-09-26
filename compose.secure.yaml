@@ -20,6 +20,11 @@ services:
   ollama:
     ports: !reset []
     networks: [data]
+  # La passerelle est le seul service a joindre a la fois la base (data) et les
+  # fournisseurs de modeles (edge, avec sortie). A terme : proxy sortant a liste
+  # blanche d'hotes fournisseurs (ADR 0004).
+  llm-gateway:
+    networks: [data, edge]
 
 networks:
   # internal: true coupe toute sortie vers Internet : un service compromis sur

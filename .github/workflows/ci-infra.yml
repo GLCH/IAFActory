@@ -22,13 +22,17 @@ jobs:
       - name: Valider compose
         run: |
           cp .env.example .env
-          sed -i -E 's/^(POSTGRES_PASSWORD|NEO4J_PASSWORD|FUSEKI_ADMIN_PASSWORD)=$/\1=ci-placeholder/' .env
+          sed -i -E 's/^(POSTGRES_PASSWORD|NEO4J_PASSWORD|FUSEKI_ADMIN_PASSWORD|LITELLM_DB_PASSWORD|LITELLM_MASTER_KEY|LITELLM_SALT_KEY)=$/\1=ci-placeholder/' .env
           docker compose config -q
           docker compose -f compose.yaml -f compose.secure.yaml config -q
       - name: Hadolint (Dockerfile Fuseki)
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: infra/fuseki/Dockerfile
+      - name: Hadolint (Dockerfile passerelle LLM)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infra/llm-gateway/Dockerfile
       - name: Shellcheck
         run: shellcheck infra/fuseki/entrypoint.sh
 
@@ -51,11 +55,11 @@ jobs:
       - name: Generer .env de CI
         run: |
           cp .env.example .env
-          for v in POSTGRES_PASSWORD NEO4J_PASSWORD FUSEKI_ADMIN_PASSWORD; do
+          for v in POSTGRES_PASSWORD NEO4J_PASSWORD FUSEKI_ADMIN_PASSWORD LITELLM_DB_PASSWORD LITELLM_MASTER_KEY LITELLM_SALT_KEY; do
             sed -i -E "s/^$v=\$/$v=$(openssl rand -hex 16)/" .env
           done
       - name: Demarrer les magasins de donnees
-        run: docker compose up -d --build --wait postgres neo4j fuseki
+        run: docker compose up -d --build --wait postgres neo4j fuseki llm-gateway
       - name: Appliquer l'init Neo4j
         run: docker compose run --rm neo4j-init
       - name: Verifier n10s et Fuseki

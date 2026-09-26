@@ -17,7 +17,7 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 ## US7.2 Pré-filtrer les classes candidates
 - En tant que système, je veux retrouver rapidement les k classes probables d'un document sans comparer avec toutes.
 - Prérequis : US7.1, au moins une classe existante.
-- Acceptance criteria : deux voies combinées : (a) MinHash + LSH sur l'ensemble des termes de `Sd`, (b) similarité d'embeddings vers les centroïdes de classes (index vectoriel Neo4j) ; rappel@k mesuré sur le jeu annoté (la bonne classe est dans les k) ; latence par document mesurée et reportée.
+- Acceptance criteria : trois voies combinées : (a) MinHash + LSH sur l'ensemble des termes de `Sd`, (b) similarité d'embeddings vers les centroïdes de classes (index vectoriel Neo4j), (c) profil de domaines de la taxonomie commune (termes de `Sd` projetés sur les domaines, crédit décroissant aux domaines plus larges) comparé aux domaines de chaque classe ; rappel@k mesuré sur le jeu annoté (la bonne classe est dans les k) ; latence par document mesurée et reportée.
 - Contexte : MinHash/LSH approxime le Jaccard sans toutes les paires (documentation datasketch). Le point faible connu est la forme de surface.
 - Exemples : un document dont 80 pour cent des termes sont ceux de la classe « contrat » place « contrat » dans le top-3.
 - Questions : valeur de k, taille des signatures.
@@ -41,7 +41,7 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 ## US7.5 Créer automatiquement la classe d'un document non reconnu
 - En tant que système, je veux ingérer un document inconnu et créer sa classe pour l'utiliser tout de suite.
 - Prérequis : US7.4, IAF-22.
-- Acceptance criteria : schéma normalisé (fusion de synonymes) publié comme ontologie induite dans un graphe nommé Fuseki ; classe `provisoire` avec glossaire candidat ; avant création, comparaison aux classes provisoires existantes et rattachement si proche (anti-prolifération) ; le document est utilisable par les agents dès la création selon leur spécialité.
+- Acceptance criteria : schéma normalisé (fusion de synonymes) publié comme ontologie induite dans un graphe nommé Fuseki ; classe `provisoire` ; termes non reconnus enregistrés comme termes candidats propres au projet (le glossaire commun n'est jamais modifié automatiquement) ; avant création, comparaison aux classes provisoires existantes et rattachement si proche (anti-prolifération) ; le document est utilisable par les agents dès la création selon leur spécialité.
 - Contexte : risque principal : explosion de classes quasi identiques. Mesurer le nombre de classes créées sur un lot de documents homogènes.
 - Exemples : 20 factures d'un même fournisseur donnent 1 classe, pas 20.
 - Questions : nommage automatique de la classe.

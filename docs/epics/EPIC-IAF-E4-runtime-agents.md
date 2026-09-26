@@ -11,7 +11,7 @@ Questions transverses : qu'est-ce qu'un agent (prompt + outils + ontologie + mod
 ## US4.1 Definir un agent
 - En tant que creator, je definis un agent : mission, consignes, ontologie, outils autorises, modele.
 - Prerequis : IAF-E5 US5.2 ; US3.3 pour l'ontologie.
-- Acceptance criteria : agent enregistre en base avec version ; toute modification cree une nouvelle version ; l'agent ne peut referencer que des ressources de son projet ; une definition invalide est refusee avec le champ en cause.
+- Acceptance criteria : le modele est un alias d'usage de la passerelle LLM (IAF-E11), jamais un modele ni une cle en dur ; agent enregistre en base avec version ; toute modification cree une nouvelle version ; l'agent ne peut referencer que des ressources de son projet ; une definition invalide est refusee avec le champ en cause.
 - Exemples : agent "Analyste contrats" (mission, ontologie Contrat, outil graph-query) enregistre en v1 ; changer la consigne cree v2.
 - Questions : format de definition (formulaire, YAML) ?
 

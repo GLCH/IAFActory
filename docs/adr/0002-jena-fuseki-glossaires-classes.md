@@ -9,7 +9,7 @@ Apache Jena est le projet : une bibliothèque Java pour RDF, SPARQL, les magasin
 ## Décision
 
 1. Fuseki reste le service RDF : glossaires (SKOS), ontologies (OWL), schémas induits, en graphes nommés.
-2. Une ontologie est rattachée à un glossaire métier ; une classe documentaire est rattachée à une ontologie.
+2. **Mise à jour 2026-09-26** : le glossaire métier est **commun à tous les projets** et structuré en **taxonomie de domaines** (SKOS `broader`/`narrower`). Une ontologie est rattachée à des domaines ; une classe documentaire utilise **un ou plusieurs domaines** et son ontologie est l'union de celles de ses domaines (descendants compris). Les termes induits d'un document non reconnu restent des termes candidats propres au projet ; leur promotion vers le glossaire commun est gouvernée (US3.10).
 3. Un document peut appartenir à plusieurs classes documentaires (relation `IN_CLASS` avec score).
 4. Une classe documentaire est de statut `provisoire`, `validee` ou `rejetee`.
 5. Source de verite : Fuseki pour glossaires et ontologies ; Neo4j reçoit une copie de travail importée par n10s. La synchro va toujours de Fuseki vers Neo4j.
@@ -27,5 +27,5 @@ Apache Jena est le projet : une bibliothèque Java pour RDF, SPARQL, les magasin
 
 ## Questions ouvertes
 
-- Glossaires et ontologies partagés entre projets ou propres au projet ?
+- Tranché : glossaire commun. Reste à définir : qui modifie la taxonomie commune, et qui promeut un terme candidat (US3.10, US5.6) ; classes et documents restent-ils propres au projet (hypothèse actuelle : oui) ?
 - Le besoin de raisonnement OWL ou de validation SHACL est-il réel ? (Sinon, la valeur de Fuseki se réduit à SPARQL et au format d'échange.)

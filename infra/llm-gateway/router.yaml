@@ -1,0 +1,42 @@
+# Politique du routeur jev-router. `name` doit correspondre a un model_name de
+# litellm.yaml.
+#
+# Jev (TypeSafe) est DESACTIVE : il ne s'active que si TYPESAFE_API_KEY est
+# definie, ce que compose.yaml ne fait pas. Dans ce cas, un resume de la requete
+# (jusqu'a 8 messages de 2000 caracteres) est envoye a api.typesafe.ai, un tiers.
+# Ne l'activer que pour des charges sans document confidentiel (ADR 0004).
+#
+# Sans Jev, le routeur choisit le candidat eligible le MOINS CHER. Les prix n'etant
+# pas renseignes (null), c'est le PREMIER de la liste : les candidats sont donc
+# classes du moins cher au plus cher. A remplacer par les prix reels verifies
+# avant tout usage de l'alias iaf-auto.
+
+objective: quality_per_dollar
+aliases: [iaf-auto]
+fallback: claude-sonnet
+
+jev:
+  model: jev-latest
+  timeout_ms: 5000
+
+candidates:
+  - name: claude-haiku
+    description: Modele rapide et economique. Taches routinieres, extraction, reponses courtes sur texte.
+    vision: false
+    tools: true
+    price_in: null
+    price_out: null
+
+  - name: claude-sonnet
+    description: Modele polyvalent. Bon defaut quand la qualite compte, raisonnement sur documents techniques.
+    vision: false
+    tools: true
+    price_in: null
+    price_out: null
+
+  - name: claude-opus
+    description: Modele le plus capable. Reserve aux taches difficiles, a plusieurs etapes, ou l'erreur coute cher.
+    vision: false
+    tools: true
+    price_in: null
+    price_out: null

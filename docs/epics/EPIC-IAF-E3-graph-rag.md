@@ -6,15 +6,18 @@ Objectif : un creator alimente son projet en documents ; le service construit un
 
 Mise a jour 2026-09-26 : un document peut appartenir a plusieurs classes documentaires, chacune avec son ontologie ; les ontologies sont organisees par glossaires metiers ; la reconnaissance de classe est portee par [IAF-E7](EPIC-IAF-E7-classification-documents.md). Decision Fuseki (serveur du projet Jena) et source de verite : [ADR 0002](../adr/0002-jena-fuseki-glossaires-classes.md). Nouvelles stories US3.6 (glossaires, IAF-63) et US3.7 (document multi-classes, IAF-64).
 
-Questions transverses : formats de documents ? glossaires et ontologies partages entre projets ou propres au projet ? volumes ? langue des documents ?
+Decisions 2026-09-26 : le glossaire est commun a tous les projets et structure en taxonomie de domaines ; une classe documentaire utilise un ou plusieurs domaines ; documents PDF, PowerPoint et Word, clairs et techniques, sans manuscrit (donc sans OCR). Nouvelles stories : US3.8 (analyse structurelle, IAF-79), US3.9 (classe et domaines, IAF-80), US3.10 (gouvernance du glossaire commun, IAF-81). US3.6 (IAF-63) reformulee.
+
+Questions transverses : volumes ? langue des documents ? qui modifie la taxonomie commune ?
 
 ## US3.1 Deposer un document
 - En tant que creator, je depose un document dans mon projet pour qu'il alimente le graph RAG.
 - Prerequis : IAF-1 T4 ; identite creator (IAF-E5 US5.2).
-- Acceptance criteria : formats acceptes listes et refus explicite des autres ; taille max configurable ; document conserve sur volume avec empreinte sha256 ; un meme contenu redepose dans le meme projet n'est pas duplique ; statut visible (recu, ingere, en erreur).
+- Acceptance criteria : formats acceptes : PDF, PowerPoint (`.pptx`) et Word (`.docx`) uniquement, refus explicite des autres (dont `.doc` et `.ppt` anciens : conversion demandee) ; un PDF sans couche de texte (scan) est detecte et refuse avec un message clair, aucun OCR ; taille max configurable ; document conserve sur volume avec empreinte sha256 ; un meme contenu redepose dans le meme projet n'est pas duplique ; statut visible (recu, ingere, en erreur).
 - Contexte : pas de stockage objet (ADR 0001) : abstraction de stockage a prevoir.
 - Exemples : 1) un PDF de 2 Mo est recu, statut "recu". 2) le meme PDF redepose : message "deja present", aucun doublon.
-- Questions : formats reels (PDF, docx, html, md) ? OCR ?
+- Exemples complementaires : un `.pptx` de 30 diapositives est accepte ; un scan PDF sans texte est refuse (document scanne : texte non extractible) ; un `.doc` est refuse (convertir en .docx).
+- Questions : taille maximale realiste des fichiers ?
 
 ## US3.2 Ingerer et decouper en chunks
 - En tant que creator, je veux que mon document soit decoupe et vectorise pour etre retrouve par similarite.
@@ -47,16 +50,39 @@ Questions transverses : formats de documents ? glossaires et ontologies partages
 - Exemples : une question sur un contrat renvoie le chunk et l'entite Organisation reliee, avec la page source.
 - Questions : classement, seuils, nombre de sauts par defaut.
 
-## US3.6 Organiser les ontologies par glossaires metiers
-- En tant que creator, je regroupe mes ontologies sous des glossaires metiers (contrats, finance, technique...) pour les retrouver et les faire evoluer par domaine.
+## US3.6 Glossaire commun structure en taxonomie de domaines
+- En tant que creator, je m'appuie sur un glossaire metier commun a tous les projets, organise en taxonomie de domaines, plutot que d'en refaire un par projet.
 - Prerequis : IAF-11 (Fuseki), US3.3.
-- Acceptance criteria : un glossaire est un ensemble de termes SKOS (label, synonymes, definition) stocke dans un graphe nomme Fuseki ; une ontologie est rattachee a un glossaire ; les termes pointent vers des elements d'ontologie ; import CSV ou Turtle des termes ; un terme sans definition est signale ; chaque modification cree une version.
-- Contexte : les synonymes du glossaire alimentent l'appariement lexical de IAF-E7 US7.3. Perimetre (partage entre projets ou par projet) a trancher.
-- Exemples : glossaire « Contrats » avec le terme « Echeance » (synonymes : « date de fin », « terme ») relie a la propriete `dateFin` de l'ontologie Contrat.
-- Questions : format d'import du creator ? glossaires existants a reprendre ?
+- Acceptance criteria : le glossaire est unique et commun (aucun glossaire par projet) ; les domaines forment un arbre (SKOS `broader`/`narrower`) sans cycle, refuse a l'import sinon ; chaque terme (label, synonymes, definition) est rattache a au moins un domaine ; un domaine porte des elements d'ontologie ; import CSV ou Turtle ; terme sans definition signale ; chaque modification cree une version, les classes pointent vers une version ; lecture ouverte a tous les roles.
+- Contexte : les synonymes du glossaire alimentent l'appariement lexical (US7.3) ; la hierarchie sert au pre-filtrage par profil de domaines (conception 4). Ecriture : voir US3.10.
+- Exemples : domaine « Contrats » avec le sous-domaine « Contrats > Resiliation » ; terme « Echeance » (synonymes « date de fin », « terme ») dans « Contrats » et relie a `dateFin`.
+- Questions : glossaire ou taxonomies existants a reprendre (quel format) ? profondeur maximale de l'arbre ?
 
 ## US3.7 Rattacher un document a plusieurs classes documentaires
 - En tant que creator, je veux qu'un document appartienne a une ou plusieurs classes, chacune avec son ontologie.
 - Prerequis : US3.2, US3.3 ; affectations produites par IAF-E7 US7.4.
 - Acceptance criteria : relation `IN_CLASS` document vers classe avec score, couverture, methode, version des seuils ; un document peut avoir 0 (avant classification), 1 ou plusieurs classes ; requete « documents de la classe C » et « classes du document D » ; changer une affectation est journalise et recalcule l'extraction guidee (US3.4).
 - Exemples : une annexe technique de contrat est dans « Contrat » (0.55) et « Fiche technique » (0.40) ; retirer « Fiche technique » retire les entites qui en dependent.
+
+## US3.8 Analyse structurelle des documents PDF, PowerPoint, Word
+- En tant que systeme, je transforme un document technique en contenu structure (titres, paragraphes, tableaux, diapositives) pour un decoupage fidele.
+- Prerequis : US3.1.
+- Acceptance criteria : titres, tableaux et ordre de lecture conserves pour les 3 formats ; decoupage en chunks selon la structure (section, diapositive, tableau), pas seulement par taille ; chaque chunk garde sa provenance (page ou diapositive, section) ; l'analyse tourne dans un conteneur isole sans acces reseau ; un fichier qui echoue a l'analyse passe en statut « en erreur » avec la cause ; qualite mesuree sur un jeu de documents reels du creator (tableaux correctement restitues, ordre de lecture).
+- Contexte : outil candidat Docling (open source, PDF, DOCX et PPTX, OCR optionnel et desactivable, d'apres sa documentation) ; licence, empreinte et qualite sur vos documents a verifier avant adoption. Les documents sont non fiables : analyse isolee.
+- Exemples : un tableau de specifications de 12 lignes est restitue en 12 lignes rattachees a leur section ; une diapositive avec titre et 3 puces donne un chunk avec son numero de diapositive.
+- Questions : documents avec schemas ou images techniques (legendes seulement, ou description par modele a vision) ?
+
+## US3.9 Classe documentaire utilisant un ou plusieurs domaines
+- En tant que creator, je veux qu'une classe documentaire utilise un ou plusieurs domaines de la taxonomie.
+- Prerequis : US3.6, US3.7.
+- Acceptance criteria : une classe a au moins un domaine (sauf classe provisoire, voir US7.5) ; relation `USES_DOMAIN` ; l'ontologie de la classe est l'union des ontologies de ses domaines et de leurs descendants ; ajouter ou retirer un domaine recalcule l'ontologie de la classe et declenche le reclassement des documents concernes ; requete « classes utilisant le domaine D (sous-arbre compris) ».
+- Exemples : la classe « Fiche technique » utilise « Materiaux » et « Normes » ; la classe « Contrat » utilise « Contrats » : son ontologie inclut aussi « Contrats > Resiliation ».
+- Questions : un domaine peut-il etre marque « principal » pour ponderer la classification ?
+
+## US3.10 Gouverner le glossaire commun
+- En tant qu'organisation, je veux que la taxonomie commune ne soit pas alteree par erreur ou par un seul projet.
+- Prerequis : US3.6, IAF-E5.
+- Acceptance criteria : les termes candidats induits par un document non reconnu restent propres au projet ; proposer la promotion d'un terme candidat cree une demande ; la promotion ou la modification de la taxonomie commune exige une validation par un role a definir (US5.6) ; toute modification est versionnee, journalisee et reversible ; un terme deja utilise par des classes ne peut etre supprime sans reaffectation.
+- Statut : a preciser avec la definition des capacites des creators (US5.6).
+- Exemples : un creator propose « Joint torique » sous « Materiaux » ; tant que la demande n'est pas validee, le terme reste candidat dans son projet.
+- Questions : qui valide (admin, role de curateur, creators pairs) ?

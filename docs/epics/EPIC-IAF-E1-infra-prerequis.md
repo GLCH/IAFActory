@@ -48,6 +48,9 @@ Statut : taches 1 a 5 ecrites, 6 a faire (rien n'a encore ete demarre : daemon D
 - Contexte : a mesurer. Hypotheses a verifier : syntaxe de `shiro.ini` genere, healthcheck cypher-shell, telechargement de l'archive Jena.
 - Exemples : si le build Fuseki echoue sur le sha512, corriger l'URL ou le format du fichier de somme.
 
+## T8 Passerelle LLM (infra)
+- Voir IAF-E11 US11.1 (IAF-68) : `infra/llm-gateway`, base `litellm`, service `llm-gateway`. Ecrit le 2026-09-26, non demarre.
+
 ## T7 LLM local optionnel
 - Description : profil `llm` Ollama ; choix du modele d'embedding et du modele de generation.
 - Acceptance criteria : `--profile llm up` demarre Ollama ; un modele d'embedding tire et interrogeable.
