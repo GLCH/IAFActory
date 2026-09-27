@@ -25,6 +25,12 @@ services:
   # blanche d'hotes fournisseurs (ADR 0004).
   llm-gateway:
     networks: [data, edge]
+  # Le site n'a besoin que de la base (data) : il n'appelle aucun fournisseur
+  # externe lui-meme (les appels LLM passent par llm-gateway). Son port reste
+  # publie (ports HOTE non affectes par "internal", qui ne coupe que la
+  # sortie Internet des conteneurs).
+  site:
+    networks: [data]
 
 networks:
   # internal: true coupe toute sortie vers Internet : un service compromis sur

@@ -17,6 +17,7 @@ _hasher = PasswordHasher()  # parametres par defaut de argon2-cffi (t=3, m=64Mo,
 _serializer = URLSafeTimedSerializer(settings.session_secret, salt="iaf-session")
 
 SESSION_COOKIE = "iaf_session"
+MIN_PASSWORD_LENGTH = 12  # meme regle que scripts/create_admin.py, a garder alignee
 
 
 def hash_password(plain: str) -> str:

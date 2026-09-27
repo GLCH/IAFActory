@@ -45,10 +45,10 @@ Completez ensuite a la main dans `.env` :
   reutiliser un Ollama deja installe sur la machine (recommande : evite de
   retelecharger des modeles).
 
-## 2. Infra (Postgres, Neo4j, Fuseki, passerelle LLM)
+## 2. Infra (Postgres, Neo4j, Fuseki, passerelle LLM, site)
 
 ```powershell
-docker compose up -d --build postgres neo4j fuseki llm-gateway
+docker compose up -d --build postgres neo4j fuseki llm-gateway site
 docker compose run --rm neo4j-init
 ```
 
@@ -58,8 +58,10 @@ Verifier que tout est sain :
 docker compose ps
 ```
 
-Les 4 services doivent afficher `healthy` (jusqu'a ~1 min pour Neo4j au
-premier demarrage : telechargement des plugins apoc et n10s).
+Les 5 services doivent afficher `healthy` (jusqu'a ~1 min pour Neo4j au
+premier demarrage : telechargement des plugins apoc et n10s). Le service
+`site` applique ses migrations Alembic automatiquement a chaque demarrage
+(idempotent) : rien a faire de plus.
 
 ### Verification manuelle (optionnelle)
 
@@ -95,48 +97,39 @@ docker compose --profile llm up -d ollama
 
 ## 4. Le site (`site/`)
 
-Pas encore dockerise (developpement actif). Tourne en local avec rechargement
-a chaud.
+Dockerise (ADR 0007) : demarre avec le reste de l'infra a l'etape 2, sur
+`http://localhost:8010` (port par defaut, voir `SITE_PORT` dans `.env`).
+
+### Premier compte admin
+
+Aucune inscription libre (US5.1/US5.7) : le tout premier admin se cree hors
+API, via le conteneur deja demarre :
+
+```powershell
+docker compose exec -it site python scripts/create_admin.py vous@exemple.fr
+```
+
+Ouvrez ensuite `http://localhost:8010/login`. Une fois connecte en admin,
+les pages `/admin/users/new` (creer un creator ou un viewer) et
+`/admin/users` (suivi et suppression des comptes) sont accessibles depuis le
+tableau de bord.
+
+### Developpement actif (rechargement a chaud, hors Docker)
+
+Pour modifier le site sans reconstruire l'image a chaque changement :
 
 ```powershell
 python -m venv .venv-site
 .venv-site\Scripts\pip install -e .\site[dev]
-```
-
-Creez `site/.env` (jamais committe) avec un secret de session :
-
-```powershell
-@'
-SESSION_SECRET=
-'@ | Set-Content site\.env
-python -c "import secrets; print(secrets.token_urlsafe(48))"   # collez le resultat apres le =
-```
-
-Migrations (Postgres doit tourner, voir section 2) :
-
-```powershell
 cd site
-..\.venv-site\Scripts\python.exe -m alembic upgrade head
+..\.venv-site\Scripts\python.exe -m uvicorn app.main:app --reload --port 8011
 ```
 
-Premier compte admin (aucune inscription libre : US5.1/US5.7 reservent la
-creation de comptes a un admin existant, donc le tout premier vient de ce
-script) :
-
-```powershell
-..\.venv-site\Scripts\python.exe scripts\create_admin.py vous@exemple.fr
-```
-
-Lancer le site :
-
-```powershell
-..\.venv-site\Scripts\python.exe -m uvicorn app.main:app --reload --port 8010
-```
-
-Ouvrez `http://localhost:8010/login`. Un viewer ou un creator ne peut pas
-encore etre cree depuis l'interface (a venir, IAF-E5) : utilisez le meme
-script `create_admin.py` en modifiant temporairement le role si besoin de
-tester, ou attendez les ecrans d'administration.
+Le conteneur `site` peut rester demarre en parallele (deux ports differents,
+8010 et 8011) : les deux utilisent la meme base Postgres. `POSTGRES_HOST` et
+`POSTGRES_PORT` par defaut (127.0.0.1 et la valeur de `.env`) conviennent
+pour cet usage local ; ne pas les definir dans l'environnement de ce
+terminal, sinon ils remplaceraient ce defaut.
 
 ## 5. Arreter
 
@@ -145,7 +138,8 @@ docker compose stop        # garde les volumes (donnees conservees)
 docker compose down -v     # efface tout (Postgres, Neo4j, Fuseki, passerelle)
 ```
 
-Le site local s'arrete avec `Ctrl+C` dans le terminal `uvicorn`.
+Le site en rechargement a chaud (hors Docker, section 4) s'arrete avec
+`Ctrl+C` dans son terminal.
 
 ## 6. Preuve de bout en bout (facultatif)
 

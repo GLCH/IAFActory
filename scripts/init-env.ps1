@@ -27,7 +27,7 @@ function New-Secret([int]$Length = 32) {
 }
 
 $lines = Get-Content $example | ForEach-Object {
-    if ($_ -match '^(POSTGRES_PASSWORD|NEO4J_PASSWORD|FUSEKI_ADMIN_PASSWORD|LITELLM_DB_PASSWORD)=$') {
+    if ($_ -match '^(POSTGRES_PASSWORD|NEO4J_PASSWORD|FUSEKI_ADMIN_PASSWORD|LITELLM_DB_PASSWORD|SESSION_SECRET)=$') {
         "$($Matches[1])=$(New-Secret)"
     } elseif ($_ -match '^(LITELLM_MASTER_KEY|LITELLM_SALT_KEY)=$') {
         # La doc LiteLLM exige le prefixe sk- pour la cle maitre.

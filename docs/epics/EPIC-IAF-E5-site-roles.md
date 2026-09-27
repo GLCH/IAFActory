@@ -1,6 +1,6 @@
 # EPIC IAF-E5 : site, roles et droits
 
-Jira : IAF-5, stories IAF-29 a IAF-33 (US5.1 a US5.5), IAF-82 (US5.6, fait), IAF-96 (US5.7, nouvelle). Statut : capacites des creators arretees le 2026-09-27 (US5.6), voir conception.md section 9.
+Jira : IAF-5, stories IAF-29 a IAF-33 (US5.1 a US5.5), IAF-82 (US5.6, fait), IAF-96 (US5.7, fait), IAF-97 (US5.8, fait). Statut : capacites des creators arretees le 2026-09-27 (US5.6, conception.md section 9) ; US5.1, US5.7, US5.8 implementees et verifiees reellement le meme jour (site dockerise, ADR 0007).
 
 Objectif : un site ou chaque role fait ce qui lui est permis, et rien d'autre. Les droits sont appliques dans l'API, pas seulement dans l'interface.
 
@@ -13,8 +13,9 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - Prerequis : US5.2.
 - Acceptance criteria : seul un admin le peut (403 sinon, teste) ; identifiant unique ; le creator recoit un moyen d'activer son compte sans mot de passe en clair dans un journal ; creation journalisee.
 - Contexte : decide le 2026-09-27 (US5.6) : l'admin cree AUSSI les comptes viewer, voir US5.7. Aucun creator ne peut creer de compte, quel que soit le role.
+- **Implemente le 2026-09-27** (`site/app/routers/admin.py`, page `/admin/users/new`, meme formulaire que US5.7 avec le role choisi) : verifie reellement (navigateur + HTTP) - creation d'un creator, email deja utilise -> 409, mot de passe trop court -> 422, tentative de forger `role=admin` dans le formulaire -> 422 (role non autorise a la creation, seul `scripts/create_admin.py` cree un admin), acces `/admin/users` par un creator -> 403.
 - Exemples : un creator tente de creer un creator : 403.
-- Questions : envoi d'invitation par courriel ?
+- Questions : envoi d'invitation par courriel ? (non fait : mot de passe initial saisi directement par l'admin, l'utilisateur ne peut pas encore le changer lui-meme).
 
 ## US5.2 Se connecter
 - En tant qu'utilisateur, je me connecte et l'API connait mon role.
@@ -59,5 +60,15 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - En tant qu'admin, je cree un compte viewer.
 - Prerequis : US5.2. Decide en US5.6 (2026-09-27) : symmetrique de US5.1, un creator ne peut jamais creer de compte.
 - Acceptance criteria : seul un admin le peut (403 sinon, teste) ; identifiant unique ; le viewer recoit un moyen d'activer son compte sans mot de passe en clair dans un journal ; creation journalisee ; le viewer voit tous les projets des la creation, sauf exclusions posees par les creators (US5.3).
+- **Implemente le 2026-09-27**, meme page et memes verifications que US5.1 (formulaire commun, role choisi par bouton radio). Le journal d'activite (US12.1) n'est pas encore branche : la creation n'est aujourd'hui tracee que par `created_at` sur la ligne, pas par un evenement dedie.
 - Exemples : un creator tente de creer un viewer : 403.
 - Questions : envoi d'invitation par courriel ? un viewer peut-il etre associe a un ou plusieurs creators specifiques a la creation, ou est-il global d'emblee (hypothese : global, les exclusions font le filtrage) ?
+
+## US5.8 Suivre et supprimer des comptes (admin)
+- En tant qu'admin, je vois tous les comptes et je peux en supprimer un.
+- Prerequis : US5.1, US5.7.
+- Acceptance criteria : page listant tous les utilisateurs (courriel, role, actif, date de creation) reservee a l'admin (403 pour les autres roles, verifie) ; suppression d'un creator ou d'un viewer reelle ; un admin ne peut pas se supprimer lui-meme (bloque, message explicite) ; un admin ne peut pas supprimer un autre admin depuis cette page (bloque : la gestion des admins reste hors API pour eviter qu'une faille web ne permette de tous les supprimer).
+- **Implemente et verifie reellement le 2026-09-27** (`/admin/users`) : creation puis suppression effective d'un viewer confirmee (disparait de la liste) ; auto-suppression -> redirection avec message d'erreur, aucune suppression ; suppression d'un admin -> meme garde-fou (code relu, un seul admin existant au moment du test ne permet de couvrir que la branche « soi-meme », la branche « admin different de soi » n'a pas ete testee en conditions reelles faute d'un second admin).
+- Contexte : suppression definitive (pas de corbeille), coherent avec le fait qu'aucune autre donnee (projets, agents) n'existe encore pour cet utilisateur ; a revoir quand ce sera le cas (reaffectation ou interdiction de suppression si des projets existent).
+- Exemples : suppression de `viewer1@iafactory.test` : absent de la liste immediatement apres, `SELECT` direct en base le confirme.
+- Questions : faut-il desactiver (`is_active=false`) plutot que supprimer, une fois que des projets/sessions existeront pour cet utilisateur ? Confirmation cote client (`confirm()` JavaScript) : mesure d'ergonomie, pas de securite (le serveur ne s'appuie pas sur elle).

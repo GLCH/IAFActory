@@ -1,6 +1,14 @@
 """Configuration du site. Lit le `.env` a la racine du depot (memes secrets
-que le reste de l'infra : POSTGRES_*) plus un `site/.env` optionnel propre au
-site (SESSION_SECRET). Aucun secret n'a de valeur par defaut en dur."""
+que le reste de l'infra) plus un `site/.env` optionnel propre au site. Quand
+ces fichiers n'existent pas (dans l'image Docker), les valeurs viennent des
+variables d'environnement passees par `compose.yaml`. Aucun secret n'a de
+valeur par defaut en dur.
+
+POSTGRES_HOST/POSTGRES_PORT valent par defaut 127.0.0.1:5432 (usage local,
+hors Docker, ou POSTGRES_PORT vient du `.env` racine et peut avoir ete
+decale pour eviter un conflit de port sur la machine). Dans `compose.yaml`,
+le service `site` les surcharge en `postgres`:5432 (reseau interne Docker,
+jamais le port hote remappe)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -18,6 +26,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    postgres_host: str = "127.0.0.1"
     postgres_user: str
     postgres_password: str
     postgres_db: str
@@ -30,7 +39,7 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         return (
             f"postgresql+psycopg://{self.postgres_user}:{self.postgres_password}"
-            f"@127.0.0.1:{self.postgres_port}/{self.postgres_db}"
+            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
 
 

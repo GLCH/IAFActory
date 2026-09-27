@@ -16,7 +16,7 @@ from sqlalchemy import select  # noqa: E402
 
 from app.db import SessionLocal  # noqa: E402
 from app.models import Role, User  # noqa: E402
-from app.security import hash_password  # noqa: E402
+from app.security import MIN_PASSWORD_LENGTH, hash_password  # noqa: E402
 
 
 def main() -> None:
@@ -27,8 +27,8 @@ def main() -> None:
     confirm = getpass.getpass("Confirmer : ")
     if password != confirm:
         raise SystemExit("les mots de passe ne correspondent pas")
-    if len(password) < 12:
-        raise SystemExit("mot de passe trop court (12 caracteres minimum)")
+    if len(password) < MIN_PASSWORD_LENGTH:
+        raise SystemExit(f"mot de passe trop court ({MIN_PASSWORD_LENGTH} caracteres minimum)")
 
     with SessionLocal() as db:
         if db.scalar(select(User).where(User.email == email)):
