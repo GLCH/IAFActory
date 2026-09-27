@@ -1,6 +1,6 @@
 # EPIC IAF-E8 : comprendre le besoin du creator
 
-Jira : IAF-38, stories IAF-48 a IAF-51 (US8.1 a US8.4), IAF-99 a IAF-101 (US8.5 a US8.7, nouvelles). Statut : rédigé le 2026-09-26 ; étendu le 2026-09-27 avec la chaîne complète d'agents produit (conception.md section 14) : Interprète, Parcours, Backlog, Architecte, puis l'agent codeur (IAF-E15, hors de cet epic car de nature différente).
+Jira : IAF-38, stories IAF-48 a IAF-51 (US8.1 a US8.4), IAF-99 a IAF-101 (US8.5 a US8.7). Statut : rédigé le 2026-09-26 ; étendu le 2026-09-27 avec la chaîne complète d'agents produit (conception.md section 14) ; **mis en pause le 2026-09-27, hors scope du MVP** - l'utilisateur juge la chaîne Interprète/Parcours/Backlog/Architecte trop ambitieuse pour démarrer. Le périmètre retenu pour l'instant est plus simple : creator gère l'ingestion, les classes et les ontologies (déjà couvert par IAF-E3/E7/E13), viewer interroge le service (graphe si le document est reconnu, RAG sinon - voir US3.5 mis à jour). US8.5 a US8.7 (agent Parcours/Backlog/Architecte) et l'extension d'US8.1 (reconnaissance de projet) restent documentées ci-dessous mais ne sont pas implémentées ni priorisées ; à ne reprendre que sur nouvelle demande explicite.
 
 Objectif : le creator exprime un besoin ; le service le comprend, reconnaît ou crée le projet concerné, aide à définir ses parcours utilisateurs, produit un backlog Jira au format Definition of Ready, propose une architecture, puis prépare l'agent de projet (spécialité, sources, tests). Le creator valide chaque étape.
 

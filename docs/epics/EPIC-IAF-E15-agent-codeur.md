@@ -1,6 +1,6 @@
 # EPIC IAF-E15 : agent codeur
 
-Jira : IAF-98 (stories ci-dessous). Statut : rédigé le 2026-09-27, rien d'implémenté. Décision : [ADR 0008](../adr/0008-agent-codeur.md). Conception : [conception.md](../design/conception.md) section 14.3.
+Jira : IAF-98 (stories ci-dessous). Statut : rédigé le 2026-09-27, rien d'implémenté ; **mis en pause le 2026-09-27, hors scope du MVP** - déclenché par l'agent Architecte (IAF-E8, US8.7), lui-même mis en pause. Le périmètre retenu pour l'instant n'inclut pas de génération de code par agent. Décision : [ADR 0008](../adr/0008-agent-codeur.md). Conception : [conception.md](../design/conception.md) section 14.3. À ne reprendre que sur nouvelle demande explicite.
 
 Objectif : une fois l'architecture d'un projet validée (US8.7), un agent codeur - Claude Code via le Claude Agent SDK, pas un nouveau prompt maison - transforme chaque user story du backlog en une proposition de code réelle, revue par un humain avant fusion.
 

@@ -10,6 +10,8 @@ Decisions 2026-09-26 : le glossaire est commun a tous les projets et structure e
 
 Questions transverses : volumes ? langue des documents ? qui modifie la taxonomie commune ?
 
+Mise a jour 2026-09-27 : perimetre MVP confirme par l'utilisateur - viewer et creator interrogent le service, qui bascule graphe (document reconnu) ou RAG (document non reconnu), voir US3.5. La chaine d'agents produit envisagee un temps (conception.md section 14) est mise en pause, hors scope pour l'instant ([IAF-E8](EPIC-IAF-E8-besoin-creator.md), [IAF-E15](EPIC-IAF-E15-agent-codeur.md)).
+
 ## US3.1 Deposer un document
 - En tant que creator, je depose un document dans mon projet pour qu'il alimente le graph RAG.
 - Prerequis : IAF-1 T4 ; identite creator (IAF-E5 US5.2).
@@ -46,9 +48,9 @@ Questions transverses : volumes ? langue des documents ? qui modifie la taxonomi
 ## US3.5 Interroger le graph RAG
 - En tant qu'agent (via MCP), je pose une question et recois des passages et des faits du graphe avec leur provenance.
 - Prerequis : US3.2, US3.4 ; IAF-E4 US4.4.
-- Acceptance criteria : recherche vectorielle puis expansion par voisinage dans le graphe, profondeur configurable ; chaque resultat cite document et position ; isolation stricte au projet (aucun resultat d'un autre projet) ; latence mesuree et reportee.
-- Exemples : une question sur un contrat renvoie le chunk et l'entite Organisation reliee, avec la page source.
-- Questions : classement, seuils, nombre de sauts par defaut.
+- Acceptance criteria : recherche vectorielle puis expansion par voisinage dans le graphe, profondeur configurable ; chaque resultat cite document et position ; isolation stricte au projet (aucun resultat d'un autre projet) ; latence mesuree et reportee ; **confirme le 2026-09-27** - la strategie depend de la reconnaissance du document (US7.4) : document reconnu (rattache a une classe non provisoire au-dessus du seuil) -> expansion par le graphe (entites et relations extraites selon son ontologie) en plus de la recherche vectorielle ; document non reconnu (aucune classe retenue, ou classe provisoire sans extraction fiable) -> recherche vectorielle seule sur les chunks (RAG classique), sans expansion graphe ; le viewer ne voit pas cette distinction technique, seulement le resultat et sa provenance.
+- Exemples : une question sur un contrat reconnu renvoie le chunk et l'entite Organisation reliee, avec la page source (voie graphe) ; une question sur un document non reconnu renvoie les chunks les plus proches par similarite, sans entite associee (voie RAG).
+- Questions : classement, seuils, nombre de sauts par defaut ; seuil exact de reconnaissance qui declenche la bascule graphe/RAG, a calibrer avec US7.7 (meme regle : pas de seuil affirme sans mesure hors echantillon).
 
 ## US3.6 Glossaire commun structure en taxonomie de domaines
 - En tant que creator, je m'appuie sur un glossaire metier commun a tous les projets, organise en taxonomie de domaines, plutot que d'en refaire un par projet.

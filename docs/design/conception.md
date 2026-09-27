@@ -351,7 +351,9 @@ Propriétés exigées :
 
 ## 14. Agents produit : aider le creator à construire un projet
 
-Décidé le 2026-09-27. Un creator arrive avec une idée, pas encore un projet structuré. Une chaîne d'**agents produit** l'aide à passer de l'idée à un projet prêt à coder, en s'inspirant explicitement de la méthode déjà suivie pour IAFActory lui-même (epics au format Definition of Ready, mesure avant d'affirmer un bénéfice).
+**Mis en pause le 2026-09-27, hors scope du MVP.** L'utilisateur a jugé cette chaîne trop ambitieuse pour démarrer : « restons sur un environnement viewer, creator et admin. Le creator va ajouter des documents et gérer la chaîne d'ingestion, les classes et les ontologies. Le viewer va interroger le service qui regardera dans les documents sous forme de graph s'ils sont reconnus et sous forme RAG sinon. Le pipeline de création de nouvelle classe est activé par le creator. » Cela correspond à ce qui est déjà couvert par [IAF-E3](../epics/EPIC-IAF-E3-graph-rag.md), [IAF-E4](../epics/EPIC-IAF-E4-runtime-agents.md), [IAF-E7](../epics/EPIC-IAF-E7-classification-documents.md) et [IAF-E13](../epics/EPIC-IAF-E13-pipeline-documentaire.md) - rien de nouveau à construire pour ce périmètre réduit, voir US3.5 (mise à jour) pour la bascule graphe/RAG. Cette section (agents Interprète, Parcours, Backlog, Architecte, agent codeur) reste comme conception documentée pour plus tard, non retenue pour l'instant ; ne pas implémenter sans nouvelle demande explicite.
+
+Un creator arrive avec une idée, pas encore un projet structuré. Une chaîne d'**agents produit** l'aide à passer de l'idée à un projet prêt à coder, en s'inspirant explicitement de la méthode déjà suivie pour IAFActory lui-même (epics au format Definition of Ready, mesure avant d'affirmer un bénéfice).
 
 ### 14.1 Agents produit contre agents de projet
 
