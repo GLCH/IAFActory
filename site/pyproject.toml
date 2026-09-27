@@ -1,0 +1,27 @@
+[project]
+name = "iafactory-site"
+version = "0.1.0"
+description = "Site de gestion des agents IAFActory (US5.2 et suivantes)."
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi==0.141.1",
+    "uvicorn[standard]==0.54.0",
+    "sqlalchemy==2.1.1",
+    "alembic==1.20.0",
+    "psycopg[binary]==3.3.6",
+    "pydantic-settings==2.15.0",
+    "argon2-cffi==25.1.0",
+    "itsdangerous==2.2.0",
+    "jinja2==3.1.6",
+    "python-multipart==0.0.32",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5", "httpx==0.28.1"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]

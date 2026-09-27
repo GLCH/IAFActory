@@ -1,6 +1,7 @@
-# PIPELINE DESACTIVE et volontairement generique : le code applicatif (API, site,
-# runtime d'agents) n'existe pas encore. Les jobs se sautent tant que leur
-# manifeste est absent ; a raffiner quand la pile metier est choisie (EPIC IAF-E2).
+# PIPELINE DESACTIVE (declenchement manuel uniquement, voir
+# docs/runbooks/activer-les-pipelines.md). Pile retenue le 2026-09-27
+# (ADR 0007) : site Python dans `site/`. Le runtime d'agents n'existe pas
+# encore ; ce fichier se limite au site pour l'instant.
 name: ci-app
 
 on:
@@ -13,41 +14,20 @@ permissions:
   contents: read
 
 jobs:
-  detect:
+  site:
     runs-on: ubuntu-latest
-    outputs:
-      node: ${{ steps.d.outputs.node }}
-      python: ${{ steps.d.outputs.python }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: d
-        run: |
-          echo "node=$([ -f package.json ] || [ -f web/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-          echo "python=$([ -f pyproject.toml ] || [ -f api/pyproject.toml ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-
-  node:
-    needs: detect
-    if: needs.detect.outputs.node == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - run: npm ci
-      - run: npm run lint --if-present
-      - run: npm test --if-present
-      - run: npm run build --if-present
-
-  python:
-    needs: detect
-    if: needs.detect.outputs.python == 'true'
-    runs-on: ubuntu-latest
+    env:
+      # Valeurs factices : ces tests n'ouvrent aucune connexion Postgres reelle
+      # (dependances FastAPI substituees), mais app/config.py exige ces champs
+      # a l'import.
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci
+      POSTGRES_DB: ci
+      SESSION_SECRET: ci-secret-non-utilise-en-production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install -e ".[dev]"
-      - run: ruff check .
-      - run: pytest
+      - run: pip install -e "./site[dev]"
+      - run: pytest site/tests

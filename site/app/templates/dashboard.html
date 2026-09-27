@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord - IAFActory{% endblock %}
+{% block body %}
+<header>
+  <div>Bonjour <strong>{{ user.email }}</strong> <span class="role">{{ user.role.value }}</span></div>
+  <form class="inline" method="post" action="/logout"><button type="submit">Se deconnecter</button></form>
+</header>
+
+{% if user.role.value == "admin" %}
+  <section>
+    <h2>Administration</h2>
+    <p>Creation de creators et de viewers, arret et effacement de projets : a venir (IAF-E5).</p>
+  </section>
+{% elif user.role.value == "creator" %}
+  <section>
+    <h2>Mes projets</h2>
+    <p>Creation de projets, d'agents, de tests de validation : a venir (IAF-E3, IAF-E4, IAF-E6).</p>
+  </section>
+{% else %}
+  <section>
+    <h2>Projets visibles</h2>
+    <p>Consultation et sessions avec les agents : a venir (IAF-E10).</p>
+  </section>
+{% endif %}
+{% endblock %}

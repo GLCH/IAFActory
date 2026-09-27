@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Connexion - IAFActory{% endblock %}
+{% block body %}
+<h1>IAFActory</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post" action="/login">
+  <p><label>Courriel<br><input type="email" name="email" required autofocus></label></p>
+  <p><label>Mot de passe<br><input type="password" name="password" required></label></p>
+  <button type="submit">Se connecter</button>
+</form>
+<p><small>Les comptes sont crees par un administrateur (US5.1/US5.7) : pas d'inscription libre.</small></p>
+{% endblock %}

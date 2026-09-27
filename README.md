@@ -2,7 +2,7 @@
 
 Fabrique d'agents IA simple : un graph RAG alimente les agents en documents (classes documentaires reconnues ou creees automatiquement, ontologies organisees en glossaires metiers), un site permet de creer et gerer des agents specialises, qui tournent seuls ou en groupes ; les viewers les utilisent en sessions. Beaucoup de graphes et d'ontologies (Neo4j pour le graphe de proprietes, Apache Jena Fuseki pour le RDF/SPARQL).
 
-Etat : socle infra et pipelines (desactives). Le metier n'est pas commence. Suivi : projet Jira [IAF](https://gurvanleclech.atlassian.net/jira/core/projects/IAF/board), specification dans [docs/epics](docs/epics).
+Etat : infra validee a froid (Postgres, Neo4j, Fuseki, passerelle LLM hybride), pipeline vertical de bout en bout prouve (`poc/`), site demarre (`site/`, connexion et roles). Pipelines CI/CD ecrits mais desactives. Suivi : projet Jira [IAF](https://gurvanleclech.atlassian.net/jira/core/projects/IAF/board), specification dans [docs/epics](docs/epics).
 
 ## Roles
 
@@ -14,15 +14,19 @@ Etat : socle infra et pipelines (desactives). Le metier n'est pas commence. Suiv
 
 ## Demarrage local (Windows)
 
+Procedure complete, avec les conflits de port courants et le lancement du
+site : [docs/runbooks/lancer-en-local.md](docs/runbooks/lancer-en-local.md).
+En bref :
+
 ```powershell
-scripts/bootstrap.ps1            # simulation ; -Apply pour installer ce qui manque (winget)
 scripts/init-env.ps1             # genere .env avec des mots de passe aleatoires
-scripts/doctor.ps1               # verifie les prerequis, dont le daemon Docker
-docker compose up -d --build
+docker compose up -d --build postgres neo4j fuseki llm-gateway
 docker compose run --rm neo4j-init
 ```
 
-Services (127.0.0.1 uniquement) : Postgres 5432, Neo4j 7474 (navigateur) et 7687 (bolt), Fuseki 3030 (dataset `iaf`), passerelle LLM 4000 (LiteLLM + jev-router, Jev desactive). LLM local optionnel : `--profile llm`. Renseigner `ANTHROPIC_API_KEY` dans `.env` pour utiliser les modeles par defaut. Mode durci : `docker compose -f compose.yaml -f compose.secure.yaml up -d`.
+Services (127.0.0.1 uniquement) : Postgres 5432, Neo4j 7474 (navigateur) et 7687 (bolt), Fuseki 3030 (dataset `iaf`), passerelle LLM 4000 (LiteLLM + jev-router, Jev desactive, hybride Anthropic/Gemini/Ollama). LLM local optionnel : `--profile llm` (ou reutiliser un Ollama deja installe via `OLLAMA_BASE_URL`). Mode durci : `docker compose -f compose.yaml -f compose.secure.yaml up -d`.
+
+Le site (`site/`, FastAPI) tourne en local hors Docker pendant le developpement : voir le runbook ci-dessus.
 
 ## Pipelines
 
@@ -38,5 +42,8 @@ Les workflows GitHub Actions sont ecrits mais **desactives** (declenchement manu
 - [ADR 0004 : passerelle LLM et routage](docs/adr/0004-passerelle-llm.md)
 - [ADR 0005 : ontologies structurelles et semantiques, metadonnees](docs/adr/0005-ontologies-structurelles-semantiques-metadonnees.md)
 - [ADR 0006 : orchestration du pipeline documentaire](docs/adr/0006-orchestration-pipeline-documentaire.md)
+- [ADR 0007 : pile applicative du site](docs/adr/0007-pile-site.md)
 - [Ontologie structurelle de base](ontologies/structure/iaf-structure-base.ttl)
+- [Lancer en local](docs/runbooks/lancer-en-local.md)
+- [Preuve de bout en bout (poc/)](poc/RESULTATS.md)
 - [Epics (Definition of Ready)](docs/epics)

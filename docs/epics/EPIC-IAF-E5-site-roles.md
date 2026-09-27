@@ -20,8 +20,10 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - En tant qu'utilisateur, je me connecte et l'API connait mon role.
 - Prerequis : IAF-1 T4 (Postgres).
 - Acceptance criteria : mots de passe haches (algorithme verifie dans la doc avant choix) ; session ou jeton avec expiration ; toute route protegee refuse l'anonyme ; le role vient du serveur, jamais du client.
-- Exemples : jeton expire : 401 ; role modifie cote client : ignore.
-- Questions : SSO plus tard ?
+- **Premiere implementation le 2026-09-27** (`site/`, ADR 0007) : FastAPI + SQLAlchemy + Postgres, mot de passe Argon2id (`argon2-cffi`, recommandation OWASP verifiee), cookie de session signe (`itsdangerous`, 12 h) ne portant que l'id utilisateur (le role est relu en base a chaque requete, jamais depuis le cookie). Verifie reellement dans le navigateur : connexion admin -> tableau de bord avec le bon role affiche ; deconnexion -> `/` redirige vers `/login` ; `GET /` anonyme -> 303 vers `/login`. Tests automatises (`site/tests/test_auth.py`) : anonyme refuse, session valide acceptee, cookie falsifie sans effet.
+- Contexte / piege reel rencontre : un `User(...)` construit sans passer par une session SQLAlchemy (ex. dans un test) n'a pas encore `is_active=True` (le defaut de colonne ne s'applique qu'au flush) ; explicite dans le test, a garder en tete pour tout code qui construit un `User` hors ORM.
+- Exemples : jeton expire ou falsifie : redirection vers `/login` (equivalent 401 gere globalement, pas un JSON brut puisque le site est rendu cote serveur).
+- Questions : SSO plus tard ? Verrouillage apres echecs de connexion repetes : non fait.
 
 ## US5.3 Gerer mes projets et les exclusions viewer (creator)
 - En tant que creator, je cree un projet et j'interdis certaines ressources a certains viewers.

@@ -4,7 +4,14 @@ node_modules/
 __pycache__/
 .venv/
 .venv-poc/
+.venv-site/
 poc/out/
+site/.env
+site/__pycache__/
+site/**/__pycache__/
+site/.pytest_cache/
+site/*.egg-info/
+*.egg-info/
 dist/
 build/
 *.log

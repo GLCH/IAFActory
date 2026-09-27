@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}IAFActory{% endblock %}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 3rem auto; color: #1a1a1a; }
+    header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2rem; }
+    .role { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; background: #eee; font-size: 0.85rem; }
+    form.inline { display: inline; }
+    .error { color: #b00020; }
+    input, button { font-size: 1rem; padding: 0.4rem; }
+  </style>
+</head>
+<body>
+  {% block body %}{% endblock %}
+</body>
+</html>
