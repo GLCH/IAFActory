@@ -52,8 +52,13 @@ Avec Jev activé, un résumé de la requête (jusqu'à 8 messages de 2000 caract
 - Le nom exact du modèle Ollama : laissé en `<modele-a-choisir>` (IAF-1 T7), à tirer sur le conteneur avant tout appel.
 - La qualité et la latence comparées des trois fournisseurs sur les tâches réelles (extraction, agent, jugement) : à mesurer, pas à supposer.
 
+## Décidé le 2026-09-27 (US5.6)
+
+Budget à deux niveaux, tous deux fixés par l'admin, jamais par le creator : un budget par **projet** (plafond agrégé) et un budget par **agent** (sous-plafond), le second ne pouvant dépasser le premier. Correspond a priori à la hiérarchie équipe (projet) / clé virtuelle (agent) de LiteLLM ; correspondance exacte à vérifier au premier déploiement (US11.3).
+
 ## Questions ouvertes
 
-- Qui règle les alias d'usage système : admin seul (tranché en conception 9) ; qui choisit le modèle d'un agent : le creator (US5.6 précisera les limites, ex. budget).
+- Qui règle les alias d'usage système : admin seul (tranché en conception 9).
+- Le budget projet se règle-t-il en objet LiteLLM `team`, ou reconstruit-il la somme des clés côté API IAFActory ? À trancher au moment d'implémenter US11.3.
 - Prix des modèles à renseigner avant d'utiliser `iaf-auto` (source à vérifier) pour les trois fournisseurs.
 - Un agent change-t-il de fournisseur sans recréer sa spécialité ni perdre l'historique de ses sessions ?

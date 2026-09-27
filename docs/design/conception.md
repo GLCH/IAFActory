@@ -209,7 +209,7 @@ Décidée en atelier le 2026-09-27. Remplace la version en hypothèses. Quatre c
 1. **Comptes** : l'admin crée tous les comptes, creator et viewer (US5.7 ajoutée : jusque-là seule la création de creator était couverte).
 2. **Glossaire commun** : gouverné par **revue collective des creators**, pas par un rôle de curateur ni par l'admin seul (US3.10 révisée).
 3. **Connecteurs** : **toute activation est soumise à l'admin**, même pour un type déjà au catalogue (US9.1 révisée) — posture plus stricte que le reste de la matrice, justifiée par le risque (ADR 0003).
-4. **Budget LLM** : **l'admin fixe le budget de chaque agent individuellement** ; le creator choisit le fournisseur et le modèle (US4.1) mais jamais le budget (US11.3 révisée).
+4. **Budget LLM** : **à deux niveaux, tous deux fixés par l'admin** — un budget par projet (plafond agrégé, toutes dépenses LLM du projet confondues) et un budget par agent (sous-plafond individuel) ; le creator choisit le fournisseur et le modèle (US4.1) mais jamais un budget, à aucun des deux niveaux (US11.3 révisée le 2026-09-27).
 
 | Domaine | Action | viewer | creator (propriétaire) | admin |
 |---|---|---|---|---|
@@ -219,6 +219,7 @@ Décidée en atelier le 2026-09-27. Remplace la version en hypothèses. Quatre c
 | Projets | Créer, renommer, décrire un projet | non | oui | oui |
 | Projets | Voir un projet | oui, sauf exclusions | oui, les siens | oui, tous |
 | Projets | Arrêter ou effacer un projet | non | non | oui, tous |
+| Projets | Fixer ou modifier le budget LLM du projet (plafond agrégé) | non | non | oui |
 | Glossaire commun | Consulter la taxonomie et les termes | oui | oui | oui |
 | Glossaire commun | Proposer un terme candidat ou un domaine | non | oui | oui |
 | Glossaire commun | Approuver une promotion (revue par pairs) | non | oui, si non proposant | non (recours seulement) |
@@ -230,7 +231,7 @@ Décidée en atelier le 2026-09-27. Remplace la version en hypothèses. Quatre c
 | Classes documentaires | Créer, fusionner, valider, rejeter une classe provisoire | non | oui, les siennes | oui, toutes |
 | Agents | Créer, modifier, versionner, définir la spécialité | non | oui | oui |
 | Agents | Choisir le fournisseur et le modèle (catalogue passerelle) | non | oui | oui |
-| Agents | Fixer ou modifier le budget LLM d'un agent | non | non | oui |
+| Agents | Fixer ou modifier le budget LLM d'un agent (sous-plafond du budget projet) | non | non | oui |
 | Agents | Lancer, suivre, arrêter un agent (US4.2) | non | oui, les siens | oui, tous |
 | Agents | Définir les tests de validation, voir le verdict | non | oui, les siens | oui, tous |
 | Groupes d'agents | Créer, gérer un groupe | non | oui | oui |
@@ -252,7 +253,7 @@ Cas limites explicitement tranchés :
 
 - Un creator peut approuver la promotion d'un terme qu'il n'a **pas** proposé lui-même ; il ne peut pas auto-approuver sa propre proposition (évite qu'un seul creator peuple le glossaire commun seul).
 - L'admin n'a pas de droit de vote dans la revue par pairs ; il garde seulement un droit de recours pour annuler une promotion déjà faite si elle s'avère erronée (US3.10).
-- Le budget d'un agent n'est jamais un champ modifiable par le creator, même en lecture-écriture partielle : c'est un champ affiché en lecture seule côté creator (US11.3, US4.1).
+- Ni le budget du projet ni celui d'un agent ne sont des champs modifiables par le creator, même en lecture-écriture partielle : les deux s'affichent en lecture seule côté creator (US11.3, US4.1). Le budget d'un agent ne peut pas dépasser le budget restant du projet ; un dépassement du plafond projet suspend les agents du projet indépendamment de leur propre budget individuel.
 - L'approbation d'un connecteur par l'admin est requise même quand le type de connecteur est déjà utilisé ailleurs dans le projet ou par un autre creator : chaque instance est jugée séparément (US9.1).
 
 Questions encore ouvertes, non bloquantes pour coder la matrice ci-dessus : un utilisateur peut-il porter plusieurs rôles ; le creator voit-il les sessions de ses viewers (question 3, section 12) ; seuil exact de la revue par pairs (une seule approbation d'un autre creator suffit par défaut, à ajuster si le nombre de creators grandit).
