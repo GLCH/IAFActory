@@ -10,6 +10,10 @@
 # pas renseignes (null), c'est le PREMIER de la liste : les candidats sont donc
 # classes du moins cher au plus cher. A remplacer par les prix reels verifies
 # avant tout usage de l'alias iaf-auto.
+#
+# `iaf-auto` reste un choix PARMI d'autres : le choix par defaut reste le choix
+# explicite du modele par agent (US4.1). iaf-auto sert aux cas ou l'agent delegue
+# le choix a la passerelle.
 
 objective: quality_per_dollar
 aliases: [iaf-auto]
@@ -20,9 +24,23 @@ jev:
   timeout_ms: 5000
 
 candidates:
+  - name: ollama-local
+    description: Modele local, sans cout d'API. Taches routinieres ou sensibles ou l'on prefere ne rien envoyer a un fournisseur externe.
+    vision: false
+    tools: true
+    price_in: null
+    price_out: null
+
   - name: claude-haiku
     description: Modele rapide et economique. Taches routinieres, extraction, reponses courtes sur texte.
     vision: false
+    tools: true
+    price_in: null
+    price_out: null
+
+  - name: gemini-flash
+    description: Modele rapide chez Google. Alternative economique a claude-haiku, notamment pour le tres long contexte.
+    vision: true
     tools: true
     price_in: null
     price_out: null
@@ -34,8 +52,15 @@ candidates:
     price_in: null
     price_out: null
 
+  - name: gemini-pro
+    description: Modele avance chez Google, tres long contexte. Alternative a claude-sonnet ou claude-opus selon le cout mesure.
+    vision: true
+    tools: true
+    price_in: null
+    price_out: null
+
   - name: claude-opus
-    description: Modele le plus capable. Reserve aux taches difficiles, a plusieurs etapes, ou l'erreur coute cher.
+    description: Modele le plus capable chez Anthropic. Reserve aux taches difficiles, a plusieurs etapes, ou l'erreur coute cher.
     vision: false
     tools: true
     price_in: null

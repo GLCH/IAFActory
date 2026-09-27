@@ -104,8 +104,10 @@ services:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?voir .env.example}
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:?voir .env.example}
       DATABASE_URL: postgresql://litellm:${LITELLM_DB_PASSWORD}@postgres:5432/litellm
-      # Vide = les modeles Anthropic echouent a l'appel mais la passerelle demarre.
+      # Vide = les modeles du fournisseur correspondant echouent a l'appel mais la
+      # passerelle demarre (hybride Anthropic/Gemini/Ollama, decision 2026-09-27).
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       # Jev (TypeSafe) reste desactive : ne PAS definir TYPESAFE_API_KEY sans avoir
       # lu docs/adr/0004-passerelle-llm.md (un resume des requetes part chez un tiers).
     ports:

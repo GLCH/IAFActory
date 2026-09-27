@@ -1,6 +1,6 @@
 # ADR 0004 : passerelle LLM et routage
 
-Statut : propose (2026-09-26). Image écrite, jamais construite ni démarrée (Docker arrêté).
+Statut : propose (2026-09-26), fournisseurs confirmés le 2026-09-27. Image écrite, jamais construite ni démarrée (Docker arrêté).
 
 ## Besoin
 
@@ -14,6 +14,8 @@ Configurer qui utilise quel LLM, mesurer l'usage et les coûts, permettre une or
 4. **Base dédiée** : base `litellm` et rôle `litellm` dans le Postgres existant (script `02-litellm.sh`), sans accès à la base applicative.
 5. **Alias d'usage** : `iaf-extraction`, `iaf-agent`, `iaf-cadrage`, `iaf-judge`, `iaf-auto`. Les services ne connaissent que ces alias.
 6. **Clé maître** : détenue par l'API IAFActory seule. Les autres consommateurs reçoivent des clés virtuelles restreintes.
+7. **Fournisseurs, hybride (décision 2026-09-27)** : Anthropic (API), Gemini (API Google AI Studio) et Ollama (local). Vérifié dans la documentation LiteLLM : Gemini se déclare `gemini/<modele>` avec une clé simple `GEMINI_API_KEY` (le préfixe sans slash bascule sur Vertex AI, qui demande des identifiants GCP complets : évité) ; Ollama se déclare `ollama_chat/<modele>` avec `api_base` (le préfixe `ollama_chat/` donne de meilleures réponses que `ollama/`, selon la doc, car il utilise l'API de chat plutôt que l'API de complétion).
+8. **Choix par agent** : chaque agent choisit son modèle (donc son fournisseur) dans le catalogue de la passerelle au moment de sa définition (US4.1, IAF-25). Un agent qui ne choisit rien reçoit l'alias d'usage par défaut de son rôle.
 
 ## Ce que fait jev-router (constaté dans le code)
 
@@ -46,10 +48,12 @@ Avec Jev activé, un résumé de la requête (jusqu'à 8 messages de 2000 caract
 
 - Le build de l'image, le démarrage de LiteLLM avec notre config, le chargement du hook, `DATABASE_URL` (nom de variable d'après l'usage courant, la doc consultée parle de « Database URL »), la présence de `pyyaml` dans l'image de base : jev-router le déclare explicitement en dépendance ; LiteLLM en a besoin pour lire son propre `config.yaml`, donc il devrait être présent, mais cela se vérifie au build (sinon l'ajouter dans le Dockerfile).
 - La compatibilité de `jev-router` (écrit pour `litellm>=1.60.0`) avec `v1.98.0`.
-- Les identifiants de modèles Anthropic dans `litellm.yaml` (repris de la liste de modèles en vigueur, à confirmer au premier appel).
+- Les identifiants de modèles Anthropic et Gemini dans `litellm.yaml` (repris de la liste de modèles en vigueur, à confirmer au premier appel).
+- Le nom exact du modèle Ollama : laissé en `<modele-a-choisir>` (IAF-1 T7), à tirer sur le conteneur avant tout appel.
+- La qualité et la latence comparées des trois fournisseurs sur les tâches réelles (extraction, agent, jugement) : à mesurer, pas à supposer.
 
 ## Questions ouvertes
 
-- Fournisseur : API externe ou local uniquement ? (question 2 de la conception)
-- Qui règle les alias : admin seul ou aussi creators pour leurs agents ? (US5.6)
-- Prix des modèles à renseigner avant d'utiliser `iaf-auto` (source à vérifier).
+- Qui règle les alias d'usage système : admin seul (tranché en conception 9) ; qui choisit le modèle d'un agent : le creator (US5.6 précisera les limites, ex. budget).
+- Prix des modèles à renseigner avant d'utiliser `iaf-auto` (source à vérifier) pour les trois fournisseurs.
+- Un agent change-t-il de fournisseur sans recréer sa spécialité ni perdre l'historique de ses sessions ?

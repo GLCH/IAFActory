@@ -14,21 +14,21 @@ Questions transverses : fournisseur (API externe ou local) ? qui règle les alia
 - Exemples : `.env` sans `LITELLM_MASTER_KEY` : `docker compose config` échoue avec « voir .env.example ».
 - Questions : durcissement non-root et lecture seule (doc de production LiteLLM).
 
-## US11.2 Alias d'usage et catalogue de modèles
-- En tant qu'admin, je remappe un alias d'usage vers un autre modèle sans modifier le code des services.
+## US11.2 Alias d'usage, catalogue de modèles et choix par agent
+- En tant qu'admin, je remappe un alias d'usage vers un autre modèle sans modifier le code des services ; en tant que creator, je choisis le modèle de mon agent dans le catalogue.
 - Prérequis : US11.1.
-- Acceptance criteria : les services n'utilisent que les alias (`iaf-extraction`, `iaf-agent`, `iaf-cadrage`, `iaf-judge`, `iaf-auto`, `iaf-embedding`) ; un alias inconnu est refusé ; remapper un alias prend effet sans redéployer les services ; le changement est journalisé (US12.1).
-- Contexte : les modèles par défaut sont une hypothèse à confirmer et à mesurer par usage, avec le banc d'évaluation (IAF-47).
-- Exemples : `iaf-agent` passe de `claude-sonnet` à `claude-opus` : le service agent n'est pas modifié.
+- Acceptance criteria : catalogue hybride confirmé (Anthropic, Gemini, Ollama, décision 2026-09-27) ; les services internes n'utilisent que les alias système (`iaf-extraction`, `iaf-agent`, `iaf-cadrage`, `iaf-judge`, `iaf-auto`, `iaf-embedding`) ; un agent peut référencer un modèle précis du catalogue en plus de ces alias ; alias ou modèle inconnu refusé ; remapper un alias système prend effet sans redéployer les services ; le changement est journalisé (US12.1).
+- Contexte : les modèles par défaut par fournisseur restent à confirmer et à mesurer par usage, avec le banc d'évaluation (IAF-47).
+- Exemples : `iaf-agent` passe de `claude-sonnet` à `claude-opus` : le service agent n'est pas modifié ; un agent choisit directement `gemini-pro` ou `ollama-local`.
 - Questions : l'alias d'embedding dépend du modèle choisi (IAF-13).
 
 ## US11.3 Politique : qui utilise quel LLM
 - En tant qu'admin, je configure quels consommateurs (services internes, agents, sessions de viewers) peuvent utiliser quels modèles, avec quel budget.
 - Prérequis : US11.1, US5.2.
-- Acceptance criteria : une clé virtuelle par consommateur avec liste de modèles autorisés, budget avec réinitialisation, limites RPM et TPM ; un appel hors politique est refusé et journalisé ; la clé maître n'est connue que de l'API IAFActory ; interface d'administration IAFActory pour lire et changer la politique.
+- Acceptance criteria : une clé virtuelle par consommateur avec liste de modèles autorisés (pouvant mélanger les trois fournisseurs), budget avec réinitialisation, limites RPM et TPM ; un appel hors politique est refusé et journalisé ; la clé maître n'est connue que de l'API IAFActory ; interface d'administration IAFActory pour lire et changer la politique ; le creator choisit le modèle de son agent (US4.1) dans les limites que l'admin lui accorde.
 - Contexte : LiteLLM sait porter ces politiques (clés, équipes, budgets, limites) selon sa documentation ; à vérifier de bout en bout.
-- Exemples : la clé du service d'extraction n'autorise que `iaf-extraction` avec 20 dollars par jour ; un appel à `iaf-judge` avec cette clé renvoie un refus.
-- Questions : granularité par agent ou par projet ? qui, du creator ou de l'admin, choisit le modèle d'un agent (US5.6).
+- Exemples : la clé du service d'extraction n'autorise que `iaf-extraction` avec 20 dollars par jour ; un appel à `iaf-judge` avec cette clé renvoie un refus ; un creator sans droit Gemini ne peut pas donner ce modèle à son agent.
+- Questions : granularité par agent ou par projet ? limites précises du choix creator (US5.6).
 
 ## US11.4 Routage automatique optionnel
 - En tant qu'admin, j'active l'alias `iaf-auto` qui choisit un modèle selon la requête, sans jamais envoyer de contenu à un tiers par défaut.

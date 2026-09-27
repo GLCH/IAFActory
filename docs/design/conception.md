@@ -148,7 +148,7 @@ Pour un document `d` et une classe `C` d'ontologie `O_C` :
 
 **Axe structurel** : `structure(d, C)` est le meilleur score de `Ss` contre le profil structurel de `C` (et ses variantes). Reconnu structurellement si `structure(d, C) >= tau_struct`, seuil calibré comme les autres.
 
-**Décision croisée** (hypothèse de travail, à valider avec le creator et à mesurer) :
+**Décision croisée** (confirmée par l'utilisateur le 2026-09-27 ; les seuils restent à mesurer, IAF-47) :
 
 | Sémantique | Structure | Issue |
 |---|---|---|
@@ -213,7 +213,8 @@ Viewer et creator ouvrent des sessions avec un agent visible pour eux. Un viewer
 | Créer un creator | non | non | oui |
 | Arrêter/effacer un projet | non | non | oui, tous |
 | Modifier le glossaire commun (taxonomie, termes) | non | à définir | à définir |
-| Configurer qui utilise quel LLM | non | non | oui (hypothèse) |
+| Configurer les alias d'usage systeme de la passerelle | non | non | oui |
+| Choisir le fournisseur et le modele de son agent (parmi le catalogue) | non | oui | oui |
 | Consulter le journal d'activité | le sien | celui de ses projets | tout |
 
 Les capacités précises des creators (notamment sur le glossaire commun et le choix des modèles pour leurs agents) seront définies lors de la prochaine étape (US5.6).
@@ -223,12 +224,13 @@ Les capacités précises des creators (notamment sur le glossaire commun et le c
 Tout appel à un modèle traverse une passerelle unique, pour décider **qui utilise quel LLM** et mesurer l'usage. Décision et alternatives : [ADR 0004](../adr/0004-passerelle-llm.md).
 
 - **Produit** : LiteLLM proxy (image officielle `docker.litellm.ai/berriai/litellm`, version épinglée), packagé dans notre image `infra/llm-gateway`.
-- **Orchestration** : `jev-router` (MIT, expérimental, un seul commit au 2026-09-16) ajouté comme hook de la passerelle. Récupéré à un commit épinglé par le Dockerfile, comme Fuseki. Sans clé TypeSafe, il choisit le modèle éligible le moins cher, en local. Avec `TYPESAFE_API_KEY`, un résumé de la requête (jusqu'à 8 messages de 2000 caractères) part chez un tiers (TypeSafe) : **désactivé par défaut**, à n'activer que pour des charges sans document confidentiel.
-- **Alias d'usage** : les services demandent un alias (`iaf-extraction`, `iaf-agent`, `iaf-cadrage`, `iaf-judge`, `iaf-auto`) ; l'admin remappe un alias vers un autre modèle sans toucher au code.
+- **Fournisseurs, hybride (décision 2026-09-27)** : Anthropic (API), Gemini (API Google AI Studio, préfixe `gemini/`, clé simple `GEMINI_API_KEY`) et Ollama (local, préfixe `ollama_chat/`, profil compose `llm`). Un même catalogue de modèles derrière la passerelle, quel que soit le fournisseur.
+- **Choix par agent** : chaque agent choisit son modèle (donc son fournisseur) dans ce catalogue au moment de sa définition (US4.1) ; un agent qui ne choisit rien reçoit l'alias d'usage par défaut de son rôle (`iaf-agent`). Un agent sensible peut ainsi rester sur Ollama (aucune donnée envoyée à un tiers) tandis qu'un autre utilise Gemini ou Claude pour sa capacité.
+- **Orchestration** : `jev-router` (MIT, expérimental, un seul commit au 2026-09-16) ajouté comme hook de la passerelle. Récupéré à un commit épinglé par le Dockerfile, comme Fuseki. Sans clé TypeSafe, il choisit le modèle éligible le moins cher, en local, parmi les candidats des trois fournisseurs. Avec `TYPESAFE_API_KEY`, un résumé de la requête (jusqu'à 8 messages de 2000 caractères) part chez un tiers (TypeSafe) : **désactivé par défaut**, à n'activer que pour des charges sans document confidentiel. `iaf-auto` (routage automatique) reste une option parmi d'autres : le choix explicite du modèle par agent est le chemin par défaut.
+- **Alias d'usage système** : les services internes demandent un alias (`iaf-extraction`, `iaf-agent`, `iaf-cadrage`, `iaf-judge`, `iaf-auto`) ; l'admin remappe un alias vers un autre modèle sans toucher au code.
 - **Qui utilise quoi** : une clé virtuelle par consommateur (service interne, agent, groupe de sessions) avec modèles autorisés, budget, limites de débit ; gérées par l'API IAFActory, seule détentrice de la clé maître.
 - **Données** : base Postgres dédiée (`litellm`), rôle dédié. Les clés fournisseurs ne sortent jamais de la passerelle.
-- **Réseau** : la passerelle est le seul service (avec les connecteurs, à part) ayant une sortie Internet vers les fournisseurs ; liste blanche d'hôtes fournisseurs à imposer.
-- **Local** : Ollama (profil `llm`) reste disponible comme fournisseur derrière la passerelle.
+- **Réseau** : la passerelle est le seul service (avec les connecteurs, à part) ayant une sortie Internet vers les fournisseurs (Anthropic, Google) ; liste blanche d'hôtes fournisseurs à imposer. Ollama reste interne (pas de sortie Internet pour cette voie).
 
 ## 11. Traçabilité et tableaux de bord d'usage
 
@@ -247,19 +249,20 @@ Consultation, volontairement simple pour l'instant :
 ## 12. Questions ouvertes
 
 1. Quelles sources externes faut-il brancher en premier (SharePoint, Confluence, dépôts, bases) ? Détermine US9.5.
-2. Fournisseur LLM et données autorisées à sortir : documents envoyés à une API externe, ou modèle local uniquement ? Les modèles par défaut de la passerelle (Claude via API) sont une hypothèse de travail.
-3. Volumétrie : nombre de documents, de classes, de domaines, d'agents, d'utilisateurs simultanés.
-4. Le creator voit-il les sessions des viewers ?
-5. Langues des documents.
-6. Gouvernance du glossaire commun : qui modifie la taxonomie, qui promeut un terme candidat ? (à traiter avec les capacités des creators, US5.6).
-7. Rétention du journal d'activité, et durée de conservation des sessions.
-
-8. Ontologies structurelles : le vocabulaire de base est commun ; les profils structurels sont-ils propres à chaque classe (hypothèse) ou partageables entre classes et projets ?
-9. Une variante structurelle appartient-elle à la même classe (hypothèse) ou devient-elle une classe distincte ?
-10. Métadonnées : lesquelles le creator souhaite-t-il exploiter, et l'auteur peut-il apparaître dans les réponses des agents ?
-11. Orchestration du pipeline documentaire : file dans Postgres (proposition) ou moteur de workflow (ADR 0006).
+2. Volumétrie : nombre de documents, de classes, de domaines, d'agents, d'utilisateurs simultanés.
+3. Le creator voit-il les sessions des viewers ?
+4. Langues des documents.
+5. Gouvernance du glossaire commun : qui modifie la taxonomie, qui promeut un terme candidat ? (à traiter avec les capacités des creators, US5.6).
+6. Rétention du journal d'activité, et durée de conservation des sessions.
+7. Ontologies structurelles : le vocabulaire de base est commun ; les profils structurels sont-ils propres à chaque classe (hypothèse) ou partageables entre classes et projets ?
+8. Métadonnées : lesquelles le creator souhaite-t-il exploiter, et l'auteur peut-il apparaître dans les réponses des agents ?
+9. Orchestration du pipeline documentaire : file dans Postgres (proposition) ou moteur de workflow (ADR 0006).
+10. Modèle et prix de référence par fournisseur (Anthropic, Gemini, Ollama) à charger dans `router.yaml` pour que `iaf-auto` choisisse sur des coûts réels, pas sur l'ordre de la liste.
+11. Un agent peut-il changer de fournisseur après coup sans perdre son historique de session ?
 
 Tranché le 2026-09-26 : glossaire commun structuré en taxonomie de domaines ; une classe documentaire utilise un ou plusieurs domaines ; documents PDF, PowerPoint et Word, sans manuscrit ; ontologies structurelles et sémantiques distinguées ; métadonnées conservées quand elles existent ; pipeline documentaire Ingestion, Reconnaissance, Structuration, Création de classe.
+
+Tranché le 2026-09-27 : fournisseurs LLM hybrides (Anthropic, Gemini, Ollama) derrière la passerelle, choix du modèle décidé par agent ; la matrice de décision croisée structure x sémantique (section 4.2) et le principe qu'une variante structurelle reste dans la même classe sémantique sont confirmés.
 
 ## 13. Pipeline documentaire
 

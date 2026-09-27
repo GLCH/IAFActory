@@ -1,18 +1,18 @@
 # Configuration de la passerelle LLM (LiteLLM proxy).
 #
-# Les services demandent un ALIAS D'USAGE (model_name) ; l'admin peut le remapper
-# vers un autre modele sans toucher au code. Les modeles ci-dessous sont un
-# point de depart : hypothese de travail (fournisseur Anthropic par API), a
-# confirmer (question ouverte 2 de la conception) puis a mesurer par usage.
-# Les identifiants de modeles viennent de la liste de modeles en vigueur au
-# 2026-09-26 ; les prix ne sont pas renseignes ici (voir router.yaml).
+# Decision 2026-09-27 : fournisseurs HYBRIDES derriere la passerelle - Anthropic
+# (API), Gemini (API) et Ollama (local). Chaque AGENT choisit son modele parmi
+# les alias ci-dessous (US4.1) ; les alias d'usage systeme (iaf-extraction,
+# iaf-agent...) restent les defauts tant qu'un agent ne surcharge pas son alias.
+# Les identifiants de modeles viennent de la liste en vigueur au 2026-09-26/27 ;
+# les prix ne sont pas renseignes ici (voir router.yaml).
 #
 # Cles virtuelles, equipes, budgets : crees a l'execution par l'API IAFActory
 # (stockes dans la base `litellm`), pas dans ce fichier. La cle maitre et la cle de
 # sel viennent des variables LITELLM_MASTER_KEY et LITELLM_SALT_KEY.
 
 model_list:
-  # Modeles concrets (candidats du routeur, voir router.yaml)
+  # --- Anthropic (API) --------------------------------------------------------
   - model_name: claude-haiku
     litellm_params:
       model: anthropic/claude-haiku-4-5-20251001
@@ -26,12 +26,31 @@ model_list:
       model: anthropic/claude-opus-5-5
       api_key: os.environ/ANTHROPIC_API_KEY
 
-  # Alias d'usage
+  # --- Gemini (API Google AI Studio, prefixe gemini/ : cle simple, pas de GCP) -
+  - model_name: gemini-flash
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+  - model_name: gemini-pro
+    litellm_params:
+      model: gemini/gemini-2.5-pro
+      api_key: os.environ/GEMINI_API_KEY
+
+  # --- Ollama (local, profil compose `llm`) -----------------------------------
+  # Modeles a tirer sur le conteneur ollama avant usage (`ollama pull <modele>`).
+  # Le nom exact de modele est a renseigner (IAF-1 T7) ; ollama_chat/ pour de
+  # meilleures reponses (doc LiteLLM) plutot que ollama/.
+  - model_name: ollama-local
+    litellm_params:
+      model: ollama_chat/<modele-a-choisir>
+      api_base: http://ollama:11434
+
+  # --- Alias d'usage : defaut par service, surchargeable par agent (US4.1) ----
   - model_name: iaf-extraction   # extraction ouverte et guidee : gros volume, texte
     litellm_params:
       model: anthropic/claude-haiku-4-5-20251001
       api_key: os.environ/ANTHROPIC_API_KEY
-  - model_name: iaf-agent        # agents en session
+  - model_name: iaf-agent        # agents en session (defaut ; chaque agent peut choisir un autre alias/modele)
     litellm_params:
       model: anthropic/claude-sonnet-5
       api_key: os.environ/ANTHROPIC_API_KEY

@@ -33,9 +33,9 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 ## US7.4 Décider la reconnaissance, y compris multi-classes
 - En tant que creator, je veux qu'un document soit rattaché à toutes les classes qui l'expliquent.
 - Prérequis : US7.3.
-- Acceptance criteria : décision croisée structure x sémantique selon la matrice de la conception 4.2 (reconnu, variante structurelle, contenu nouveau, classe nouvelle) ; couverture pondérée et typicité calculées ; sélection gloutonne des classes sur la couverture résiduelle ; relation `IN_CLASS` avec score, couverture, méthode, version des seuils ; explication consultable ; seuils calibrés sur un jeu annoté, validés sur un jeu retenu jamais utilisé pour régler.
+- Acceptance criteria : décision croisée structure x sémantique selon la matrice de la conception 4.2 (reconnu, variante structurelle, contenu nouveau, classe nouvelle), **confirmée par l'utilisateur le 2026-09-27** ; une variante structurelle reste dans la même classe sémantique (décidé, ne crée jamais de classe distincte) ; couverture pondérée et typicité calculées ; sélection gloutonne des classes sur la couverture résiduelle ; relation `IN_CLASS` avec score, couverture, méthode, version des seuils ; explication consultable ; seuils calibrés sur un jeu annoté, validés sur un jeu retenu jamais utilisé pour régler.
 - Contexte : formules dans conception.md 4.2.
-- Exemples : une annexe technique de contrat couvre 55 pour cent en « contrat » et 40 pour cent en « fiche technique » : deux classes ; un document couvert à 30 pour cent au total : non reconnu.
+- Exemples : une annexe technique de contrat couvre 55 pour cent en « contrat » et 40 pour cent en « fiche technique » : deux classes ; un document couvert à 30 pour cent au total : non reconnu ; la même fiche technique en PowerPoint (contenu reconnu, forme nouvelle) reste dans la classe « Fiche technique » avec un profil structurel variante.
 - Questions : un document peut-il avoir plus de trois classes ?
 
 ## US7.5 Créer automatiquement la classe d'un document non reconnu

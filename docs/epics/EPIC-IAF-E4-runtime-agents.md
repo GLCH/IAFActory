@@ -9,11 +9,12 @@ Mise a jour 2026-09-26 : chaque agent a une specialite (classes documentaires et
 Questions transverses : qu'est-ce qu'un agent (prompt + outils + ontologie + modele) ? fournisseur LLM (API Claude ou local) ? comment des agents d'un groupe communiquent ? isolation d'execution (un conteneur par agent ?) ? budget de jetons ?
 
 ## US4.1 Definir un agent
-- En tant que creator, je definis un agent : mission, consignes, ontologie, outils autorises, modele.
-- Prerequis : IAF-E5 US5.2 ; US3.3 pour l'ontologie.
-- Acceptance criteria : le modele est un alias d'usage de la passerelle LLM (IAF-E11), jamais un modele ni une cle en dur ; agent enregistre en base avec version ; toute modification cree une nouvelle version ; l'agent ne peut referencer que des ressources de son projet ; une definition invalide est refusee avec le champ en cause.
-- Exemples : agent "Analyste contrats" (mission, ontologie Contrat, outil graph-query) enregistre en v1 ; changer la consigne cree v2.
-- Questions : format de definition (formulaire, YAML) ?
+- En tant que creator, je definis un agent : mission, consignes, ontologie, outils autorises, fournisseur et modele.
+- Prerequis : IAF-E5 US5.2 ; US3.3 pour l'ontologie ; passerelle LLM hybride (IAF-E11).
+- Acceptance criteria : le modele est choisi dans le catalogue de la passerelle (Anthropic, Gemini ou Ollama, decision 2026-09-27), jamais une cle en dur ; l'agent peut soit choisir un modele precis, soit heriter de l'alias d'usage par defaut de son role (iaf-agent) ; agent enregistre en base avec version ; toute modification (dont un changement de fournisseur ou de modele) cree une nouvelle version ; l'agent ne peut referencer que des ressources de son projet ; une definition invalide est refusee avec le champ en cause.
+- Contexte : le choix du fournisseur importe pour la confidentialite (Ollama ne renvoie rien a un tiers) et pour le cout ; a documenter au creator au moment du choix.
+- Exemples : agent "Analyste contrats" (mission, ontologie Contrat, outil graph-query, modele claude-sonnet) enregistre en v1 ; changer la consigne cree v2 ; un agent sur donnees sensibles choisit ollama-local.
+- Questions : format de definition (formulaire, YAML) ? limites de budget par agent (US5.6, US11.3) ?
 
 ## US4.2 Lancer, suivre et arreter un agent
 - En tant que creator, je lance un agent, suis son etat et son journal, et l'arrete.
