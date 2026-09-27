@@ -108,6 +108,10 @@ services:
       # passerelle demarre (hybride Anthropic/Gemini/Ollama, decision 2026-09-27).
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      # Serveur Ollama utilise par les modeles ollama_chat/ et ollama/ de litellm.yaml.
+      # Par defaut le service compose "ollama" (profil llm) ; .env peut le remplacer
+      # (ex. Ollama natif de l'hote via http://host.docker.internal:11434).
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
       # Jev (TypeSafe) reste desactive : ne PAS definir TYPESAFE_API_KEY sans avoir
       # lu docs/adr/0004-passerelle-llm.md (un resume des requetes part chez un tiers).
     ports:

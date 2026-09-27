@@ -10,9 +10,9 @@ Questions transverses : fournisseur (API externe ou local) ? qui règle les alia
 - En tant qu'admin de la plateforme, je démarre la passerelle avec le reste de la pile.
 - Prérequis : IAF-10 (Postgres), `.env` généré.
 - Acceptance criteria : `docker compose up` démarre `llm-gateway` sain (`/health/readiness`) ; image construite depuis LiteLLM `v1.98.0` et jev-router au SHA `583f0a1d1e0534cda3b6bbfa4b19aa1ec25d73a7` (vérifié au build) ; base et rôle `litellm` dédiés ; port lié à 127.0.0.1 ; ne démarre pas sans clé maître ni clé de sel.
-- Contexte : écrit le 2026-09-26, jamais construit (Docker arrêté). À valider : chargement du hook avec LiteLLM v1.98.0, `DATABASE_URL`, healthcheck par Python.
+- **FAIT le 2026-09-27** : construite et démarrée avec succès. `/health/readiness` -> `db: connected` ; hook chargé sans erreur avec LiteLLM v1.98.0 ; `DATABASE_URL` confirmé ; healthcheck Python fonctionne. Appels chat et embedding réels réussis via Ollama (voir `poc/RESULTATS.md` et ADR 0004). Alias Anthropic/Gemini non testés (pas de clé).
 - Exemples : `.env` sans `LITELLM_MASTER_KEY` : `docker compose config` échoue avec « voir .env.example ».
-- Questions : durcissement non-root et lecture seule (doc de production LiteLLM).
+- Questions : durcissement non-root et lecture seule (doc de production LiteLLM) — non fait dans cette passe.
 
 ## US11.2 Alias d'usage, catalogue de modèles et choix par agent
 - En tant qu'admin, je remappe un alias d'usage vers un autre modèle sans modifier le code des services ; en tant que creator, je choisis le modèle de mon agent dans le catalogue.

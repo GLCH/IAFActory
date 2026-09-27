@@ -36,14 +36,22 @@ model_list:
       model: gemini/gemini-2.5-pro
       api_key: os.environ/GEMINI_API_KEY
 
-  # --- Ollama (local, profil compose `llm`) -----------------------------------
-  # Modeles a tirer sur le conteneur ollama avant usage (`ollama pull <modele>`).
-  # Le nom exact de modele est a renseigner (IAF-1 T7) ; ollama_chat/ pour de
-  # meilleures reponses (doc LiteLLM) plutot que ollama/.
+  # --- Ollama (local) ----------------------------------------------------------
+  # IAF-1 T7 : mesure le 2026-09-27 sur la machine de dev (8 coeurs, ~8 Go RAM
+  # visible par Docker) : llama3.1:8b sans num_ctx explicite tente d'allouer 16 Go
+  # de cache KV (context_length par defaut 131072) et echoue "out of memory".
+  # gemma3:4b avec num_ctx borne fonctionne (~25 s a froid, chargement du modele
+  # inclus ; rapide une fois charge). Retenu pour ce fournisseur local ; a
+  # reevaluer si la machine cible a plus de RAM (llama3.1:8b redeviendrait
+  # pertinent). ollama_chat/ pour de meilleures reponses (doc LiteLLM) plutot
+  # que ollama/. num_ctx passe via extra_body (doc LiteLLM/communaute, verifie).
   - model_name: ollama-local
     litellm_params:
-      model: ollama_chat/<modele-a-choisir>
-      api_base: http://ollama:11434
+      model: ollama_chat/gemma3:4b
+      api_base: os.environ/OLLAMA_BASE_URL
+      extra_body:
+        options:
+          num_ctx: 4096
 
   # --- Alias d'usage : defaut par service, surchargeable par agent (US4.1) ----
   - model_name: iaf-extraction   # extraction ouverte et guidee : gros volume, texte
@@ -69,12 +77,13 @@ model_list:
       model: anthropic/claude-sonnet-5
       api_key: os.environ/ANTHROPIC_API_KEY
 
-  # Embeddings : a declarer une fois le modele choisi (IAF-1 T7, US3.2). Exemple
-  # local via Ollama (profil `llm`), avec le nom de modele a renseigner :
-  # - model_name: iaf-embedding
-  #   litellm_params:
-  #     model: ollama/<modele-d-embedding>
-  #     api_base: http://ollama:11434
+  # --- Embeddings (IAF-1 T7, US3.2) -------------------------------------------
+  # nomic-embed-text : verifie (recherche web 2026-09-27) : appel LiteLLM au
+  # format "ollama/<modele>" (pas ollama_chat/) pour les embeddings.
+  - model_name: iaf-embedding
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: os.environ/OLLAMA_BASE_URL
 
 litellm_settings:
   callbacks: jev_router.hook.proxy_handler_instance

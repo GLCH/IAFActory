@@ -44,13 +44,20 @@ Avec Jev activé, un résumé de la requête (jusqu'à 8 messages de 2000 caract
 - Passerelle écrite maison : coût de maintenance élevé pour des fonctions déjà couvertes.
 - Autres passerelles (Portkey, Kong AI Gateway) : citées dans des comparatifs, non évaluées ici.
 
+## Vérifié le 2026-09-27 (construction et démarrage réels)
+
+- Le build de l'image réussit (LiteLLM `v1.98.0` + `jev-router` au SHA épinglé) ; `DATABASE_URL` est le bon nom de variable ; les migrations Prisma s'appliquent sans erreur ; le hook `jev_router.hook.proxy_handler_instance` se charge sans erreur avec LiteLLM v1.98.0 (donc `jev-router`, écrit pour `litellm>=1.60.0`, est compatible en pratique malgré l'écart de version) ; `pyyaml` est bien présent dans l'image de base.
+- `/health/readiness` répond `{"status":"healthy","db":"connected"}` ; `/v1/models` liste les 12 entrées attendues.
+- Appel chat réel via `ollama-local` (Ollama, hors passerelle Anthropic/Gemini faute de clé) : réponse correcte, chargement à froid 25-45 s, réponse à chaud 1-2 s.
+- Appel embedding réel via `iaf-embedding` (`ollama/nomic-embed-text`, pas `ollama_chat/`) : dimension **768**, fonctionne du premier coup.
+- **`llama3.1:8b` (candidat initial) échoue** sur la machine de dev : `out of memory` en tentant d'allouer un cache KV de 16 Gio (context_length par défaut 131072). Remplacé par `gemma3:4b` avec `num_ctx: 4096` explicite (`extra_body.options.num_ctx`, syntaxe confirmée par la communauté LiteLLM, pas la doc officielle qui ne couvre pas ce cas). Détail et reproduction : `poc/RESULTATS.md`.
+- Un appel de chat s'est bloqué durablement (~8 min) sans réponse ni erreur lors d'un usage en boucle (3 appels séquentiels) ; un appel manuel équivalent juste après a répondu en 47 s. Cause non identifiée ; mitigé par `max_tokens` explicite sur chaque appel, pas résolu. À surveiller (US11.4, US13.8).
+
 ## Non vérifié
 
-- Le build de l'image, le démarrage de LiteLLM avec notre config, le chargement du hook, `DATABASE_URL` (nom de variable d'après l'usage courant, la doc consultée parle de « Database URL »), la présence de `pyyaml` dans l'image de base : jev-router le déclare explicitement en dépendance ; LiteLLM en a besoin pour lire son propre `config.yaml`, donc il devrait être présent, mais cela se vérifie au build (sinon l'ajouter dans le Dockerfile).
-- La compatibilité de `jev-router` (écrit pour `litellm>=1.60.0`) avec `v1.98.0`.
-- Les identifiants de modèles Anthropic et Gemini dans `litellm.yaml` (repris de la liste de modèles en vigueur, à confirmer au premier appel).
-- Le nom exact du modèle Ollama : laissé en `<modele-a-choisir>` (IAF-1 T7), à tirer sur le conteneur avant tout appel.
-- La qualité et la latence comparées des trois fournisseurs sur les tâches réelles (extraction, agent, jugement) : à mesurer, pas à supposer.
+- Les identifiants de modèles Anthropic et Gemini dans `litellm.yaml` (aucune clé disponible pour ce test) : repris de la liste de modèles en vigueur, non appelés en pratique.
+- Le repli `iaf-auto` -> `claude-sonnet` de jev-router en cas d'échec (jamais déclenché : aucun appel n'a échoué côté modèle testé).
+- La qualité et la latence comparées des trois fournisseurs sur les tâches réelles : seul Ollama a été mesuré.
 
 ## Décidé le 2026-09-27 (US5.6)
 

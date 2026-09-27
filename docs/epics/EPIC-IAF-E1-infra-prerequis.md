@@ -45,13 +45,16 @@ Statut : taches 1 a 5 ecrites, 6 a faire (rien n'a encore ete demarre : daemon D
 - Description : premier `up` reel, mesures, corrections.
 - Prerequis : Docker Desktop demarre ; T1 a T5.
 - Acceptance criteria : les 3 services sains ; temps de demarrage et memoire par service notes dans "Contexte" ; tout ecart avec T4 et T5 corrige dans le code ET dans cet epic.
-- Contexte : a mesurer. Hypotheses a verifier : syntaxe de `shiro.ini` genere, healthcheck cypher-shell, telechargement de l'archive Jena.
-- Exemples : si le build Fuseki echoue sur le sha512, corriger l'URL ou le format du fichier de somme.
+- **FAIT le 2026-09-27.** Postgres, Neo4j (apoc+n10s) et Fuseki sains au premier `docker compose up`. Fuseki : `/$/ping` anonyme 200, `/$/server` sans auth 401, avec auth 200, `ASK {}` sur `/iaf/sparql` 200 (4.57 s a froid, 119 ms ensuite). `shiro.ini` genere fonctionne tel qu'ecrit, aucune correction necessaire. Neo4j sain en ~50 s (telechargement des plugins inclus). `neo4j-init` (contraintes) applique sans erreur.
+- **Ecart reel corrige** : conflits de port sur la machine de dev (un autre projet local occupe 5432, 7474, 7687, 3030) ; decales dans `.env` (machine-specifique, pas dans les defauts de `compose.yaml`/`.env.example`). Detail et reproduction : `poc/RESULTATS.md`.
+- Exemples : si le build Fuseki echoue sur le sha512, corriger l'URL ou le format du fichier de somme (non rencontre : le sha512 a passe du premier coup).
 
 ## T8 Passerelle LLM (infra)
-- Voir IAF-E11 US11.1 (IAF-68) : `infra/llm-gateway`, base `litellm`, service `llm-gateway`. Ecrit le 2026-09-26, non demarre.
+- Voir IAF-E11 US11.1 (IAF-68) : `infra/llm-gateway`, base `litellm`, service `llm-gateway`.
+- **FAIT le 2026-09-27** : construite et demarree avec succes (LiteLLM v1.98.0 + jev-router, migrations Prisma appliquees, hook charge sans erreur). Detail : `poc/RESULTATS.md` et EPIC-IAF-E11 US11.1.
 
 ## T7 LLM local optionnel
 - Description : profil `llm` Ollama ; choix du modele d'embedding et du modele de generation.
 - Acceptance criteria : `--profile llm up` demarre Ollama ; un modele d'embedding tire et interrogeable.
-- Questions ouvertes : fournisseur LLM des agents (API Claude ou local) ; GPU disponible ? Image `ollama/ollama:latest` non figee.
+- **Partiellement fait le 2026-09-27**, mais avec un Ollama natif de l'hote plutot que le conteneur du profil `llm` (deja present sur la machine de dev, evite un telechargement redondant ; `OLLAMA_BASE_URL` rend les deux interchangeables). Modele d'embedding retenu et mesure : `nomic-embed-text` (768 dimensions). Modele de generation : `llama3.1:8b` **echoue** sur cette machine (memoire insuffisante pour son contexte par defaut de 131072 tokens, tentative d'allocation de 16 Gio) ; `gemma3:4b` avec `num_ctx: 4096` fonctionne. Detail : `poc/RESULTATS.md`.
+- Questions ouvertes : le conteneur du profil `llm` (image `ollama/ollama:latest`, non figee) reste a tester independamment de l'Ollama de l'hote ; GPU disponible sur la machine cible de production ?
