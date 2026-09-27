@@ -174,6 +174,8 @@ Un agent déclare une **spécialité** : classes documentaires (ou domaines de l
 
 Un document multi-classes est utilisable par un agent dès qu'une de ses classes est dans la spécialité ; seules les parties du graphe rattachées à cette classe sont utilisées (les entités portent leur classe d'origine). Un agent sans spécialité n'existe pas : c'est une validation de création.
 
+Cette section décrit les **agents de projet** : créés par un creator, propres à un projet, utilisés par les viewers en session (IAF-E10). Ils sont distincts des **agents produit**, fournis par la plateforme pour aider le creator à construire un projet (section 14) : ceux-ci n'ont pas de spécialité de graph RAG, ne sont jamais créés par un creator, et ne sont jamais proposés à un viewer.
+
 ## 6. Besoin du creator : cadrage guidé
 
 Le creator décrit un besoin ; un assistant de cadrage produit un brouillon d'agent (US8.x) :
@@ -184,6 +186,8 @@ Le creator décrit un besoin ; un assistant de cadrage produit un brouillon d'ag
 4. Signaler les écarts : classe absente, source non accessible, glossaire manquant.
 
 Le creator garde la main : rien n'est créé sans sa validation.
+
+Ce cadrage n'est que la première étape d'une chaîne plus longue, précisée le 2026-09-27 : voir section 14.
 
 ## 7. Connecteurs sécurisés
 
@@ -344,3 +348,59 @@ Propriétés exigées :
 - **Isolation** : l'analyse de fichier (I) s'exécute dans un conteneur sans réseau.
 - **Observabilité** : chaque transition est un événement d'activité (E12) ; durée, taux d'échec et coût par étape apparaissent au tableau de bord.
 - **Lots** : traitement de nombreux documents avec concurrence bornée par étape.
+
+## 14. Agents produit : aider le creator à construire un projet
+
+Décidé le 2026-09-27. Un creator arrive avec une idée, pas encore un projet structuré. Une chaîne d'**agents produit** l'aide à passer de l'idée à un projet prêt à coder, en s'inspirant explicitement de la méthode déjà suivie pour IAFActory lui-même (epics au format Definition of Ready, mesure avant d'affirmer un bénéfice).
+
+### 14.1 Agents produit contre agents de projet
+
+| | Agent produit (cette section) | Agent de projet (section 5) |
+|---|---|---|
+| Qui le crée | La plateforme (fixe, maintenu par l'admin) | Le creator |
+| Combien y en a-t-il | Un catalogue fermé, partagé par tous les creators | Autant que le creator en définit |
+| Ce qu'il utilise | Le besoin exprimé, la conversation, les projets existants du creator | Le graph RAG de son projet (spécialité) |
+| Qui l'utilise | Le creator, pour construire ou faire évoluer un projet | Le viewer et le creator, en session (IAF-E10) |
+| Modèle | Alias fixe (`iaf-cadrage`, `iaf-produit`) | Choisi par le creator (US4.1) |
+
+Avant de créer un nouvel agent produit, vérifier qu'aucun agent existant ne couvre déjà le rôle (règle explicite, pour éviter la prolifération constatée ailleurs pour les classes documentaires, US7.5). Au 2026-09-27 :
+
+| Rôle demandé | Couverture existante | Décision |
+|---|---|---|
+| Interpréter la demande, reconnaître ou créer un projet | Partielle : US8.1 (exprimer un besoin) et US8.2 (cadrer) supposaient un projet déjà choisi | US8.1/US8.2 étendues (US8.1bis) : l'agent Interprète décide d'abord du projet |
+| Aider à créer les parcours utilisateurs (user journeys) | Aucune | Nouvelle US8.5, agent **Parcours** |
+| Créer le projet Jira, les epics et user stories (description + contexte, prérequis, critères d'acceptation) | Aucune : c'est la méthode suivie manuellement pour IAFActory lui-même, jamais offerte au creator | Nouvelle US8.6, agent **Backlog** |
+| Concevoir l'architecture du nouveau service | Aucune | Nouvelle US8.7, agent **Architecte** |
+| Écrire le code | Aucun agent LLM+RAG classique ne convient (il faut des outils : lire/écrire des fichiers, git, exécuter des tests) | Pas un agent produit comme les autres : IAF-E15, intégration d'un agent codeur outillé (voir 14.3) |
+
+### 14.2 La chaîne (agents Interprète, Parcours, Backlog, Architecte)
+
+```mermaid
+flowchart LR
+  C[Creator decrit un besoin] --> I[Interprete]
+  I -- projet existant --> P
+  I -- nouveau projet --> NP[Creation du projet] --> P
+  P[Parcours utilisateur] --> B[Backlog : projet Jira, epics, user stories]
+  B --> A[Architecte]
+  A --> V{Creator valide}
+  V -- non --> P
+  V -- oui --> CODE[Agent codeur, IAF-E15]
+```
+
+- **Interprète** (US8.1bis) : reformule le besoin, le compare aux projets existants du creator (par similarité, comme la reconnaissance documentaire section 4 mais sur les descriptions de projet plutôt que sur des documents) et propose soit de continuer un projet existant, soit d'en créer un nouveau. Le creator valide avant toute création.
+- **Parcours** (US8.5) : à partir du besoin validé, propose des parcours utilisateurs (acteurs, étapes, ce qui déclenche chaque étape, ce qu'elle produit). Sortie textuelle structurée en v1 (liste d'étapes par parcours) ; un rendu en diagramme est une amélioration possible, pas une exigence de la première version.
+- **Backlog** (US8.6) : transforme les parcours validés en epics et user stories au **même format que celui suivi pour IAFActory** (mémoire du projet, epics au format Definition of Ready) : description la plus claire et contextualisée possible, puis prérequis, puis critères d'acceptation précis qui permettent de valider la story. Crée le projet Jira et les tickets via un connecteur Jira (même famille que IAF-E9, portée en écriture cette fois : à approuver par l'admin comme tout connecteur, US9.1 révisée).
+- **Architecte** (US8.7) : à partir du backlog validé, propose une architecture (composants, magasins de données, intégrations) sous forme de document, sur le modèle des ADR déjà utilisés dans ce dépôt.
+- **Validation à chaque étape** : comme le cadrage existant (section 6), rien n'avance sans un accord explicite du creator ; il peut revenir en arrière (flèche de retour sur le schéma).
+- **Modèles** : Interprète et Parcours utilisent l'alias `iaf-cadrage` (conversationnel) ; Backlog et Architecte utilisent un nouvel alias `iaf-produit` (raisonnement plus soutenu, ajouté à `infra/llm-gateway/litellm.yaml` le 2026-09-27, pointé sur le modèle le plus capable du catalogue en attendant une mesure réelle).
+
+### 14.3 Agent codeur : une nature différente
+
+Le dernier maillon - écrire le code une fois l'architecture validée - n'est pas un agent comme les autres : il doit lire et écrire des fichiers, utiliser un gestionnaire de version, exécuter des tests, pas seulement répondre à partir d'un contexte récupéré. C'est littéralement ce que fait Claude Code (l'outil qui a produit cette conception). Décision et détail : [ADR 0008](../adr/0008-agent-codeur.md) et [IAF-E15](../epics/EPIC-IAF-E15-agent-codeur.md).
+
+### 14.4 Questions ouvertes
+
+- Le connecteur Jira en écriture (agent Backlog) utilise-t-il les identifiants Jira du creator, ou un compte de service de la plateforme ?
+- Formats de sortie de l'agent Parcours (texte structuré suffisant, ou diagramme attendu dès la v1) ?
+- Un projet peut-il être repris par l'agent Interprète après une longue pause (plusieurs semaines), avec un contexte qui a changé ?
+- Qui valide l'architecture proposée si elle a des implications de coût ou de sécurité qui dépassent la compétence du creator ?

@@ -70,6 +70,10 @@ model_list:
     litellm_params:
       model: anthropic/claude-opus-5-5
       api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: iaf-produit      # agents Backlog et Architecte (conception.md 14.2), raisonnement soutenu
+    litellm_params:
+      model: anthropic/claude-opus-5-5
+      api_key: os.environ/ANTHROPIC_API_KEY
   # Routage automatique par jev-router. La cible ci-dessous n'est qu'un modele
   # valide de repli si le hook ne s'execute pas.
   - model_name: iaf-auto
