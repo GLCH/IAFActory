@@ -202,22 +202,60 @@ Détail : [ADR 0003](../adr/0003-connecteurs-securises.md).
 
 Viewer et creator ouvrent des sessions avec un agent visible pour eux. Un viewer n'a aucun droit d'écriture sur l'agent ni sur le projet ; ses exclusions filtrent la récupération à chaque tour, pas seulement à l'ouverture de la session. Historique conservé par utilisateur ; règle de visibilité pour le creator à trancher (question ouverte, IAF-E10).
 
-## 9. Matrice des droits (hypothèses)
+## 9. Matrice des droits (arrêtée, US5.6)
 
-| Action | viewer | creator (propriétaire) | admin |
-|---|---|---|---|
-| Voir projets et agents | oui sauf exclusions | oui (les siens) | oui |
-| Ouvrir une session avec un agent | oui, si non exclu | oui | oui |
-| Créer/modifier agent, tests, connecteurs, classes | non | oui | non (sauf arrêt et effacement) |
-| Poser des exclusions | non | oui, sur ses projets | non |
-| Créer un creator | non | non | oui |
-| Arrêter/effacer un projet | non | non | oui, tous |
-| Modifier le glossaire commun (taxonomie, termes) | non | à définir | à définir |
-| Configurer les alias d'usage systeme de la passerelle | non | non | oui |
-| Choisir le fournisseur et le modele de son agent (parmi le catalogue) | non | oui | oui |
-| Consulter le journal d'activité | le sien | celui de ses projets | tout |
+Décidée en atelier le 2026-09-27. Remplace la version en hypothèses. Quatre choix structurants, tranchés par l'utilisateur :
 
-Les capacités précises des creators (notamment sur le glossaire commun et le choix des modèles pour leurs agents) seront définies lors de la prochaine étape (US5.6).
+1. **Comptes** : l'admin crée tous les comptes, creator et viewer (US5.7 ajoutée : jusque-là seule la création de creator était couverte).
+2. **Glossaire commun** : gouverné par **revue collective des creators**, pas par un rôle de curateur ni par l'admin seul (US3.10 révisée).
+3. **Connecteurs** : **toute activation est soumise à l'admin**, même pour un type déjà au catalogue (US9.1 révisée) — posture plus stricte que le reste de la matrice, justifiée par le risque (ADR 0003).
+4. **Budget LLM** : **l'admin fixe le budget de chaque agent individuellement** ; le creator choisit le fournisseur et le modèle (US4.1) mais jamais le budget (US11.3 révisée).
+
+| Domaine | Action | viewer | creator (propriétaire) | admin |
+|---|---|---|---|---|
+| Comptes | Créer un compte creator | non | non | oui |
+| Comptes | Créer un compte viewer | non | non | oui |
+| Comptes | Se connecter, voir son propre profil | oui | oui | oui |
+| Projets | Créer, renommer, décrire un projet | non | oui | oui |
+| Projets | Voir un projet | oui, sauf exclusions | oui, les siens | oui, tous |
+| Projets | Arrêter ou effacer un projet | non | non | oui, tous |
+| Glossaire commun | Consulter la taxonomie et les termes | oui | oui | oui |
+| Glossaire commun | Proposer un terme candidat ou un domaine | non | oui | oui |
+| Glossaire commun | Approuver une promotion (revue par pairs) | non | oui, si non proposant | non (recours seulement) |
+| Glossaire commun | Annuler une promotion erronée (recours) | non | non | oui |
+| Ontologies sémantiques (par domaine) | Proposer une modification | non | oui | oui |
+| Ontologies sémantiques (par domaine) | Approuver (même mécanisme que le glossaire) | non | oui, si non proposant | non (recours) |
+| Ontologies structurelles (profil de classe, propre au projet) | Créer, modifier | non | oui | oui |
+| Ontologie structurelle de base (vocabulaire commun) | Modifier | non | non | oui |
+| Classes documentaires | Créer, fusionner, valider, rejeter une classe provisoire | non | oui, les siennes | oui, toutes |
+| Agents | Créer, modifier, versionner, définir la spécialité | non | oui | oui |
+| Agents | Choisir le fournisseur et le modèle (catalogue passerelle) | non | oui | oui |
+| Agents | Fixer ou modifier le budget LLM d'un agent | non | non | oui |
+| Agents | Lancer, suivre, arrêter un agent (US4.2) | non | oui, les siens | oui, tous |
+| Agents | Définir les tests de validation, voir le verdict | non | oui, les siens | oui, tous |
+| Groupes d'agents | Créer, gérer un groupe | non | oui | oui |
+| Sessions | Ouvrir une session avec un agent visible | oui, si non exclu | oui | oui |
+| Sessions | Consulter, reprendre, supprimer ses sessions | les siennes | les siennes | toutes |
+| Exclusions viewer | Poser ou lever une exclusion sur son propre projet | non | oui | non |
+| Exclusions viewer | Poser une exclusion sur le projet d'un autre creator | non | non (403) | non |
+| Connecteurs | Déclarer un connecteur (brouillon) | non | oui | oui |
+| Connecteurs | Approuver l'activation d'un connecteur (tout type, même déjà catalogué) | non | non | oui |
+| Connecteurs | Fournir ou faire tourner un identifiant (écriture seule) | non | oui, le sien, une fois approuvé | oui |
+| Connecteurs | Révoquer un connecteur | non | oui, le sien | oui, tous |
+| Passerelle LLM | Configurer les alias d'usage système | non | non | oui |
+| Journal d'activité | Consulter son propre historique | oui | oui | oui |
+| Journal d'activité | Consulter l'historique de ses projets | non | oui | oui, tout |
+| Journal d'activité | Exporter en CSV | non | non | oui |
+| Rétention et purge des journaux | Configurer | non | non | oui |
+
+Cas limites explicitement tranchés :
+
+- Un creator peut approuver la promotion d'un terme qu'il n'a **pas** proposé lui-même ; il ne peut pas auto-approuver sa propre proposition (évite qu'un seul creator peuple le glossaire commun seul).
+- L'admin n'a pas de droit de vote dans la revue par pairs ; il garde seulement un droit de recours pour annuler une promotion déjà faite si elle s'avère erronée (US3.10).
+- Le budget d'un agent n'est jamais un champ modifiable par le creator, même en lecture-écriture partielle : c'est un champ affiché en lecture seule côté creator (US11.3, US4.1).
+- L'approbation d'un connecteur par l'admin est requise même quand le type de connecteur est déjà utilisé ailleurs dans le projet ou par un autre creator : chaque instance est jugée séparément (US9.1).
+
+Questions encore ouvertes, non bloquantes pour coder la matrice ci-dessus : un utilisateur peut-il porter plusieurs rôles ; le creator voit-il les sessions de ses viewers (question 3, section 12) ; seuil exact de la revue par pairs (une seule approbation d'un autre creator suffit par défaut, à ajuster si le nombre de creators grandit).
 
 ## 10. Passerelle LLM
 

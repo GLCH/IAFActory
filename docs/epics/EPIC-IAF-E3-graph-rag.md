@@ -83,10 +83,10 @@ Questions transverses : volumes ? langue des documents ? qui modifie la taxonomi
 ## US3.10 Gouverner le glossaire commun
 - En tant qu'organisation, je veux que la taxonomie commune ne soit pas alteree par erreur ou par un seul projet.
 - Prerequis : US3.6, IAF-E5.
-- Acceptance criteria : les termes candidats induits par un document non reconnu restent propres au projet ; proposer la promotion d'un terme candidat cree une demande ; la promotion ou la modification de la taxonomie commune exige une validation par un role a definir (US5.6) ; toute modification est versionnee, journalisee et reversible ; un terme deja utilise par des classes ne peut etre supprime sans reaffectation.
-- Statut : a preciser avec la definition des capacites des creators (US5.6).
-- Exemples : un creator propose « Joint torique » sous « Materiaux » ; tant que la demande n'est pas validee, le terme reste candidat dans son projet.
-- Questions : qui valide (admin, role de curateur, creators pairs) ?
+- Acceptance criteria : les termes candidats induits par un document non reconnu restent propres au projet ; proposer la promotion d'un terme candidat (ou une modification de la taxonomie : nouveau domaine, renommage) cree une demande visible de tous les creators ; **gouvernance par revue collective des creators (decide le 2026-09-27)** : la demande est approuvee par au moins un creator autre que le proposant (un creator ne peut pas auto-approuver sa propre proposition) ; aucun role de curateur, l'admin ne vote pas ; l'admin garde un droit de recours pour annuler une promotion deja faite si elle s'avere erronee (journalise, motive) ; toute modification est versionnee, journalisee et reversible ; un terme deja utilise par des classes ne peut etre supprime sans reaffectation.
+- Contexte : meme mecanisme applique aux ontologies semantiques rattachees aux domaines (US3.12), puisqu'elles sont elles aussi communes. Matrice complete : conception.md section 9.
+- Exemples : un creator propose « Joint torique » sous « Materiaux » ; tant que aucun autre creator n'a approuve, le terme reste candidat dans son projet ; le proposant lui-meme ne peut pas approuver sa propre proposition.
+- Questions : seuil d'approbation (une seule suffit par defaut, a ajuster si le nombre de creators grandit) ; delai avant relance si personne ne revoit la demande ?
 
 ## US3.11 Ontologie structurelle et profil structurel de classe
 - Jira : IAF-92.
@@ -101,7 +101,7 @@ Questions transverses : volumes ? langue des documents ? qui modifie la taxonomi
 - Jira : IAF-93.
 - En tant que creator, je veux que le contenu attendu d'un domaine soit decrit par une ontologie semantique (types d'entites, de relations, attributs).
 - Prerequis : US3.3, US3.6.
-- Acceptance criteria : une ontologie semantique est rattachee a un ou plusieurs domaines de la taxonomie (`HAS_ONTOLOGY`) ; elle ne contient aucun terme purement structurel (section, tableau : ils relevent de l'ontologie structurelle) ; controle a l'import ; les elements portent des labels alignes sur les termes du glossaire ; versionnee.
+- Acceptance criteria : une ontologie semantique est rattachee a un ou plusieurs domaines de la taxonomie (`HAS_ONTOLOGY`) ; elle ne contient aucun terme purement structurel (section, tableau : ils relevent de l'ontologie structurelle) ; controle a l'import ; les elements portent des labels alignes sur les termes du glossaire ; versionnee ; modification gouvernee par la meme revue collective de creators que le glossaire (US3.10, decide 2026-09-27), car rattachee a un domaine commun.
 - Contexte : separation structure et contenu, ADR 0005.
 - Exemples : le domaine « Materiaux » a les types Materiau, Norme, Fournisseur, la relation « conforme a » et l'attribut « resistance (MPa) » ; un type « Tableau » y est refuse.
 

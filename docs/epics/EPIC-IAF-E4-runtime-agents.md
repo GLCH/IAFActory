@@ -11,10 +11,10 @@ Questions transverses : qu'est-ce qu'un agent (prompt + outils + ontologie + mod
 ## US4.1 Definir un agent
 - En tant que creator, je definis un agent : mission, consignes, ontologie, outils autorises, fournisseur et modele.
 - Prerequis : IAF-E5 US5.2 ; US3.3 pour l'ontologie ; passerelle LLM hybride (IAF-E11).
-- Acceptance criteria : le modele est choisi dans le catalogue de la passerelle (Anthropic, Gemini ou Ollama, decision 2026-09-27), jamais une cle en dur ; l'agent peut soit choisir un modele precis, soit heriter de l'alias d'usage par defaut de son role (iaf-agent) ; agent enregistre en base avec version ; toute modification (dont un changement de fournisseur ou de modele) cree une nouvelle version ; l'agent ne peut referencer que des ressources de son projet ; une definition invalide est refusee avec le champ en cause.
+- Acceptance criteria : le modele est choisi dans le catalogue de la passerelle (Anthropic, Gemini ou Ollama, decision 2026-09-27), jamais une cle en dur ; l'agent peut soit choisir un modele precis, soit heriter de l'alias d'usage par defaut de son role (iaf-agent) ; **decide le 2026-09-27 (US5.6)** : le budget LLM de l'agent est un champ fixe par l'admin (US11.3), affiche en lecture seule au creator, jamais modifiable depuis son role ; agent enregistre en base avec version ; toute modification (dont un changement de fournisseur ou de modele) cree une nouvelle version ; l'agent ne peut referencer que des ressources de son projet ; une definition invalide est refusee avec le champ en cause.
 - Contexte : le choix du fournisseur importe pour la confidentialite (Ollama ne renvoie rien a un tiers) et pour le cout ; a documenter au creator au moment du choix.
-- Exemples : agent "Analyste contrats" (mission, ontologie Contrat, outil graph-query, modele claude-sonnet) enregistre en v1 ; changer la consigne cree v2 ; un agent sur donnees sensibles choisit ollama-local.
-- Questions : format de definition (formulaire, YAML) ? limites de budget par agent (US5.6, US11.3) ?
+- Exemples : agent "Analyste contrats" (mission, ontologie Contrat, outil graph-query, modele claude-sonnet) enregistre en v1 ; changer la consigne cree v2 ; un agent sur donnees sensibles choisit ollama-local ; une tentative de modifier le budget par l'API creator recoit 403.
+- Questions : format de definition (formulaire, YAML) ?
 
 ## US4.2 Lancer, suivre et arreter un agent
 - En tant que creator, je lance un agent, suis son etat et son journal, et l'arrete.

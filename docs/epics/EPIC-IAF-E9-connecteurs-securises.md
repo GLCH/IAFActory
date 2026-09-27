@@ -6,11 +6,13 @@ Objectif : brancher des sources externes sans exposer d'identifiants ni ouvrir l
 
 Questions transverses : sources à brancher en premier ? coffre externe ? antivirus ? où s'exécutent les connecteurs ?
 
-## US9.1 Registre de connecteurs
-- En tant que creator, je déclare un connecteur (type, source, portée) dans mon projet.
+Décidé le 2026-09-27 (US5.6) : toute activation de connecteur passe par l'approbation de l'admin, y compris pour un type déjà catalogué (US9.1 révisée).
+
+## US9.1 Registre de connecteurs, soumis à approbation
+- En tant que creator, je déclare un connecteur (type, source, portée) dans mon projet ; il reste inactif jusqu'à l'accord de l'admin.
 - Prérequis : IAF-31 (projets), IAF-30.
-- Acceptance criteria : un connecteur appartient à un projet et à un creator ; types déclarés dans un catalogue fermé ; lecture seule par défaut ; un creator ne voit que ses connecteurs ; création et modification journalisées.
-- Exemples : le creator A ne peut ni lister ni utiliser le connecteur du creator B (404).
+- Acceptance criteria : un connecteur appartient à un projet et à un creator ; types déclarés dans un catalogue fermé ; **décidé le 2026-09-27 (US5.6)** : tout connecteur créé est à l'état `brouillon`, passe en `en attente` quand le creator demande l'activation, puis `approuvé` ou `rejeté` par un admin — même quand le type est déjà approuvé ailleurs, dans le même projet ou pour un autre creator ; un connecteur non approuvé ne peut ni lire ni écrire ; rejet motivé et journalisé ; lecture seule par défaut une fois approuvé ; un creator ne voit que ses connecteurs ; création, demande, décision et modification journalisées.
+- Exemples : le creator A ne peut ni lister ni utiliser le connecteur du creator B (404) ; un connecteur `en attente` renvoie 409 sur toute tentative de synchronisation ; approuver un deuxième connecteur du même type pour le même creator exige une nouvelle décision de l'admin.
 
 ## US9.2 Identifiants chiffrés
 - En tant que creator, je fournis des identifiants qui ne ressortiront jamais.

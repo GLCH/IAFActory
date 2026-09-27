@@ -1,6 +1,6 @@
 # EPIC IAF-E5 : site, roles et droits
 
-Jira : IAF-5, stories IAF-29 a IAF-33 (US5.1 a US5.5). Statut : user stories redigees, regles d'exclusion a preciser.
+Jira : IAF-5, stories IAF-29 a IAF-33 (US5.1 a US5.5), IAF-82 (US5.6, fait), IAF-96 (US5.7, nouvelle). Statut : capacites des creators arretees le 2026-09-27 (US5.6), voir conception.md section 9.
 
 Objectif : un site ou chaque role fait ce qui lui est permis, et rien d'autre. Les droits sont appliques dans l'API, pas seulement dans l'interface.
 
@@ -12,6 +12,7 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - En tant qu'admin, je cree un compte creator.
 - Prerequis : US5.2.
 - Acceptance criteria : seul un admin le peut (403 sinon, teste) ; identifiant unique ; le creator recoit un moyen d'activer son compte sans mot de passe en clair dans un journal ; creation journalisee.
+- Contexte : decide le 2026-09-27 (US5.6) : l'admin cree AUSSI les comptes viewer, voir US5.7. Aucun creator ne peut creer de compte, quel que soit le role.
 - Exemples : un creator tente de creer un creator : 403.
 - Questions : envoi d'invitation par courriel ?
 
@@ -49,5 +50,12 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - En tant que responsable produit, je definis precisement ce que peuvent faire les creators, avant de coder les droits.
 - Prerequis : aucun (atelier avec l'utilisateur) ; alimente US3.10, US11.3, IAF-E9.
 - Acceptance criteria : une matrice creator (action x ressource) validee par l'utilisateur, couvrant au minimum : glossaire commun (proposer, modifier, promouvoir), classes documentaires (creer, fusionner, valider, rejeter), agents (creer, modifier, arreter), choix du modele et du budget LLM de ses agents, connecteurs (types autorises, sources), exclusions viewer, tests de validation, consultation de l'activite ; chaque ligne indique creator, admin, ou les deux ; les cas limites sont listes ; la matrice remplace la section 9 de la conception.
-- Statut : a faire apres cette etape (demande de l'utilisateur : « on va donc apres definir ce que peuvent faire les creators »).
-- Exemples : « Un creator peut-il choisir un modele plus cher pour son agent, dans la limite de son budget ? » a trancher ligne par ligne.
+- **Statut : fait le 2026-09-27.** Matrice complete dans conception.md section 9. Quatre decisions structurantes : (1) l'admin cree tous les comptes, creator et viewer (US5.7 ajoutee) ; (2) le glossaire commun est gouverne par revue collective des creators, pas par un role de curateur ni par l'admin (US3.10 revisee) ; (3) tout connecteur, meme d'un type deja catalogue, est soumis a l'approbation de l'admin avant activation (US9.1 revisee) ; (4) l'admin fixe le budget LLM de chaque agent individuellement, le creator choisit seulement le fournisseur et le modele (US11.3, US4.1 revisees).
+- Exemples : « Un creator peut-il choisir un modele plus cher pour son agent, dans la limite de son budget ? » Non : le budget est fixe par l'admin, le creator choisit le modele mais pas le budget.
+
+## US5.7 Creer un viewer (admin)
+- En tant qu'admin, je cree un compte viewer.
+- Prerequis : US5.2. Decide en US5.6 (2026-09-27) : symmetrique de US5.1, un creator ne peut jamais creer de compte.
+- Acceptance criteria : seul un admin le peut (403 sinon, teste) ; identifiant unique ; le viewer recoit un moyen d'activer son compte sans mot de passe en clair dans un journal ; creation journalisee ; le viewer voit tous les projets des la creation, sauf exclusions posees par les creators (US5.3).
+- Exemples : un creator tente de creer un viewer : 403.
+- Questions : envoi d'invitation par courriel ? un viewer peut-il etre associe a un ou plusieurs creators specifiques a la creation, ou est-il global d'emblee (hypothese : global, les exclusions font le filtrage) ?

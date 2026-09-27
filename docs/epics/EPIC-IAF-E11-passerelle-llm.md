@@ -25,10 +25,10 @@ Questions transverses : fournisseur (API externe ou local) ? qui règle les alia
 ## US11.3 Politique : qui utilise quel LLM
 - En tant qu'admin, je configure quels consommateurs (services internes, agents, sessions de viewers) peuvent utiliser quels modèles, avec quel budget.
 - Prérequis : US11.1, US5.2.
-- Acceptance criteria : une clé virtuelle par consommateur avec liste de modèles autorisés (pouvant mélanger les trois fournisseurs), budget avec réinitialisation, limites RPM et TPM ; un appel hors politique est refusé et journalisé ; la clé maître n'est connue que de l'API IAFActory ; interface d'administration IAFActory pour lire et changer la politique ; le creator choisit le modèle de son agent (US4.1) dans les limites que l'admin lui accorde.
+- Acceptance criteria : une clé virtuelle par consommateur avec liste de modèles autorisés (pouvant mélanger les trois fournisseurs), budget avec réinitialisation, limites RPM et TPM ; un appel hors politique est refusé et journalisé ; la clé maître n'est connue que de l'API IAFActory ; interface d'administration IAFActory pour lire et changer la politique. **Décidé le 2026-09-27 (US5.6)** : le budget d'un agent est fixé exclusivement par l'admin, agent par agent ; le creator choisit le fournisseur et le modèle (US4.1) mais le champ budget lui est présenté en lecture seule et ne peut jamais être modifié depuis son rôle.
 - Contexte : LiteLLM sait porter ces politiques (clés, équipes, budgets, limites) selon sa documentation ; à vérifier de bout en bout.
-- Exemples : la clé du service d'extraction n'autorise que `iaf-extraction` avec 20 dollars par jour ; un appel à `iaf-judge` avec cette clé renvoie un refus ; un creator sans droit Gemini ne peut pas donner ce modèle à son agent.
-- Questions : granularité par agent ou par projet ? limites précises du choix creator (US5.6).
+- Exemples : la clé du service d'extraction n'autorise que `iaf-extraction` avec 20 dollars par jour ; un appel à `iaf-judge` avec cette clé renvoie un refus ; un creator sans droit Gemini ne peut pas donner ce modèle à son agent ; un creator qui tente de modifier le budget de son agent via l'API reçoit 403.
+- Questions : granularité par agent ou par projet (le budget reste-t-il uniquement par agent, ou aussi un plafond par projet cumulant plusieurs agents) ?
 
 ## US11.4 Routage automatique optionnel
 - En tant qu'admin, j'active l'alias `iaf-auto` qui choisit un modèle selon la requête, sans jamais envoyer de contenu à un tiers par défaut.

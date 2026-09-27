@@ -27,5 +27,5 @@ Apache Jena est le projet : une bibliothèque Java pour RDF, SPARQL, les magasin
 
 ## Questions ouvertes
 
-- Tranché : glossaire commun. Reste à définir : qui modifie la taxonomie commune, et qui promeut un terme candidat (US3.10, US5.6) ; classes et documents restent-ils propres au projet (hypothèse actuelle : oui) ?
+- Tranché : glossaire commun. Tranché le 2026-09-27 (US5.6) : la taxonomie commune (termes, domaines, ontologies sémantiques) est gouvernée par **revue collective des creators** — une demande de modification est approuvée par au moins un creator autre que le proposant, sans rôle de curateur ; l'admin garde un droit de recours pour annuler une promotion erronée, mais ne vote pas. Détail : docs/epics/EPIC-IAF-E3-graph-rag.md US3.10, conception.md section 9. Reste ouvert : classes et documents restent-ils propres au projet (hypothèse actuelle : oui) ?
 - Le besoin de raisonnement OWL ou de validation SHACL est-il réel ? (Sinon, la valeur de Fuseki se réduit à SPARQL et au format d'échange.)
