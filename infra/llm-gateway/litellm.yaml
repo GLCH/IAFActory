@@ -27,6 +27,10 @@ model_list:
       api_key: os.environ/ANTHROPIC_API_KEY
 
   # --- Gemini (API Google AI Studio, prefixe gemini/ : cle simple, pas de GCP) -
+  # GEMINI_API_KEY jamais fournie (2026-09-28) : ces deux modeles echouent a
+  # l'appel mais la passerelle demarre quand meme (fournisseurs hybrides,
+  # decision 2026-09-27). Voir gemini-vertex-* ci-dessous : compte de service
+  # fourni le 2026-09-28, chemin different (Vertex AI, pas AI Studio).
   - model_name: gemini-flash
     litellm_params:
       model: gemini/gemini-2.5-flash
@@ -35,6 +39,24 @@ model_list:
     litellm_params:
       model: gemini/gemini-2.5-pro
       api_key: os.environ/GEMINI_API_KEY
+
+  # --- Gemini via Vertex AI (compte de service GCP, fourni le 2026-09-28) -----
+  # Syntaxe verifiee (doc LiteLLM, recherche web 2026-09-28) : model prefixe
+  # vertex_ai/, vertex_project/vertex_location/vertex_credentials (chemin de
+  # fichier). vertex_location "us-central1" par defaut : a confirmer par le
+  # premier appel reel (aucune region n'a ete communiquee).
+  - model_name: gemini-vertex-flash
+    litellm_params:
+      model: vertex_ai/gemini-2.5-flash
+      vertex_project: gen-lang-client-0720134848
+      vertex_location: us-central1
+      vertex_credentials: /etc/iaf/gemini-service-account.json
+  - model_name: gemini-vertex-pro
+    litellm_params:
+      model: vertex_ai/gemini-2.5-pro
+      vertex_project: gen-lang-client-0720134848
+      vertex_location: us-central1
+      vertex_credentials: /etc/iaf/gemini-service-account.json
 
   # --- Ollama (local) ----------------------------------------------------------
   # IAF-1 T7 : mesure le 2026-09-27 sur la machine de dev (8 coeurs, ~8 Go RAM

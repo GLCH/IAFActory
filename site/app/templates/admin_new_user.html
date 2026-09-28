@@ -1,24 +1,35 @@
 {% extends "base.html" %}
 {% block title %}Creer un utilisateur - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div><a href="/">IAFActory</a> / Creer un utilisateur</div>
-  <div><a href="/admin/users">Suivi des utilisateurs</a></div>
-</header>
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Creer un utilisateur</div>
+  <div class="page-header">
+    <h1>Creer un utilisateur</h1>
+    <div class="actions"><a class="btn" href="/admin/users">Suivi des utilisateurs</a></div>
+  </div>
 
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
-
-<form method="post" action="/admin/users/new">
-  <p><label>Courriel<br>
-    <input type="email" name="email" value="{{ email or '' }}" required></label></p>
-  <p><label>Mot de passe initial<br>
-    <input type="password" name="password" required minlength="12"></label>
-    <br><small>12 caracteres minimum. L'utilisateur devra le changer lui-meme (pas encore possible depuis l'interface).</small></p>
-  <p>
-    <label><input type="radio" name="role" value="creator" {% if role == "creator" or not role %}checked{% endif %}> creator</label>
-    &nbsp;
-    <label><input type="radio" name="role" value="viewer" {% if role == "viewer" %}checked{% endif %}> viewer</label>
-  </p>
-  <button type="submit">Creer</button>
-</form>
+  <div class="card" style="max-width: 480px;">
+    {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+    <form method="post" action="/admin/users/new">
+      <div class="field">
+        <label>Courriel</label>
+        <input type="email" name="email" value="{{ email or '' }}" required>
+      </div>
+      <div class="field">
+        <label>Mot de passe initial</label>
+        <input type="password" name="password" required minlength="12">
+        <small>12 caracteres minimum. L'utilisateur devra le changer lui-meme (pas encore possible depuis l'interface).</small>
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <div class="radio-group">
+          <label><input type="radio" name="role" value="creator" {% if role == "creator" or not role %}checked{% endif %}> creator</label>
+          <label><input type="radio" name="role" value="viewer" {% if role == "viewer" %}checked{% endif %}> viewer</label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Creer</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

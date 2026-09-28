@@ -63,9 +63,18 @@ Avec Jev activé, un résumé de la requête (jusqu'à 8 messages de 2000 caract
 
 Budget à deux niveaux, tous deux fixés par l'admin, jamais par le creator : un budget par **projet** (plafond agrégé) et un budget par **agent** (sous-plafond), le second ne pouvant dépasser le premier. Correspond a priori à la hiérarchie équipe (projet) / clé virtuelle (agent) de LiteLLM ; correspondance exacte à vérifier au premier déploiement (US11.3).
 
+## Vérifié le 2026-09-28 (Gemini via Vertex AI, compte de service)
+
+L'utilisateur a fourni un compte de service GCP (pas une clé API Google AI Studio simple, qui restait vide). Ajouté à `infra/llm-gateway/litellm.yaml` : `gemini-vertex-flash` et `gemini-vertex-pro`, prefixe `model: vertex_ai/...`, `vertex_project`/`vertex_location`/`vertex_credentials` (chemin de fichier). Syntaxe vérifiée par recherche web (doc LiteLLM), pas devinée. Fichier de credentials `infra/llm-gateway/gemini-service-account.json`, jamais commité (`.gitignore`), monté en lecture seule dans le conteneur (pas copié dans l'image, même principe que les clés en variables d'environnement).
+
+Testé réellement via `/v1/chat/completions` (`curl` direct sur la passerelle) : réponse `"OK"` reçue, région `us-central1` correcte. Point réel rencontré : les modèles Gemini 2.5 consomment des jetons de "raisonnement" internes qui comptent dans `max_tokens` - un appel avec `max_tokens=10` a renvoyé un contenu vide (`finish_reason: "length"`, 6 jetons de raisonnement, 0 jeton de texte). `site/app/graph.py` relève le défaut à 1200 et traite une réponse vide comme un échec normal (pas un crash) suite à ce constat.
+
+**Décidé le 2026-09-28** : `gemini-vertex-flash` devient le modèle par défaut du site (`extraction_model`/`answer_model`, `site/app/config.py`) à la place d'`ollama-local`, qui causait la plupart des lenteurs et des échecs de délai constatés cette session (plusieurs minutes par document, parfois plus d'une heure sur un document de 91 chunks). Gain mesuré sur un document de test comparable : environ 37 secondes avec Gemini contre plusieurs minutes avec Ollama local. Coût réel mais faible (Flash) ; aucun budget par agent (US11.3) n'est encore appliqué par le site.
+
 ## Questions ouvertes
 
 - Qui règle les alias d'usage système : admin seul (tranché en conception 9).
 - Le budget projet se règle-t-il en objet LiteLLM `team`, ou reconstruit-il la somme des clés côté API IAFActory ? À trancher au moment d'implémenter US11.3.
 - Prix des modèles à renseigner avant d'utiliser `iaf-auto` (source à vérifier) pour les trois fournisseurs.
 - Un agent change-t-il de fournisseur sans recréer sa spécialité ni perdre l'historique de ses sessions ?
+- Le compte de service Gemini/Vertex AI fourni le 2026-09-28 a-t-il vocation à rester le chemin par défaut, ou une clé Google AI Studio simple (GEMINI_API_KEY, déjà prévue dans litellm.yaml) est-elle préférable à terme (plus simple, pas de notion de projet/région GCP) ?

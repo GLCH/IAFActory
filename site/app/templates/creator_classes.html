@@ -1,28 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Classes documentaires - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div><a href="/">IAFActory</a> / Classes documentaires</div>
-  <div><a href="/creator/documents">Mes documents</a></div>
-</header>
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Classes documentaires</div>
+  <div class="page-header">
+    <h1>Classes documentaires</h1>
+    <div class="actions"><a class="btn" href="/creator/documents">Mes documents</a></div>
+  </div>
 
-<table style="width:100%; border-collapse: collapse;">
-  <thead>
-    <tr style="text-align:left; border-bottom: 1px solid #ccc;">
-      <th>Classe</th><th>Statut</th><th>Documents</th><th>Creee le</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for c in classes %}
-    <tr style="border-bottom: 1px solid #eee;">
-      <td><a href="/creator/classes/{{ c.id }}">{{ c.name }}</a></td>
-      <td><span class="role">{{ c.status }}</span></td>
-      <td>{{ c.document_count }}</td>
-      <td>{{ c.created_at }}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="4">Aucune classe pour l'instant : deposez un document.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead>
+        <tr><th>Classe</th><th>Statut</th><th>Documents</th><th>Creee le</th></tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+        <tr>
+          <td><a href="/creator/classes/{{ c.id }}">{{ c.name }}</a></td>
+          <td><span class="badge">{{ c.status }}</span></td>
+          <td>{{ c.document_count }}</td>
+          <td class="muted">{{ c.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="table-empty">Aucune classe pour l'instant : deposez un document.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

@@ -1,5 +1,6 @@
 .env
 *.env.local
+infra/llm-gateway/*.json
 node_modules/
 __pycache__/
 .venv/

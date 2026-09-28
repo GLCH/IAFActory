@@ -1,40 +1,52 @@
 """Pipeline d'ingestion, reconnaissance et structuration (US3.1, US3.2, US3.4,
-US7.4, US7.5). Premiere version reelle, deliberement simplifiee par rapport a
-la conception complete de IAF-E7 :
+IAF-E7 US7.1/US7.4/US7.5). Deuxieme version reelle (2026-09-28), suite a une
+mesure reelle qui a montre que le signal unique (cosinus sur l'embedding
+moyen du document, seuil 0.75) ne discrimine pas : 5 documents topiquement
+distincts rattaches a la meme classe, un score a 0.993.
 
-- reconnaissance a un seul signal (similarite cosinus entre l'embedding moyen
-  du document et le centroïde de chaque classe existante), pas la cascade
-  MinHash/LSH + embeddings + domaines + arbitrage LLM de US7.2/US7.3 ;
-- seuil `settings.recognition_threshold` fixe, non calibre sur un jeu annote
-  (US7.7 reste a faire) ;
-- analyse structurelle reelle pour .docx, .pdf et .pptx (US3.1), mais tres
-  inegale entre eux : .docx distingue vraiment titres/paragraphes/tableaux
-  (styles Word) ; .pptx distingue diapositive/paragraphe/tableau (structure
-  native du format) ; .pdf est le plus grossier - pdfplumber ne donne aucun
-  signal de titre fiable, donc chaque PAGE est une section et chaque LIGNE de
-  texte un paragraphe, sans reconstruction de paragraphes multi-lignes
-  (pdf_struct.py). Aucun format n'utilise Docling (US3.8 reste a evaluer) ;
-- pas d'ontologie semantique RDF versionnee dans Fuseki (US3.3) : le schema
-  induit (types d'entites, relations, attributs) vit uniquement dans Neo4j,
-  comme dans le PoC.
+Reconnaissance a deux signaux maintenant, decide par l'utilisateur le
+2026-09-28 :
+- **structurel** : profil de proportions (Section/Paragraph/Table) du
+  document compare a la moyenne des documents deja dans chaque classe ;
+- **semantique** : vocabulaire extrait par une etape LLM DEDIEE (US7.1,
+  distincte de l'extraction d'entites par chunk ci-dessous), chaque terme
+  associe a un concept induit par le LLM, compare par recouvrement (Jaccard)
+  au vocabulaire deja connu de chaque classe. Les concepts sont ecrits comme
+  de vraies classes OWL dans Fuseki (ontology.py, US7.5) - pas seulement des
+  etiquettes Neo4j comme avant.
 
-Aucun de ces raccourcis n'est cache : chaque document ingere porte sa methode
-et son score dans le graphe (relation IN_CLASS), et les ecrans creator
-affichent le statut reel (docs/epics/EPIC-IAF-E3-graph-rag.md, US3.5).
+Le score combine (moyenne des deux) doit depasser `settings.recognition_threshold`
+(0.90, decide le 2026-09-28) pour rattacher a une classe EXISTANTE. Ce seuil
+runtime n'est PAS une preuve de qualite : le banc de mesure hors echantillon
+(US7.7, precision/rappel sur un jeu annote) reste a faire - voir
+docs/epics/EPIC-IAF-E7-classification-documents.md.
+
+Simplifications restantes, non cachees :
+- pas de MinHash/LSH ni de pre-filtrage par domaines (US7.2) : chaque
+  document candidat est compare a TOUTES les classes existantes ;
+- pas d'arbitrage LLM sur les correspondances ambigues (US7.3) ;
+- analyse structurelle tres inegale entre .docx/.pptx (reelle) et .pdf
+  (grossiere, page = section, ligne = paragraphe - pdf_struct.py) ;
+- le vocabulaire est extrait sur un extrait du document (les premiers
+  chunks, borne en taille), pas le texte integral (cout/latence sur le
+  modele local).
 """
 from __future__ import annotations
 
+import unicodedata
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import docx_struct, pdf_struct, pptx_struct
+from . import docx_struct, ontology, pdf_struct, pptx_struct
 from .config import settings
-from .graph import chat_json, cosine_similarity, embed, get_driver
+from .graph import chat_json, embed, get_driver
 from .models import DocumentStatus
-from .struct_element import flatten
+from .struct_element import StructElement, flatten
 
 PARSERS = {".docx": docx_struct.parse, ".pdf": pdf_struct.parse, ".pptx": pptx_struct.parse}
+
+STRUCT_KINDS = ("Section", "Paragraph", "Table")
 
 EXTRACTION_SYSTEM = (
     "Tu extrais des entites et relations d'un extrait de document technique. "
@@ -44,6 +56,18 @@ EXTRACTION_SYSTEM = (
     '"relations":[{"source":"...","relation":"...","target":"..."}]}. '
     "N'invente aucune valeur absente du texte. Renvoie des listes vides si rien de pertinent."
 )
+
+# IAF-E7 US7.1 : etape dediee, distincte de l'extraction d'entites ci-dessus.
+# Vocabulaire = termes du domaine (pas des entites nommees precises), chacun
+# associe au concept (classe OWL) qu'il represente.
+VOCABULARY_SYSTEM = (
+    "Tu extrais le vocabulaire technique d'un document (10 a 20 termes les plus significatifs, "
+    "pas des entites nommees precises comme un nom de societe). Pour chaque terme, donne le "
+    "concept general auquel il appartient (un ou deux mots, en francais, ex: Materiau, Norme, "
+    "Dimension, Fournisseur, Procede). Reponds UNIQUEMENT en JSON valide, sans texte autour, au "
+    'format exact : {"vocabulary":[{"term":"...","concept":"..."}]}.'
+)
+VOCABULARY_TEXT_LIMIT = 4000  # caracteres ; borne le cout/latence sur le modele local
 
 
 class UnsupportedFormat(ValueError):
@@ -58,9 +82,58 @@ class IngestResult:
     class_name: str | None = None
     chunk_count: int = 0
     entity_count: int = 0
+    concept_count: int = 0
     recognition_score: float = 0.0
+    structural_score: float = 0.0
+    semantic_score: float = 0.0
     recognition_method: str = ""
     warnings: list[str] = field(default_factory=list)
+
+
+def _normalize_label(label: str) -> str:
+    """Normalisation grossiere pour comparer des libelles induits par un LLM
+    (casse, accents) - pas une resolution de synonymes (US7.3, hors scope
+    ici)."""
+    decomposed = unicodedata.normalize("NFKD", label.strip().lower())
+    return "".join(c for c in decomposed if not unicodedata.combining(c))
+
+
+def extract_vocabulary(text: str, model: str) -> list[dict]:
+    """IAF-E7 US7.1. Renvoie une liste de {"term", "concept"} ; liste vide
+    (pas d'exception) si l'appel echoue - un vocabulaire absent ne doit pas
+    invalider le document (meme principe que US3.4 pour l'extraction par
+    chunk)."""
+    excerpt = text[:VOCABULARY_TEXT_LIMIT]
+    try:
+        result = chat_json(excerpt, model=model, system=VOCABULARY_SYSTEM, timeout=90)
+    except Exception:
+        return []
+    vocabulary = []
+    for item in result.get("vocabulary", []):
+        term, concept = item.get("term"), item.get("concept")
+        if term and concept:
+            vocabulary.append({"term": term, "concept": concept})
+    return vocabulary
+
+
+def _structural_profile(elements: list[StructElement]) -> dict[str, float]:
+    counts = {kind: 0 for kind in STRUCT_KINDS}
+    for elem in elements:
+        if elem.kind in counts:
+            counts[elem.kind] += 1
+    total = sum(counts.values())
+    if total == 0:
+        return {kind: 0.0 for kind in STRUCT_KINDS}
+    return {kind: n / total for kind, n in counts.items()}
+
+
+def _profile_similarity(a: dict[str, float], b: dict[str, float]) -> float:
+    """1 - distance L1 / 2 : les deux profils sont des distributions de
+    proportions (somme 1), la distance L1 entre deux distributions est bornee
+    a [0, 2], donc cette similarite est bornee a [0, 1]. Simple et explicable
+    plutot qu'une mesure plus sophistiquee non calibree (US7.7 tranchera)."""
+    l1 = sum(abs(a.get(k, 0.0) - b.get(k, 0.0)) for k in STRUCT_KINDS)
+    return max(0.0, 1.0 - l1 / 2)
 
 
 def _ensure_vector_index(session, dimensions: int) -> None:
@@ -72,38 +145,83 @@ def _ensure_vector_index(session, dimensions: int) -> None:
     )
 
 
-def _find_best_class(session, doc_embedding: list[float]) -> tuple[str | None, str | None, float]:
-    """Classe existante la plus proche par similarite cosinus entre
-    l'embedding moyen du document candidat et le centroide (moyenne des
-    embeddings de chunks) des documents deja rattaches a chaque classe."""
+def _find_best_class(
+    session, struct_profile: dict[str, float], concept_labels: set[str],
+) -> tuple[str | None, str | None, float, float, float]:
+    """IAF-E7 US7.4 : score combine (structurel + semantique) contre chaque
+    classe existante. Une classe sans document membre (profil structurel
+    indefini) ou sans concept connu obtient un score nul sur l'axe
+    correspondant - une classe toute neuve ne "reconnait" donc jamais un
+    nouveau document par accident."""
     rows = list(session.run(
         "MATCH (c:DocumentClass) "
-        "OPTIONAL MATCH (c)<-[:IN_CLASS]-(:Document)-[:HAS_ELEMENT]->(top:StructElement) "
-        "OPTIONAL MATCH (top)-[:CHILD*0..]->(:StructElement)-[:HAS_CHUNK]->(chunk:Chunk) "
-        "RETURN c.id AS id, c.name AS name, collect(DISTINCT chunk.embedding) AS embeddings"
+        "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
+        "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
+        "RETURN c.id AS id, c.name AS name, "
+        "       collect(DISTINCT {section: d.profile_section, paragraph: d.profile_paragraph, "
+        "                         table: d.profile_table}) AS profiles, "
+        "       collect(DISTINCT concept.label) AS concepts"
     ))
-    best_id = best_name = None
-    best_score = 0.0
+    best = (None, None, 0.0, 0.0, 0.0)
+    best_combined = 0.0
     for row in rows:
-        embeddings = [e for e in row["embeddings"] if e]
-        if not embeddings:
+        profiles = [p for p in row["profiles"] if p.get("section") is not None]
+        if profiles:
+            avg_profile = {
+                kind: sum(p[kind.lower()] for p in profiles) / len(profiles) for kind in STRUCT_KINDS
+            }
+            structural_score = _profile_similarity(struct_profile, avg_profile)
+        else:
+            structural_score = 0.0
+
+        class_concepts = {_normalize_label(c) for c in row["concepts"] if c}
+        union = class_concepts | concept_labels
+        semantic_score = len(class_concepts & concept_labels) / len(union) if union else 0.0
+
+        combined = (structural_score + semantic_score) / 2
+        if combined > best_combined:
+            best_combined = combined
+            best = (row["id"], row["name"], structural_score, semantic_score, combined)
+    return best
+
+
+def _write_concepts(session, class_id: str, document_sha256: str, vocabulary: list[dict]) -> int:
+    """Ecrit chaque concept induit comme classe OWL dans Fuseki (US7.5) et
+    son rattachement dans Neo4j (lecture rapide pour les ecrans du site,
+    US3.14). Un concept qui echoue a s'ecrire dans Fuseki ne bloque pas les
+    autres (meme principe que l'extraction par chunk, US3.4)."""
+    written = 0
+    seen_labels: set[str] = set()
+    for item in vocabulary:
+        label = item["concept"]
+        normalized = _normalize_label(label)
+        if normalized in seen_labels:
             continue
-        dims = len(embeddings[0])
-        centroid = [sum(e[i] for e in embeddings) / len(embeddings) for i in range(dims)]
-        score = cosine_similarity(doc_embedding, centroid)
-        if score > best_score:
-            best_score = score
-            best_id, best_name = row["id"], row["name"]
-    return best_id, best_name, best_score
+        seen_labels.add(normalized)
+        try:
+            uri = ontology.ensure_concept(class_id, label)
+        except Exception:
+            continue  # Fuseki indisponible ou erreur reseau : le concept reste absent, pas de silence en amont (log gateway)
+        session.run(
+            "MERGE (c:DocumentClass {id: $class_id}) "
+            "MERGE (concept:Concept {label: $label, class_id: $class_id}) "
+            "SET concept.uri = $uri "
+            "MERGE (c)-[:HAS_CONCEPT]->(concept) "
+            "WITH concept "
+            "MATCH (d:Document {sha256: $sha256}) "
+            "MERGE (d)-[:MENTIONS_CONCEPT {term: $term}]->(concept)",
+            class_id=class_id, label=label, uri=uri, sha256=document_sha256, term=item["term"],
+        )
+        written += 1
+    return written
 
 
 def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResult:
     """Fait tourner le document a travers I (structure + chunks + embeddings),
-    R (rattachement a une classe existante ou creation), et S (extraction
-    d'entites/relations). Ecrit dans Neo4j ; ne touche pas Postgres (l'appelant
-    reporte le resultat sur la ligne `Document`). `stored_path` est le fichier
-    deja ecrit sur le volume (US3.1 : conserve sur volume avec empreinte
-    sha256), analyse en place."""
+    R (rattachement a une classe existante ou creation, score combine
+    structurel + semantique), et S (extraction d'entites/relations par chunk
+    pour le graph RAG). Ecrit dans Neo4j et Fuseki ; ne touche pas Postgres
+    (l'appelant reporte le resultat sur la ligne `Document`)."""
     suffix = stored_path.suffix.lower()
     parse = PARSERS.get(suffix)
     if parse is None:
@@ -111,6 +229,7 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
 
     metadata, root = parse(str(stored_path))
     elements = flatten(root)
+    struct_profile = _structural_profile(elements)
 
     driver = get_driver()
     warnings: list[str] = []
@@ -118,9 +237,11 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
         session.run(
             "MERGE (d:Document {sha256: $sha256}) "
             "SET d.title = $title, d.author = $author, d.subject = $subject, "
-            "    d.filename = $filename, d.status = 'ingere', d.ingested_at = datetime()",
+            "    d.filename = $filename, d.status = 'ingere', d.ingested_at = datetime(), "
+            "    d.profile_section = $section, d.profile_paragraph = $paragraph, d.profile_table = $table",
             sha256=sha256, title=metadata.get("title"), author=metadata.get("author"),
             subject=metadata.get("subject"), filename=filename,
+            section=struct_profile["Section"], paragraph=struct_profile["Paragraph"], table=struct_profile["Table"],
         )
 
         def write_element(elem, parent_neo_id):
@@ -147,6 +268,7 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
         n_chunks = 0
         embed_dims = None
         chunk_rows: list[tuple[str, str, str]] = []  # (chunk_id, text, section)
+        text_parts: list[str] = []
         for elem in elements:
             if not elem.text:
                 continue
@@ -161,6 +283,7 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
             )
             chunk_embeddings.append(vector)
             chunk_rows.append((chunk_id, elem.text, elem.label))
+            text_parts.append(elem.text)
             n_chunks += 1
 
         if embed_dims:
@@ -168,31 +291,45 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
 
         if not chunk_embeddings:
             raise ValueError("document sans texte extrait (page blanche, ou contenu non textuel)")
-        dims = len(chunk_embeddings[0])
-        doc_embedding = [sum(v[i] for v in chunk_embeddings) / len(chunk_embeddings) for i in range(dims)]
 
-        recognized_id, recognized_name, score = _find_best_class(session, doc_embedding)
+        # IAF-E7 US7.1 : etape dediee d'extraction de vocabulaire, sur un
+        # extrait du document (pas chunk par chunk comme l'extraction
+        # d'entites ci-dessous).
+        vocabulary = extract_vocabulary("\n".join(text_parts), settings.extraction_model)
+        if not vocabulary:
+            warnings.append("extraction de vocabulaire vide ou ratee (US7.1) : score semantique a 0")
+        concept_labels = {_normalize_label(v["concept"]) for v in vocabulary}
 
-        if recognized_id is not None and score >= settings.recognition_threshold:
+        recognized_id, recognized_name, structural_score, semantic_score, combined = _find_best_class(
+            session, struct_profile, concept_labels,
+        )
+
+        if recognized_id is not None and combined >= settings.recognition_threshold:
             class_id, class_name, status = recognized_id, recognized_name, DocumentStatus.recognized
-            method = "cosinus_embedding_moyen_document"
+            method = "score_combine_structure_semantique"
             session.run(
                 "MATCH (d:Document {sha256: $sha256}), (c:DocumentClass {id: $cid}) "
                 "MERGE (d)-[r:IN_CLASS]->(c) "
-                "SET r.score = $score, r.method = $method",
-                sha256=sha256, cid=class_id, score=score, method=method,
+                "SET r.score = $score, r.structural_score = $struct_score, "
+                "    r.semantic_score = $sem_score, r.method = $method",
+                sha256=sha256, cid=class_id, score=combined,
+                struct_score=structural_score, sem_score=semantic_score, method=method,
             )
         else:
             class_id = str(uuid.uuid4())
             class_name = f"Provisoire - {metadata.get('title') or filename}"
             status = DocumentStatus.provisional
-            method = "aucune_classe_proche_creation_provisoire"
+            method = "score_combine_insuffisant_creation_provisoire"
             session.run(
                 "MATCH (d:Document {sha256: $sha256}) "
                 "CREATE (c:DocumentClass {id: $cid, name: $name, status: 'provisoire', created_at: datetime()}) "
-                "CREATE (d)-[:IN_CLASS {score: $score, method: $method}]->(c)",
-                sha256=sha256, cid=class_id, name=class_name, score=score, method=method,
+                "CREATE (d)-[:IN_CLASS {score: $score, structural_score: $struct_score, "
+                "                       semantic_score: $sem_score, method: $method}]->(c)",
+                sha256=sha256, cid=class_id, name=class_name, score=combined,
+                struct_score=structural_score, sem_score=semantic_score, method=method,
             )
+
+        n_concepts = _write_concepts(session, class_id, sha256, vocabulary)
 
         n_entities = 0
         for chunk_id, text, section in chunk_rows:
@@ -245,7 +382,10 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
         class_name=class_name,
         chunk_count=n_chunks,
         entity_count=n_entities,
-        recognition_score=score,
+        concept_count=n_concepts,
+        recognition_score=combined,
+        structural_score=structural_score,
+        semantic_score=semantic_score,
         recognition_method=method,
         warnings=warnings,
     )

@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Tableau de bord - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div>Bonjour <strong>{{ user.email }}</strong> <span class="role">{{ user.role.value }}</span></div>
-  <form class="inline" method="post" action="/logout"><button type="submit">Se deconnecter</button></form>
-</header>
-
+{% include "_navbar.html" %}
+<div class="page">
 {% if user.role.value == "admin" %}
-  <section>
-    <h2>Administration</h2>
-    <p><a href="/admin/users/new">Creer un creator ou un viewer</a> - <a href="/admin/users">Suivi des utilisateurs</a></p>
-    <p>Arret et effacement de projets : a venir (IAF-E5).</p>
-  </section>
+  <div class="page-header"><h1>Administration</h1></div>
+  <div class="card">
+    <h2>Comptes</h2>
+    <p><a href="/admin/users/new">Creer un creator ou un viewer</a> &middot; <a href="/admin/users">Suivi des utilisateurs</a></p>
+    <p class="muted">Arret et effacement de projets : a venir (IAF-E5).</p>
+  </div>
 {% elif user.role.value == "creator" %}
-  <section>
-    <h2>Documents</h2>
-    <p><a href="/creator/documents/new">Deposer un document</a> - <a href="/creator/documents">Mes documents</a> - <a href="/creator/classes">Classes documentaires</a></p>
-    <p>Creation d'agents, de tests de validation : a venir (IAF-E4, IAF-E6).</p>
-  </section>
+  <div class="page-header"><h1>Documents</h1></div>
+  <div class="card">
+    <h2>Chaine d'ingestion</h2>
+    <p><a href="/creator/documents/new">Deposer un document</a> &middot; <a href="/creator/documents">Mes documents</a> &middot; <a href="/creator/classes">Classes documentaires</a></p>
+    <p class="muted">Creation d'agents, de tests de validation : a venir (IAF-E4, IAF-E6).</p>
+  </div>
 {% else %}
-  <section>
-    <h2>Interroger le service</h2>
+  <div class="page-header"><h1>Interroger le service</h1></div>
+  <div class="card">
     <p><a href="/ask">Poser une question</a></p>
-    <p>Sessions avec les agents : a venir (IAF-E10).</p>
-  </section>
+    <p class="muted">Sessions avec les agents : a venir (IAF-E10).</p>
+  </div>
 {% endif %}
+</div>
 {% endblock %}

@@ -1,51 +1,99 @@
 {% extends "base.html" %}
 {% block title %}{{ name or "Classe" }} - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div><a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> / {{ name or "introuvable" }}</div>
-  <div><a href="/creator/documents">Mes documents</a></div>
-</header>
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> / {{ name or "introuvable" }}</div>
+  <div class="page-header">
+    <h1>{{ name or "Classe introuvable" }}</h1>
+    <div class="actions"><a class="btn" href="/creator/documents">Mes documents</a></div>
+  </div>
 
-{% if not name %}
-<p class="error">Classe introuvable.</p>
-{% else %}
-<p>Statut : <span class="role">{{ status }}</span></p>
+  {% if not name %}
+  <p class="alert">Classe introuvable.</p>
+  {% else %}
+  <p><span class="badge">{{ status }}</span></p>
 
-<h2>Ontologie apprise (schema induit par l'extraction)</h2>
-<p><small>Types d'entites et relations effectivement extraits de cette classe - pas une ontologie
-   OWL versionnee dans Fuseki (US3.3 reste a faire pour ce vertical slice).</small></p>
-<table style="width:100%; border-collapse: collapse; margin-bottom:1.5rem;">
-  <thead><tr style="text-align:left; border-bottom: 1px solid #ccc;"><th>Type d'entite</th><th>Occurrences</th></tr></thead>
-  <tbody>
-    {% for et in entity_types %}
-    <tr style="border-bottom: 1px solid #eee;"><td>{{ et.type or "(sans type)" }}</td><td>{{ et.entity_count }}</td></tr>
+  <div class="card">
+    <h2>Parametres de reconnaissance</h2>
+    <p class="muted">Un nouveau document est rattache a cette classe si le score combine (structurel + semantique)
+       depasse le seuil ci-dessous. Lecture seule pour l'instant (US3.14).</p>
+    <p><strong>Seuil de reconnaissance :</strong> {{ "%.0f"|format(threshold * 100) }}%</p>
+    {% if profile %}
+    <p><strong>Profil structurel moyen :</strong>
+      section {{ "%.0f"|format(profile.section * 100) }}%,
+      paragraphe {{ "%.0f"|format(profile.paragraph * 100) }}%,
+      tableau {{ "%.0f"|format(profile.table * 100) }}%
+    </p>
     {% else %}
-    <tr><td colspan="2">Aucune entite extraite pour l'instant.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <p class="muted">Pas encore de profil structurel (aucun document membre).</p>
+    {% endif %}
+  </div>
 
-<table style="width:100%; border-collapse: collapse; margin-bottom:1.5rem;">
-  <thead><tr style="text-align:left; border-bottom: 1px solid #ccc;"><th>Relation</th><th>Occurrences</th></tr></thead>
-  <tbody>
-    {% for r in relations %}
-    <tr style="border-bottom: 1px solid #eee;"><td>{{ r.type }}</td><td>{{ r.relation_count }}</td></tr>
-    {% else %}
-    <tr><td colspan="2">Aucune relation extraite pour l'instant.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <div class="card">
+    <h2>Ontologie semantique (concepts induits)</h2>
+    <p class="muted">Chaque concept est ecrit comme une classe OWL dans Fuseki (IAF-E7 US7.5), induit
+       automatiquement par le LLM a partir du vocabulaire des documents (US7.1) - pas de gouvernance
+       collective a ce stade.</p>
+    <table class="table">
+      <thead><tr><th>Concept</th><th>Termes observes</th></tr></thead>
+      <tbody>
+        {% for c in concepts %}
+        <tr><td>{{ c.label }}</td><td class="muted">{{ c.terms|reject("none")|join(", ") }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="table-empty">Aucun concept induit pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-<h2>Documents de cette classe</h2>
-<table style="width:100%; border-collapse: collapse;">
-  <thead><tr style="text-align:left; border-bottom: 1px solid #ccc;"><th>Fichier</th><th>Score de rattachement</th><th>Methode</th></tr></thead>
-  <tbody>
-    {% for d in documents %}
-    <tr style="border-bottom: 1px solid #eee;"><td>{{ d.filename }}</td><td>{{ "%.3f"|format(d.score) if d.score is not none else "" }}</td><td>{{ d.method }}</td></tr>
-    {% else %}
-    <tr><td colspan="3">Aucun document.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+  <div class="card">
+    <h2>Entites et relations extraites</h2>
+    <p class="muted">Extraction par chunk (distincte du vocabulaire ci-dessus), utilisee pour la recherche
+       graphe du viewer (US3.5).</p>
+    <h3>Types d'entites</h3>
+    <table class="table">
+      <thead><tr><th>Type</th><th>Occurrences</th></tr></thead>
+      <tbody>
+        {% for et in entity_types %}
+        <tr><td>{{ et.type or "(sans type)" }}</td><td>{{ et.entity_count }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="table-empty">Aucune entite extraite pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: 1.5rem;">Relations</h3>
+    <table class="table">
+      <thead><tr><th>Relation</th><th>Occurrences</th></tr></thead>
+      <tbody>
+        {% for r in relations %}
+        <tr><td>{{ r.type }}</td><td>{{ r.relation_count }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="table-empty">Aucune relation extraite pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Documents de cette classe</h2>
+    <table class="table">
+      <thead><tr><th>Fichier</th><th>Score combine</th><th>Structurel</th><th>Semantique</th></tr></thead>
+      <tbody>
+        {% for d in documents %}
+        <tr>
+          <td>{{ d.filename }}</td>
+          <td>{{ "%.0f"|format(d.score * 100) if d.score is not none else "" }}%</td>
+          <td class="muted">{{ "%.0f"|format(d.structural_score * 100) if d.structural_score is not none else "" }}%</td>
+          <td class="muted">{{ "%.0f"|format(d.semantic_score * 100) if d.semantic_score is not none else "" }}%</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="table-empty">Aucun document.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

@@ -1,42 +1,51 @@
 {% extends "base.html" %}
 {% block title %}Documents - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div><a href="/">IAFActory</a> / Mes documents</div>
-  <div><a href="/creator/documents/new">+ Deposer un document</a> - <a href="/creator/classes">Classes</a></div>
-</header>
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Mes documents</div>
+  <div class="page-header">
+    <h1>Mes documents</h1>
+    <div class="actions">
+      <a class="btn" href="/creator/classes">Classes</a>
+      <a class="btn btn-primary" href="/creator/documents/new">+ Deposer un document</a>
+    </div>
+  </div>
 
-<table style="width:100%; border-collapse: collapse;">
-  <thead>
-    <tr style="text-align:left; border-bottom: 1px solid #ccc;">
-      <th>Fichier</th><th>Statut</th><th>Classe</th><th>Chunks</th><th>Entites</th><th>Depose le</th><th>Detail</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for d in documents %}
-    <tr style="border-bottom: 1px solid #eee;">
-      <td>{{ d.filename }}</td>
-      <td>
-        <span class="role">{{ d.status.value }}</span>
-        {% if d.status.value == "recognized" %}<small>(reconnu)</small>{% endif %}
-        {% if d.status.value == "provisional" %}<small>(classe provisoire creee)</small>{% endif %}
-      </td>
-      <td>{% if d.class_name %}<a href="/creator/classes/{{ d.neo4j_class_id }}">{{ d.class_name }}</a>{% endif %}</td>
-      <td>{{ d.chunk_count }}</td>
-      <td>{{ d.entity_count }}</td>
-      <td>{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-      <td>
-        {% if d.error_message %}<span class="error" title="{{ d.error_message }}">detail</span>{% endif %}
-        {% if d.status.value in ("received", "error") %}
-        <form class="inline" method="post" action="/creator/documents/{{ d.id }}/retry">
-          <button type="submit">Relancer</button>
-        </form>
-        {% endif %}
-      </td>
-    </tr>
-    {% else %}
-    <tr><td colspan="7">Aucun document depose pour l'instant.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fichier</th><th>Statut</th><th>Classe</th><th>Chunks</th><th>Entites</th><th>Depose le</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in documents %}
+        <tr>
+          <td>{{ d.filename }}</td>
+          <td>
+            <span class="badge badge-{{ d.status.value }}">{{ d.status.value }}</span>
+            {% if d.status.value == "recognized" %}<br><small>reconnu</small>{% endif %}
+            {% if d.status.value == "provisional" %}<br><small>classe provisoire creee</small>{% endif %}
+          </td>
+          <td>{% if d.class_name %}<a href="/creator/classes/{{ d.neo4j_class_id }}">{{ d.class_name }}</a>{% endif %}</td>
+          <td>{{ d.chunk_count }}</td>
+          <td>{{ d.entity_count }}</td>
+          <td class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td>
+            {% if d.error_message %}<span class="detail-link" title="{{ d.error_message }}">detail</span>{% endif %}
+            {% if d.status.value in ("received", "error") %}
+            <form class="inline" method="post" action="/creator/documents/{{ d.id }}/retry">
+              <button type="submit" class="btn btn-sm">Relancer</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="table-empty">Aucun document depose pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

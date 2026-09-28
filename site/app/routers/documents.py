@@ -34,8 +34,8 @@ MAX_SIZE_BYTES = 20 * 1024 * 1024  # 20 Mo, provisoire (US3.1 : "taille max conf
 
 
 @router.get("/documents/new")
-def new_document_form(request: Request):
-    return templates.TemplateResponse(request, "creator_document_new.html", {"error": None})
+def new_document_form(request: Request, user: User = Depends(require_role(Role.creator))):
+    return templates.TemplateResponse(request, "creator_document_new.html", {"error": None, "user": user})
 
 
 def _run_pipeline_and_update(doc: Document, stored_path: Path, db: Session) -> None:
@@ -73,7 +73,7 @@ async def new_document_submit(
 ):
     filename = file.filename or ""
     suffix = Path(filename).suffix.lower()
-    ctx = {"error": None}
+    ctx = {"error": None, "user": user}
 
     if suffix not in ACCEPTED_SUFFIXES:
         ctx["error"] = f"format non accepte ({suffix or 'sans extension'}) : .docx, .pdf ou .pptx seulement"
@@ -138,13 +138,13 @@ def retry_document(
 
 
 @router.get("/documents")
-def list_documents(request: Request, db: Session = Depends(get_db)):
+def list_documents(request: Request, db: Session = Depends(get_db), user: User = Depends(require_role(Role.creator))):
     documents = list(db.scalars(select(Document).order_by(Document.created_at.desc())))
-    return templates.TemplateResponse(request, "creator_documents.html", {"documents": documents})
+    return templates.TemplateResponse(request, "creator_documents.html", {"documents": documents, "user": user})
 
 
 @router.get("/classes")
-def list_classes(request: Request, db: Session = Depends(get_db)):
+def list_classes(request: Request, user: User = Depends(require_role(Role.creator))):
     driver = get_driver()
     with driver.session() as session:
         rows = list(session.run(
@@ -155,11 +155,11 @@ def list_classes(request: Request, db: Session = Depends(get_db)):
             "ORDER BY c.created_at DESC"
         ))
     classes = [dict(row) for row in rows]
-    return templates.TemplateResponse(request, "creator_classes.html", {"classes": classes})
+    return templates.TemplateResponse(request, "creator_classes.html", {"classes": classes, "user": user})
 
 
 @router.get("/classes/{class_id}")
-def class_detail(request: Request, class_id: str):
+def class_detail(request: Request, class_id: str, user: User = Depends(require_role(Role.creator))):
     driver = get_driver()
     with driver.session() as session:
         head = session.run(
@@ -168,18 +168,45 @@ def class_detail(request: Request, class_id: str):
         if head is None:
             return templates.TemplateResponse(
                 request, "creator_class_detail.html",
-                {"class_id": class_id, "name": None, "status": None, "documents": [], "entity_types": [], "relations": []},
+                {
+                    "class_id": class_id, "name": None, "status": None, "documents": [], "entity_types": [],
+                    "relations": [], "concepts": [], "profile": None, "threshold": settings.recognition_threshold,
+                    "user": user,
+                },
                 status_code=404,
             )
         documents = list(session.run(
             "MATCH (c:DocumentClass {id: $cid})<-[r:IN_CLASS]-(d:Document) "
-            "RETURN d.filename AS filename, d.sha256 AS sha256, r.score AS score, r.method AS method "
+            "RETURN d.filename AS filename, d.sha256 AS sha256, r.score AS score, "
+            "       r.structural_score AS structural_score, r.semantic_score AS semantic_score, r.method AS method "
             "ORDER BY d.ingested_at DESC",
             cid=class_id,
         ))
-        # "ontologie apprise" (US3.9/US7.5) : resume du schema induit par
-        # l'extraction, pas une ontologie OWL versionnee dans Fuseki (US3.3
-        # non fait pour ce vertical slice).
+        # US3.14 : ontologie structurelle (profil moyen des documents membres,
+        # US3.11) et ontologie semantique (concepts OWL induits, US7.5 -
+        # ecrits reellement dans Fuseki par ontology.py depuis le 2026-09-28,
+        # relus ici depuis leur miroir Neo4j pour la vitesse d'affichage).
+        profile_row = session.run(
+            "MATCH (c:DocumentClass {id: $cid})<-[:IN_CLASS]-(d:Document) "
+            "RETURN avg(d.profile_section) AS section, avg(d.profile_paragraph) AS paragraph, "
+            "       avg(d.profile_table) AS table",
+            cid=class_id,
+        ).single()
+        # avg() renvoie null si aucun document membre n'a de profil (documents
+        # ingeres avant l'ajout du profil structurel au pipeline, 2026-09-28) -
+        # verifier le champ lui-meme, pas seulement le nombre de documents.
+        profile = None
+        if profile_row and profile_row["section"] is not None:
+            profile = {"section": profile_row["section"], "paragraph": profile_row["paragraph"], "table": profile_row["table"]}
+        concepts = list(session.run(
+            "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) "
+            "OPTIONAL MATCH (:Document)-[m:MENTIONS_CONCEPT]->(concept) "
+            "RETURN concept.label AS label, concept.uri AS uri, collect(DISTINCT m.term) AS terms "
+            "ORDER BY label",
+            cid=class_id,
+        ))
+        # Entites/relations par chunk (extraction existante, distincte du
+        # vocabulaire/concepts ci-dessus - voir pipeline.py).
         entity_types = list(session.run(
             "MATCH (e:Entity {class_id: $cid}) "
             "RETURN e.type AS type, count(e) AS entity_count "
@@ -201,5 +228,9 @@ def class_detail(request: Request, class_id: str):
             "documents": documents,
             "entity_types": entity_types,
             "relations": relations,
+            "concepts": concepts,
+            "profile": profile,
+            "threshold": settings.recognition_threshold,
+            "user": user,
         },
     )

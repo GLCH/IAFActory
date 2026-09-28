@@ -123,3 +123,12 @@ Mise a jour 2026-09-27 : perimetre MVP confirme par l'utilisateur - viewer et cr
 - Contexte : ADR 0005. Les noms de champs par format et leur accessibilite via l'outil d'analyse retenu sont a verifier. Les metadonnees sont non fiables : traitees comme donnees.
 - Exemples : un `.docx` avec titre et auteur : conserves ; un PDF sans propriete : aucune valeur ; un auteur renseigne ne fait pas reconnaitre une classe a lui seul.
 - Questions : quelles metadonnees le creator veut-il exploiter ? l'auteur peut-il apparaitre dans une reponse d'agent ?
+
+## US3.14 Voir les parametres et l'ontologie d'une classe (creator)
+- Ajoutee le 2026-09-28, suite a la mesure reelle IAF-E7 (reconnaissance non fiable a un seul signal).
+- En tant que creator, je veux voir, pour chaque classe documentaire, son ontologie structurelle (US3.11), son ontologie semantique (US3.12, vocabulaire et concepts induits) et ses parametres de reconnaissance, pour comprendre et ajuster pourquoi un document est reconnu ou non.
+- Prerequis : US3.9, US3.11, US3.12, IAF-E7 US7.4 (score de reconnaissance).
+- Acceptance criteria : l'ecran classe (deja ebauche dans le site, creator_class_detail.html) affiche : le profil structurel attendu (US3.11), la liste des concepts semantiques (mot -> classe OWL induite, US7.5) avec leurs occurrences, le seuil de reconnaissance en vigueur (90% par defaut, IAF-E7 US7.4) et le score de rattachement de chaque document ; le creator ne peut PAS modifier le seuil global depuis cet ecran dans cette premiere version (lecture seule ; modification = nouvelle story si le besoin se confirme) ; aucune notion de "projet" : les parametres sont par CLASSE, pas par projet (confirme par l'utilisateur le 2026-09-28).
+- Contexte : "variables associees aux projets" dans la demande initiale de l'utilisateur, reformule car aucune notion de projet n'existe dans le site (IAF-E3, mis a jour 2026-09-27).
+- Exemples : la classe "Fiche technique - Joint torique" affiche 12 concepts semantiques induits (Materiau, Norme, Fournisseur...) et 5 documents rattaches avec un score entre 0.91 et 0.97.
+- Questions : le creator doit-il pouvoir ajuster le seuil par classe (pas seulement le lire) dans une version ulterieure ?

@@ -33,7 +33,7 @@ def embed(text: str) -> list[float]:
     return r.json()["data"][0]["embedding"]
 
 
-def chat(prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 500) -> str:
+def chat(prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 1200) -> str:
     messages = []
     if system:
         messages.append({"role": "system", "content": system})
@@ -43,12 +43,23 @@ def chat(prompt: str, model: str, system: str | None = None, timeout: int = 90, 
         headers={"Authorization": f"Bearer {settings.litellm_master_key}"},
         # max_tokens borne la generation : un modele local peut partir en boucle
         # (repetitions) et faire tourner l'appel bien au-dela du raisonnable
-        # (mesure poc/RESULTATS.md).
+        # (mesure poc/RESULTATS.md). Releve a 1200 le 2026-09-28 (passage a
+        # gemini-vertex-flash) : les modeles Gemini 2.5 consomment des jetons
+        # de "raisonnement" internes qui comptent dans max_tokens - constate
+        # reellement (reponse vide, finish_reason "length", avec max_tokens=10
+        # entierement consomme par le raisonnement avant tout texte).
         json={"model": model, "messages": messages, "temperature": 0, "max_tokens": max_tokens},
         timeout=timeout,
     )
     r.raise_for_status()
-    return r.json()["choices"][0]["message"]["content"]
+    content = r.json()["choices"][0]["message"]["content"]
+    if content is None:
+        # Vu reellement avec gemini-vertex-flash : max_tokens trop bas pour
+        # depasser les jetons de raisonnement internes -> reponse vide plutot
+        # qu'une exception cote passerelle. Remonte comme une erreur normale
+        # (les appelants traitent deja un echec de chat() comme non bloquant).
+        raise ValueError("reponse vide du modele (max_tokens probablement insuffisant face au raisonnement interne)")
+    return content
 
 
 def chat_json(prompt: str, model: str, system: str | None = None, timeout: int = 90) -> dict:

@@ -27,7 +27,7 @@ ANSWER_SYSTEM = "Tu es un agent qui repond de facon precise et sourcee, sans inv
 
 @router.get("/ask")
 def ask_form(request: Request, user: User = Depends(require_role(Role.viewer, Role.creator, Role.admin))):
-    return templates.TemplateResponse(request, "viewer_ask.html", {"question": None, "answer": None, "hits": []})
+    return templates.TemplateResponse(request, "viewer_ask.html", {"question": None, "answer": None, "hits": [], "user": user})
 
 
 @router.post("/ask")
@@ -36,7 +36,7 @@ def ask_submit(
     question: str = Form(...),
     user: User = Depends(require_role(Role.viewer, Role.creator, Role.admin)),
 ):
-    ctx = {"question": question, "answer": None, "hits": [], "error": None}
+    ctx = {"question": question, "answer": None, "hits": [], "error": None, "user": user}
     question = question.strip()
     if not question:
         ctx["error"] = "question vide"

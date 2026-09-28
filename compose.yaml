@@ -114,6 +114,11 @@ services:
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
       # Jev (TypeSafe) reste desactive : ne PAS definir TYPESAFE_API_KEY sans avoir
       # lu docs/adr/0004-passerelle-llm.md (un resume des requetes part chez un tiers).
+    volumes:
+      # Compte de service Gemini/Vertex AI (fourni le 2026-09-28) : fichier
+      # local jamais commite (.gitignore), monte en lecture seule - jamais
+      # copie dans l'image (meme principe que les cles en variables d'env).
+      - ./infra/llm-gateway/gemini-service-account.json:/etc/iaf/gemini-service-account.json:ro
     ports:
       - "127.0.0.1:${LLM_GATEWAY_PORT:-4000}:4000"
     healthcheck:
@@ -138,6 +143,8 @@ services:
         condition: service_healthy
       llm-gateway:
         condition: service_healthy
+      fuseki:
+        condition: service_healthy
     environment:
       # Reseau interne Docker : toujours le nom de service et le port interne
       # de Postgres, jamais POSTGRES_PORT (qui remappe le port HOTE et peut
@@ -156,6 +163,10 @@ services:
       LLM_GATEWAY_HOST: llm-gateway
       LLM_GATEWAY_PORT: "4000"
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?voir .env.example}
+      # Ontologies OWL (IAF-E7 US7.5, ADR 0001) : nom de service + port
+      # interne fixe (3030), jamais FUSEKI_PORT (port hote remappe).
+      FUSEKI_HOST: fuseki
+      FUSEKI_PORT: "3030"
       DOCUMENTS_DIR: /data/documents
     volumes:
       - site_documents:/data/documents

@@ -1,31 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Poser une question - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div><a href="/">IAFActory</a> / Poser une question</div>
-</header>
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Poser une question</div>
+  <div class="page-header"><h1>Poser une question</h1></div>
 
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <div class="card">
+    {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+    <form method="post" action="/ask">
+      <div class="field">
+        <label>Question</label>
+        <input type="text" name="question" value="{{ question or '' }}" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Demander</button>
+    </form>
+  </div>
 
-<form method="post" action="/ask">
-  <p><label>Question<br>
-    <input type="text" name="question" value="{{ question or '' }}" style="width:100%" required></label></p>
-  <button type="submit">Demander</button>
-</form>
+  {% if answer %}
+  <div class="card">
+    <h2>Reponse</h2>
+    <p>{{ answer }}</p>
+  </div>
 
-{% if answer %}
-<h2>Reponse</h2>
-<p>{{ answer }}</p>
-
-<h3>Passages utilises</h3>
-<ul>
-  {% for h in hits %}
-  <li>
-    <strong>{{ h.doc }}</strong> / {{ h.section }} (score {{ "%.3f"|format(h.score) }},
-    voie <span class="role">{{ h.route }}</span>{% if h.entities %} - entites : {{ h.entities|join(", ") }}{% endif %})
-    <br><small>{{ h.text[:200] }}{% if h.text|length > 200 %}...{% endif %}</small>
-  </li>
-  {% endfor %}
-</ul>
-{% endif %}
+  <div class="card">
+    <h2>Passages utilises</h2>
+    <div class="stack">
+      {% for h in hits %}
+      <div>
+        <strong>{{ h.doc }}</strong> <span class="muted">/ {{ h.section }}</span>
+        &middot; score {{ "%.3f"|format(h.score) }}
+        &middot; <span class="badge">{{ h.route }}</span>
+        {% if h.entities %}&middot; entites : {{ h.entities|join(", ") }}{% endif %}
+        <br><small>{{ h.text[:200] }}{% if h.text|length > 200 %}...{% endif %}</small>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

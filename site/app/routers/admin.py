@@ -27,8 +27,8 @@ CREATABLE_ROLES = (Role.viewer, Role.creator)
 
 
 @router.get("/users/new")
-def new_user_form(request: Request):
-    return templates.TemplateResponse(request, "admin_new_user.html", {"error": None})
+def new_user_form(request: Request, user: User = Depends(require_role(Role.admin))):
+    return templates.TemplateResponse(request, "admin_new_user.html", {"error": None, "user": user})
 
 
 @router.post("/users/new")
@@ -38,9 +38,10 @@ def new_user_submit(
     password: str = Form(...),
     role: str = Form(...),
     db: Session = Depends(get_db),
+    current: User = Depends(require_role(Role.admin)),
 ):
     email = email.strip().lower()
-    ctx = {"error": None, "email": email, "role": role}
+    ctx = {"error": None, "email": email, "role": role, "user": current}
 
     if role not in {r.value for r in CREATABLE_ROLES}:
         ctx["error"] = "role invalide"
@@ -49,8 +50,8 @@ def new_user_submit(
         ctx["error"] = f"mot de passe trop court ({MIN_PASSWORD_LENGTH} caracteres minimum)"
         return templates.TemplateResponse(request, "admin_new_user.html", ctx, status_code=422)
 
-    user = User(email=email, hashed_password=hash_password(password), role=Role(role))
-    db.add(user)
+    new_user = User(email=email, hashed_password=hash_password(password), role=Role(role))
+    db.add(new_user)
     try:
         db.commit()
     except IntegrityError:
@@ -72,7 +73,7 @@ def list_users(request: Request, db: Session = Depends(get_db), user: User = Dep
     users = list(db.scalars(select(User).order_by(User.created_at.desc())))
     error = _LIST_ERRORS.get(request.query_params.get("error", ""))
     return templates.TemplateResponse(
-        request, "admin_users.html", {"users": users, "current_user_id": user.id, "error": error}
+        request, "admin_users.html", {"users": users, "user": user, "current_user_id": user.id, "error": error}
     )
 
 

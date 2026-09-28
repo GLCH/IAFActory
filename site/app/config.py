@@ -44,26 +44,37 @@ class Settings(BaseSettings):
     neo4j_password: str
 
     # Passerelle LLM (ADR 0004). Alias existants de infra/llm-gateway/litellm.yaml,
-    # jamais un nom de modele en dur. Defaut = "ollama-local" (local, gratuit,
-    # deja mesure dans poc/RESULTATS.md) plutot qu'un alias iaf-* facturable :
-    # aucun budget par agent (US11.3) n'est encore appliques par ce site, un
-    # defaut payant serait une depense non bornee.
+    # jamais un nom de modele en dur. Defaut = "gemini-vertex-flash" (Gemini
+    # via Vertex AI, compte de service fourni le 2026-09-28, teste reellement
+    # via /v1/chat/completions - reponse "OK" recue) : decide par l'utilisateur
+    # le 2026-09-28 a la place d'"ollama-local" (local, gratuit, mais lent -
+    # plusieurs minutes par document, timeouts frequents constates cette
+    # session) pour la vitesse et la fiabilite. Cout reel mais faible avec
+    # Flash ; aucun budget par agent (US11.3) n'est encore applique par ce
+    # site - a garder en tete si le volume de documents augmente.
     llm_gateway_host: str = "127.0.0.1"
     llm_gateway_port: int = 4000
     litellm_master_key: str
     embedding_model: str = "iaf-embedding"
-    extraction_model: str = "ollama-local"
-    answer_model: str = "ollama-local"
+    extraction_model: str = "gemini-vertex-flash"
+    answer_model: str = "gemini-vertex-flash"
 
     # Documents deposes par les creators (US3.1). Volume dedie dans
     # compose.yaml ; chemin local par defaut pour le dev hors Docker.
     documents_dir: Path = Path("./data/documents")
 
-    # Seuil de similarite cosinus pour rattacher un document a une classe
-    # existante plutot que d'en creer une nouvelle (US7.4/US7.5). Provisoire et
-    # NON calibre (aucune mesure hors echantillon, US7.7) : un seul signal
-    # (embeddings du document entier), pas la cascade complete de l'epic E7.
-    recognition_threshold: float = 0.75
+    # Fuseki (ontologies OWL, ADR 0001) : source de verite des concepts
+    # semantiques induits (IAF-E7 US7.5). Memes conventions que Neo4j/Postgres.
+    fuseki_host: str = "127.0.0.1"
+    fuseki_port: int = 3030
+    fuseki_dataset: str = "iaf"
+
+    # Seuil du score COMBINE (structurel + semantique, IAF-E7 US7.4 decide le
+    # 2026-09-28) pour rattacher un document a une classe existante plutot que
+    # d'en creer une nouvelle (US7.5). 0.90 decide par l'utilisateur ; reste a
+    # calibrer reellement via le banc d'evaluation (US7.7, non fait) - ce
+    # chiffre est le seuil RUNTIME, pas la preuve que l'algorithme l'atteint.
+    recognition_threshold: float = 0.90
 
     @property
     def database_url(self) -> str:
@@ -79,6 +90,10 @@ class Settings(BaseSettings):
     @property
     def llm_gateway_url(self) -> str:
         return f"http://{self.llm_gateway_host}:{self.llm_gateway_port}"
+
+    @property
+    def fuseki_url(self) -> str:
+        return f"http://{self.fuseki_host}:{self.fuseki_port}"
 
 
 settings = Settings()

@@ -1,36 +1,44 @@
 {% extends "base.html" %}
 {% block title %}Utilisateurs - IAFActory{% endblock %}
 {% block body %}
-<header>
-  <div><a href="/">IAFActory</a> / Utilisateurs</div>
-  <div><a href="/admin/users/new">+ Nouvel utilisateur</a></div>
-</header>
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Utilisateurs</div>
+  <div class="page-header">
+    <h1>Utilisateurs</h1>
+    <div class="actions"><a class="btn btn-primary" href="/admin/users/new">+ Nouvel utilisateur</a></div>
+  </div>
 
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
 
-<table style="width:100%; border-collapse: collapse;">
-  <thead>
-    <tr style="text-align:left; border-bottom: 1px solid #ccc;">
-      <th>Courriel</th><th>Role</th><th>Actif</th><th>Cree le</th><th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for u in users %}
-    <tr style="border-bottom: 1px solid #eee;">
-      <td>{{ u.email }}{% if u.id == current_user_id %} <small>(vous)</small>{% endif %}</td>
-      <td><span class="role">{{ u.role.value }}</span></td>
-      <td>{{ "oui" if u.is_active else "non" }}</td>
-      <td>{{ u.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-      <td>
-        {% if u.role.value != "admin" and u.id != current_user_id %}
-        <form class="inline" method="post" action="/admin/users/{{ u.id }}/delete"
-              onsubmit="return confirm('Supprimer {{ u.email }} ?');">
-          <button type="submit">Supprimer</button>
-        </form>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Courriel</th><th>Role</th><th>Actif</th><th>Cree le</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.email }}{% if u.id == current_user_id %} <small>(vous)</small>{% endif %}</td>
+          <td><span class="badge badge-{{ u.role.value }}">{{ u.role.value }}</span></td>
+          <td>{{ "oui" if u.is_active else "non" }}</td>
+          <td class="muted">{{ u.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td>
+            {% if u.role.value != "admin" and u.id != current_user_id %}
+            <form class="inline" method="post" action="/admin/users/{{ u.id }}/delete"
+                  onsubmit="return confirm('Supprimer {{ u.email }} ?');">
+              <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="table-empty">Aucun utilisateur.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

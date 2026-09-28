@@ -1,0 +1,20 @@
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><span class="navbar-mark">IAF</span> IAFActory</a>
+  <div class="navbar-links">
+    {% if user.role.value == "admin" %}
+      <a href="/admin/users/new"{% if active == "admin_new" %} class="active"{% endif %}>Nouvel utilisateur</a>
+      <a href="/admin/users"{% if active == "admin_users" %} class="active"{% endif %}>Utilisateurs</a>
+    {% elif user.role.value == "creator" %}
+      <a href="/creator/documents/new"{% if active == "creator_new" %} class="active"{% endif %}>Deposer un document</a>
+      <a href="/creator/documents"{% if active == "creator_documents" %} class="active"{% endif %}>Documents</a>
+      <a href="/creator/classes"{% if active == "creator_classes" %} class="active"{% endif %}>Classes</a>
+    {% else %}
+      <a href="/ask"{% if active == "ask" %} class="active"{% endif %}>Poser une question</a>
+    {% endif %}
+  </div>
+  <div class="navbar-user">
+    <span class="badge badge-{{ user.role.value }}">{{ user.role.value }}</span>
+    <span>{{ user.email }}</span>
+    <form class="inline" method="post" action="/logout"><button type="submit" class="btn btn-sm">Se deconnecter</button></form>
+  </div>
+</nav>
