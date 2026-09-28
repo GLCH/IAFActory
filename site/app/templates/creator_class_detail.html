@@ -6,7 +6,10 @@
   <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> / {{ name or "introuvable" }}</div>
   <div class="page-header">
     <h1>{{ name or "Classe introuvable" }}</h1>
-    <div class="actions"><a class="btn" href="/creator/documents">Mes documents</a></div>
+    <div class="actions">
+      <a class="btn" href="/creator/documents">Mes documents</a>
+      {% if name %}<a class="btn" href="/creator/classes/{{ class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>{% endif %}
+    </div>
   </div>
 
   {% if not name %}

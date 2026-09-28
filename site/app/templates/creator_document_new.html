@@ -10,18 +10,43 @@
   </div>
 
   <div class="card" style="max-width: 520px;">
+    <h2>Un seul document</h2>
     {% if error %}<p class="alert">{{ error }}</p>{% endif %}
     <form method="post" action="/creator/documents/new" enctype="multipart/form-data">
       <div class="field">
         <label>Fichier</label>
-        <input type="file" name="file" accept=".docx,.pdf,.pptx" required>
-        <small>.docx, .pdf ou .pptx</small>
+        <input type="file" name="file" accept=".docx,.pdf,.pptx,.md,.tex" required>
+        <small>.docx, .pdf, .pptx, .md ou .tex</small>
       </div>
       <button type="submit" class="btn btn-primary">Deposer</button>
     </form>
+  </div>
+
+  <div class="card" style="max-width: 520px;">
+    <h2>Plusieurs fichiers ou un repertoire (US3.15)</h2>
+    <form method="post" action="/creator/documents/bulk" enctype="multipart/form-data">
+      <div class="field">
+        <label>Fichiers</label>
+        <input type="file" name="files" accept=".docx,.pdf,.pptx,.md,.tex" multiple>
+        <small>Selection multiple.</small>
+      </div>
+      <div class="field">
+        <label>Ou un repertoire complet</label>
+        <input type="file" name="files" webkitdirectory multiple>
+        <small>Tous les fichiers de formats acceptes a l'interieur seront deposes ; les autres seront
+          signales sans bloquer le reste.</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Deposer le lot</button>
+    </form>
+  </div>
+
+  <div class="card" style="max-width: 520px;">
     <ul class="hint-list">
-      <li>Les trois formats sont analyses reellement, mais tres inegalement : .docx et .pptx distinguent
-        titres/sections, paragraphes et tableaux.</li>
+      <li>Le traitement est desormais asynchrone (IAF-E13) : la page rend la main immediatement, suivez
+        l'avancement dans <a href="/creator/processes">Processus</a>.</li>
+      <li>.docx et .pptx distinguent vraiment titres/sections, paragraphes et tableaux.</li>
+      <li>.md distingue les titres Markdown, paragraphes et tableaux ; .tex distingue les sections LaTeX,
+        paragraphes et tableaux (analyse simplifiee, pas un moteur LaTeX complet).</li>
       <li>.pdf est plus grossier (page par page, ligne par ligne, sans titres detectes).</li>
       <li>Un PDF scanne (sans texte) est refuse, jamais d'OCR.</li>
     </ul>

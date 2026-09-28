@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Taxonomie - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Taxonomie</div>
+  <div class="page-header">
+    <h1>Taxonomie des concepts</h1>
+    <div class="actions"><a class="btn" href="/creator/corpus">Corpus</a></div>
+  </div>
+  <p class="muted">Concepts semantiques induits automatiquement (IAF-E7 US7.5), toutes classes confondues.
+     Definition et traduction ne sont jamais inventees par le LLM : a saisir ici, ecrites dans Fuseki.</p>
+
+  <div class="stack">
+    {% for c in concepts %}
+    <div class="card">
+      <div class="page-header" style="margin-bottom: 0.75rem;">
+        <h2 style="margin: 0;">{{ c.label }}</h2>
+        <span class="muted">classe : <a href="/creator/classes/{{ c.class_id }}">{{ c.class_name }}</a></span>
+      </div>
+      <form method="post" action="/creator/taxonomy/edit">
+        <input type="hidden" name="class_id" value="{{ c.class_id }}">
+        <input type="hidden" name="label" value="{{ c.label }}">
+        <div class="field">
+          <label>Definition</label>
+          <input type="text" name="definition" value="{{ c.definition }}" placeholder="Non renseignee">
+        </div>
+        <div class="field">
+          <label>Traduction (anglais)</label>
+          <input type="text" name="translation_en" value="{{ c.translation_en }}" placeholder="Non renseignee">
+        </div>
+        <button type="submit" class="btn btn-sm">Enregistrer</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="muted">Aucun concept induit pour l'instant.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

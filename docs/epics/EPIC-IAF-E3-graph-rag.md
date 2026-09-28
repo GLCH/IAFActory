@@ -132,3 +132,30 @@ Mise a jour 2026-09-27 : perimetre MVP confirme par l'utilisateur - viewer et cr
 - Contexte : "variables associees aux projets" dans la demande initiale de l'utilisateur, reformule car aucune notion de projet n'existe dans le site (IAF-E3, mis a jour 2026-09-27).
 - Exemples : la classe "Fiche technique - Joint torique" affiche 12 concepts semantiques induits (Materiau, Norme, Fournisseur...) et 5 documents rattaches avec un score entre 0.91 et 0.97.
 - Questions : le creator doit-il pouvoir ajuster le seuil par classe (pas seulement le lire) dans une version ulterieure ?
+
+**Implementees et mesurees le 2026-09-28 (US3.15, US3.16, US3.17)** : les trois testees reellement de bout en bout via le site (pas seulement le code). US3.15 : nouveaux parseurs markdown_struct.py et latex_struct.py (regex simples, un bug reel corrige pendant le test - une ligne de separation de tableau Markdown comptee deux fois, supprimant a tort la premiere ligne de donnees) ; deux fichiers de test (.md et .tex) deposes ensemble via /creator/documents/bulk, tous deux traites avec succes (3 chunks chacun). US3.16 : ecran document (chunks, telechargement - fichier .docx restitue identique, verifie via `file`), export OWL/XML verifie (RDF/XML bien forme, ouvre un vrai owl:Class par concept). US3.17 : bug reel trouve et corrige pendant le test - `DELETE WHERE` (forme SPARQL raccourcie) ne supporte pas `FILTER`, erreur 500 reelle a la sauvegarde d'une traduction ; corrige avec la forme complete `DELETE {} WHERE {}` ; sauvegarde definition/traduction verifiee dans Fuseki ET Neo4j apres correction (via le vrai formulaire du navigateur, pas seulement en direct).
+
+## US3.15 Deposer un repertoire complet, LaTeX et Markdown
+- Ajoutee le 2026-09-28.
+- En tant que creator, je depose plusieurs documents d'un coup (un repertoire entier) et des documents source (`.tex`, `.md`), pas seulement des documents bureautiques.
+- Prerequis : US3.1, IAF-E13 (mise en file asynchrone, sinon N documents bloquent la page N fois plus longtemps).
+- Acceptance criteria : selection d'un repertoire (tous les fichiers de formats acceptes a l'interieur, recursif ou non a preciser a l'usage) ou de plusieurs fichiers ; chaque fichier devient un document independant, mis en file (IAF-E13) ; `.tex` et `.md` analyses structurellement (sections/sous-sections ou titres Markdown -> Section, paragraphes -> Paragraph, tableaux -> Table) selon les memes limites honnetes que les formats existants (analyse simplifiee, pas un moteur LaTeX complet) ; formats non reconnus dans le lot signales individuellement, ne bloquent pas les autres.
+- Exemples : un repertoire de 15 fichiers `.md` et 3 `.tex` produit 18 documents en file, chacun avec son propre statut.
+- Questions : taille maximale d'un lot ?
+
+## US3.16 Detail d'un document : telecharger, chunks, graphe, export OWL
+- Ajoutee le 2026-09-28.
+- En tant que creator, je veux, pour un document donne, le telecharger tel que depose, voir ses chunks, visualiser le graphe de connaissance qui en est issu (entites et relations), et acceder a l'ontologie de sa classe au format OWL/XML.
+- Prerequis : US3.1 (fichier conserve sur volume), IAF-E7 US7.5 (extraction par chunk), US3.14 (ontologie de classe).
+- Acceptance criteria : ecran document dedie (lien depuis la liste des documents) ; telechargement du fichier original (contenu et nom d'origine, pas le nom sha256 interne) ; liste des chunks avec leur texte et leur position structurelle ; visualisation du graphe (noeuds = entites du document, arcs = relations) sans bibliotheque JS externe (coherent avec le site actuel, aucune etape de build) ; export de l'ontologie semantique de la classe du document au format RDF/XML (`Content-Type: application/rdf+xml`), recuperee depuis Fuseki (IAF-E7 US7.5), pas regeneree.
+- Exemples : le document "verin_pneumatique_test.docx" telecharge redonne le `.docx` original ; l'export OWL/XML de sa classe s'ouvre dans Protege.
+- Questions : la visualisation du graphe doit-elle rester une simple liste si le nombre d'entites est grand (lisibilite) ?
+
+## US3.17 Corpus documentaires et taxonomie des concepts
+- Ajoutee le 2026-09-28.
+- En tant que creator, je veux une vue d'ensemble des corpus (classes et leurs documents) et de la taxonomie des concepts semantiques (traduction, definition), independamment d'un document ou d'une classe en particulier.
+- Prerequis : US3.14, IAF-E7 US7.5.
+- Acceptance criteria : ecran "corpus" = liste des classes avec leur nombre de documents (deja couvert par US3.9, re-presente ici comme entree du menu "corpus") ; ecran "taxonomie" = liste de tous les concepts semantiques induits (toutes classes confondues), chacun avec une definition et une traduction editables par le creator (l'induction LLM ne produit ni l'une ni l'autre - champs vides tant que non renseignes, jamais inventes) ; les modifications sont ecrites dans Fuseki (`rdfs:comment` pour la definition, `rdfs:label@en` pour la traduction) et miroitees dans Neo4j.
+- Contexte : "traductions et definition" demandes explicitement par l'utilisateur, non couverts par l'induction automatique (IAF-E7 US7.5) qui ne produit qu'un libelle en francais.
+- Exemples : le concept "Materiau" (induit sur 3 classes differentes) recoit la definition "Substance dont un composant est fabrique" et la traduction anglaise "Material".
+- Questions : une langue de traduction seulement (anglais) ou plusieurs ? gouvernance de ces definitions/traductions (creator seul ou revue collective comme le glossaire, US3.10) ?

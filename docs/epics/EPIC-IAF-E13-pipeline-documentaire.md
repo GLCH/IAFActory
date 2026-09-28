@@ -8,6 +8,10 @@ Ordre : I, R, (C), S. La création de classe précède la structuration pour un 
 
 Questions transverses : volumétrie (documents par jour) ? priorités entre lots et documents isolés ? orchestration : file Postgres (proposition) ou moteur de workflow ?
 
+**Implémenté et mesuré le 2026-09-28 (version simplifiée de US13.1/US13.7)**, suite à la demande explicite "tout process long doit être asynchrone" : table Postgres `pipeline_runs` (un enregistrement par exécution du pipeline complet I-R-C-S, pas encore le détail par étape `stage_runs` de US13.1 - simplification assumée) ; le dépôt et la relance d'un document mettent en file et rendent la main immédiatement (plus de requête HTTP bloquante de plusieurs minutes comme avant) ; exécution par un `ThreadPoolExecutor` DANS le process uvicorn (pas l'option B/C de l'ADR 0006, pas un service séparé) - limite réelle et assumée : un `pipeline_run` `en_cours` au moment d'un redémarrage du serveur reste bloqué dans cet état, pas de reprise automatique (US13.6 reste à faire). Page `/creator/processes` (US13.7) : liste des executions avec statut, document, durée, erreur.
+
+Mesure réelle : temps de réponse HTTP du dépôt passé de 37 secondes (avant, traitement bloquant) à **0,08 seconde** (après, mise en file) sur un document comparable ; le dépôt en lot (US3.15, 2 fichiers) répond en 0,1 seconde. Le pipeline complet (I-R-C-S) a effectivement tourné en tâche de fond et abouti (statut `done`, durée mesurée ~30 secondes avec Gemini).
+
 ## US13.1 Modèle d'exécution du pipeline
 - En tant que système, je suis l'état de chaque document dans le pipeline, étape par étape.
 - Prérequis : IAF-10 (Postgres), US5.2.

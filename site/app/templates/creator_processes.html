@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Processus - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Processus</div>
+  <div class="page-header">
+    <h1>Processus</h1>
+    <div class="actions"><a class="btn" href="/creator/documents">Documents</a></div>
+  </div>
+  <p class="muted">Chaque depot ou relance de document est traite en arriere-plan (IAF-E13) - cette page
+     suit l'avancement sans bloquer la navigation. Rafraichir la page pour voir l'etat a jour.</p>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Document</th><th>Statut</th><th>Mis en file</th><th>Debut</th><th>Duree</th><th></th></tr></thead>
+      <tbody>
+        {% for r in runs %}
+        <tr>
+          <td>{{ r.filename }}</td>
+          <td>
+            <span class="badge{% if r.run.status.value == 'error' %} badge-error{% elif r.run.status.value == 'done' %} badge-recognized{% elif r.run.status.value == 'running' %} badge-ingested{% else %} badge-received{% endif %}">
+              {{ r.run.status.value }}
+            </span>
+          </td>
+          <td class="muted">{{ r.run.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+          <td class="muted">{{ r.run.started_at.strftime("%H:%M:%S") if r.run.started_at else "-" }}</td>
+          <td class="muted">
+            {% if r.run.started_at and r.run.finished_at %}
+              {{ "%.0f"|format((r.run.finished_at - r.run.started_at).total_seconds()) }} s
+            {% elif r.run.started_at %}
+              en cours...
+            {% else %}
+              en attente
+            {% endif %}
+          </td>
+          <td>{% if r.run.error_message %}<span class="detail-link" title="{{ r.run.error_message }}">detail</span>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="table-empty">Aucun processus pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

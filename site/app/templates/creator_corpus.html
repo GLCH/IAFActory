@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Corpus - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Corpus</div>
+  <div class="page-header">
+    <h1>Corpus documentaires</h1>
+    <div class="actions"><a class="btn" href="/creator/taxonomy">Taxonomie des concepts</a></div>
+  </div>
+  <p class="muted">Un corpus = une classe documentaire et les documents qui lui sont rattaches (US3.9). Pas de
+     notion de projet dans le site (decide le 2026-09-27) : cette vue est la meme que "Classes", classee ici par taille.</p>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Corpus</th><th>Statut</th><th>Documents</th></tr></thead>
+      <tbody>
+        {% for c in corpus %}
+        <tr>
+          <td><a href="/creator/classes/{{ c.id }}">{{ c.name }}</a></td>
+          <td><span class="badge">{{ c.status }}</span></td>
+          <td>{{ c.document_count }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="table-empty">Aucun corpus pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

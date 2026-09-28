@@ -38,13 +38,19 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import docx_struct, ontology, pdf_struct, pptx_struct
+from . import docx_struct, latex_struct, markdown_struct, ontology, pdf_struct, pptx_struct
 from .config import settings
 from .graph import chat_json, embed, get_driver
 from .models import DocumentStatus
 from .struct_element import StructElement, flatten
 
-PARSERS = {".docx": docx_struct.parse, ".pdf": pdf_struct.parse, ".pptx": pptx_struct.parse}
+PARSERS = {
+    ".docx": docx_struct.parse,
+    ".pdf": pdf_struct.parse,
+    ".pptx": pptx_struct.parse,
+    ".md": markdown_struct.parse,
+    ".tex": latex_struct.parse,
+}
 
 STRUCT_KINDS = ("Section", "Paragraph", "Table")
 

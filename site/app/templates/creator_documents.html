@@ -7,6 +7,7 @@
   <div class="page-header">
     <h1>Mes documents</h1>
     <div class="actions">
+      <a class="btn" href="/creator/processes">Processus</a>
       <a class="btn" href="/creator/classes">Classes</a>
       <a class="btn btn-primary" href="/creator/documents/new">+ Deposer un document</a>
     </div>
@@ -22,7 +23,7 @@
       <tbody>
         {% for d in documents %}
         <tr>
-          <td>{{ d.filename }}</td>
+          <td><a href="/creator/documents/{{ d.id }}">{{ d.filename }}</a></td>
           <td>
             <span class="badge badge-{{ d.status.value }}">{{ d.status.value }}</span>
             {% if d.status.value == "recognized" %}<br><small>reconnu</small>{% endif %}

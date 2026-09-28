@@ -5,9 +5,12 @@
       <a href="/admin/users/new"{% if active == "admin_new" %} class="active"{% endif %}>Nouvel utilisateur</a>
       <a href="/admin/users"{% if active == "admin_users" %} class="active"{% endif %}>Utilisateurs</a>
     {% elif user.role.value == "creator" %}
-      <a href="/creator/documents/new"{% if active == "creator_new" %} class="active"{% endif %}>Deposer un document</a>
+      <a href="/creator/documents/new"{% if active == "creator_new" %} class="active"{% endif %}>Deposer</a>
       <a href="/creator/documents"{% if active == "creator_documents" %} class="active"{% endif %}>Documents</a>
+      <a href="/creator/processes"{% if active == "creator_processes" %} class="active"{% endif %}>Processus</a>
       <a href="/creator/classes"{% if active == "creator_classes" %} class="active"{% endif %}>Classes</a>
+      <a href="/creator/corpus"{% if active == "creator_corpus" %} class="active"{% endif %}>Corpus</a>
+      <a href="/creator/taxonomy"{% if active == "creator_taxonomy" %} class="active"{% endif %}>Taxonomie</a>
     {% else %}
       <a href="/ask"{% if active == "ask" %} class="active"{% endif %}>Poser une question</a>
     {% endif %}

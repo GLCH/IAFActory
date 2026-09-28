@@ -72,3 +72,34 @@ class Document(Base):
     entity_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
     ingested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PipelineRunStatus(str, enum.Enum):
+    """IAF-E13 US13.1, version simplifiee : une ligne par execution du
+    pipeline COMPLET (I-R-C-S), pas encore le detail par etape (`stage_runs`
+    de l'ADR 0006) - a affiner si le besoin de reprise fine se confirme."""
+
+    queued = "queued"
+    running = "running"
+    done = "done"
+    error = "error"
+
+
+class PipelineRun(Base):
+    """IAF-E13 US13.1/US13.7. Execute par un ThreadPoolExecutor DANS le
+    process uvicorn (worker.py) - pas un service separe (option B/C de
+    l'ADR 0006 non retenues). Limite assumee : un run `running` au moment
+    d'un redemarrage du serveur reste bloque dans cet etat (pas de reprise
+    automatique, US13.6 reste a faire)."""
+
+    __tablename__ = "pipeline_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    document_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("documents.id"), nullable=False, index=True)
+    status: Mapped[PipelineRunStatus] = mapped_column(
+        Enum(PipelineRunStatus, name="pipeline_run_status"), default=PipelineRunStatus.queued, nullable=False
+    )
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

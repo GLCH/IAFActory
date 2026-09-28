@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ document.filename if document else "Document" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/documents">Documents</a> / {{ document.filename if document else "introuvable" }}</div>
+  {% if not document %}
+  <p class="alert">Document introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>{{ document.filename }}</h1>
+    <div class="actions">
+      <a class="btn btn-primary" href="/creator/documents/{{ document.id }}/download">Telecharger</a>
+      {% if document.neo4j_class_id %}
+      <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}">Voir la classe</a>
+      <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <p>
+      <span class="badge badge-{{ document.status.value }}">{{ document.status.value }}</span>
+      {% if document.class_name %} &middot; classe : <a href="/creator/classes/{{ document.neo4j_class_id }}">{{ document.class_name }}</a>{% endif %}
+      &middot; {{ document.chunk_count }} chunks &middot; {{ document.entity_count }} entites
+    </p>
+    {% if document.error_message %}<p class="muted">{{ document.error_message }}</p>{% endif %}
+  </div>
+
+  {% if graph_svg %}
+  <div class="card">
+    <h2>Graphe de connaissance</h2>
+    <p class="muted">Entites et relations extraites de ce document (disposition en cercle, sans bibliotheque JS).</p>
+    <div style="max-width: 640px; margin: 0 auto;">{{ graph_svg | safe }}</div>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Chunks</h2>
+    <div class="stack">
+      {% for c in chunks %}
+      <div>
+        <strong>{{ c.section }}</strong> <span class="muted">({{ c.kind }})</span>
+        {% if c.entities %}&middot; entites : {{ c.entities|join(", ") }}{% endif %}
+        <br><small>{{ c.text[:300] }}{% if c.text|length > 300 %}...{% endif %}</small>
+      </div>
+      {% else %}
+      <p class="muted">Aucun chunk pour l'instant.</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

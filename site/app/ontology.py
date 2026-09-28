@@ -64,6 +64,38 @@ def ensure_concept(class_id: str, label: str) -> str:
     return uri
 
 
+def set_concept_metadata(class_id: str, label: str, definition: str, translation_en: str) -> None:
+    """US3.17 : definition (`rdfs:comment`) et traduction anglaise
+    (`rdfs:label@en`) d'un concept, saisies par le creator - jamais induites
+    par le LLM (US7.5 ne produit qu'un libelle francais). Remplace toute
+    valeur precedente (DELETE puis INSERT, pas d'accumulation de doublons)."""
+    uri = concept_uri(class_id, label)
+    graph = class_graph_uri(class_id)
+    # `DELETE WHERE` (forme raccourcie) ne supporte pas FILTER (erreur de
+    # syntaxe SPARQL reelle rencontree ici) : forme complete DELETE/WHERE
+    # pour la traduction, qui doit filtrer par langue.
+    ops = [
+        f"{_PREFIXES}DELETE WHERE {{ GRAPH <{graph}> {{ <{uri}> rdfs:comment ?c . }} }}",
+        f"{_PREFIXES}DELETE {{ GRAPH <{graph}> {{ <{uri}> rdfs:label ?l . }} }} "
+        f"WHERE {{ GRAPH <{graph}> {{ <{uri}> rdfs:label ?l . FILTER(lang(?l) = 'en') }} }}",
+    ]
+    inserts = []
+    if definition:
+        inserts.append(f'<{uri}> rdfs:comment "{definition.replace(chr(34), chr(92) + chr(34))}"@fr .')
+    if translation_en:
+        inserts.append(f'<{uri}> rdfs:label "{translation_en.replace(chr(34), chr(92) + chr(34))}"@en .')
+    if inserts:
+        ops.append(f"{_PREFIXES}INSERT DATA {{ GRAPH <{graph}> {{ {' '.join(inserts)} }} }}")
+
+    r = requests.post(
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/update",
+        data=" ; ".join(ops).encode("utf-8"),
+        headers={"Content-Type": "application/sparql-update; charset=utf-8"},
+        timeout=15,
+    )
+    r.raise_for_status()
+
+
 def list_concepts(class_id: str) -> list[dict]:
     """Concepts OWL deja ecrits pour cette classe (verification, pas encore
     utilise par les ecrans du site - voir US3.14)."""
