@@ -67,6 +67,17 @@ Questions transverses : classes partagées entre projets ? langues ? volumétrie
 - Prérequis : US7.5, IAF-E5 US5.3.
 - Acceptance criteria : liste des classes provisoires avec exemples et schéma ; fusion réaffecte les documents ; rejet déclenche le reclassement des documents concernés ; actions journalisées ; seul le creator propriétaire (et l'admin) peut agir.
 - Exemples : fusion de « Facture » et « Facture fournisseur » : les documents des deux sont dans la classe résultante.
+- **Étendue et mesurée le 2026-09-28** : la fusion peut être déclenchée par une mesure de distance ENTRE CLASSES (même score combiné structurel + sémantique que US7.4, appliqué cette fois à deux classes plutôt qu'à un document et une classe), pas seulement à la main. Deux seuils réglables (`/creator/settings`, décidé par l'utilisateur - "un mélange des deux") : au-delà du seuil **auto** ("sans doute"), fusion automatique si l'option est activée ; entre le seuil de **suggestion** et le seuil auto, une proposition de fusion est créée pour le creator (jamais automatique dans cette tranche). La fusion automatique est DÉSACTIVÉE par défaut. Testé réellement de bout en bout : suggestion créée automatiquement après ingestion (score 50%, 100% structurel/0% sémantique sur deux documents peu proches), fusion manuelle validée - documents réaffectés (Postgres), relation IN_CLASS et concepts fusionnés (Neo4j, dédupliqués par libellé), ontologie RDF fusionnée dans Fuseki (`ADD`+`CLEAR`, vérifié : graphe source vide après fusion, graphe cible contient les deux jeux de concepts), ancienne URL de classe redirige (302) vers la classe absorbante plutôt que 404.
+
+## US7.9 Proprietes OWL partagees (relations, attributs)
+- Ajoutee le 2026-09-28, suite au constat direct : l'ontologie ecrite dans Fuseki (US7.5) ne contient que des concepts (owl:Class), jamais les relations extraites (US3.4/US13.4) ni les attributs.
+- En tant que creator, je veux que les relations et attributs extraits des documents existent comme de vraies proprietes OWL (object property, datatype property), pas seulement des arcs/proprietes Neo4j.
+- Prerequis : US7.5, IAF-E13 US13.4 (extraction par chunk).
+- Acceptance criteria : chaque type de relation extrait (ex. "fabrique_par") devient un `owl:ObjectProperty` ; chaque cle d'attribut extraite (ex. "resistance") devient un `owl:DatatypeProperty` ; **decide le 2026-09-28** - portee GLOBALE (un graphe nomme partage, pas un par classe) : une propriete est definie UNE fois et reutilisee par toutes les classes qui l'emploient, coherent avec les pratiques OWL reelles ; ecriture idempotente comme pour les concepts (US7.5).
+- Contexte : graphe nomme dedie (`http://iafactory.local/ontology/properties`), distinct des graphes par classe des concepts.
+- Exemples : la relation "fabrique_par" vue dans deux classes differentes (joint torique, verin pneumatique) n'a qu'UNE definition owl:ObjectProperty, pas deux.
+- Questions : faut-il declarer domain/range (quelles classes utilisent quelle propriete) ? Pas fait dans cette premiere version.
+- **Implemente et verifie le 2026-09-28** : relation "fabrique_par" ("fabriqué par") confirmee ecrite comme owl:ObjectProperty dans le graphe nomme partage, verifiee par requete SPARQL directe.
 
 ## US7.7 Banc d'évaluation des algorithmes de comparaison
 - En tant qu'équipe, je veux comparer objectivement les algorithmes avant de fixer le choix.

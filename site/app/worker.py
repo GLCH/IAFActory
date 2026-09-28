@@ -18,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import class_merge
 from .db import SessionLocal
 from .models import Document, DocumentStatus, PipelineRun, PipelineRunStatus
 from .pdf_struct import ScannedDocument
@@ -47,6 +48,7 @@ def enqueue(document_id: uuid.UUID, stored_path: Path) -> uuid.UUID:
 
 def _execute(run_id: uuid.UUID, document_id: uuid.UUID, stored_path: Path) -> None:
     db = SessionLocal()
+    class_id_to_check: str | None = None  # reste None si retour anticipe ou si aucune classe assignee
     try:
         run = db.get(PipelineRun, run_id)
         doc = db.get(Document, document_id)
@@ -82,5 +84,15 @@ def _execute(run_id: uuid.UUID, document_id: uuid.UUID, stored_path: Path) -> No
 
         run.finished_at = datetime.now(timezone.utc)
         db.commit()
+        class_id_to_check = doc.neo4j_class_id
     finally:
         db.close()
+
+    # IAF-E7 US7.6 (etendue) : distance entre classes, hors de la transaction
+    # ci-dessus (sa propre session Postgres/Neo4j) - un echec ici ne doit pas
+    # invalider le document deja ingere.
+    if class_id_to_check:
+        try:
+            class_merge.check_and_act_on_class(class_id_to_check)
+        except Exception:
+            pass

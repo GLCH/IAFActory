@@ -6,7 +6,7 @@ import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -103,3 +103,19 @@ class PipelineRun(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PlatformSettings(Base):
+    """IAF-E7 US7.6 (etendue le 2026-09-28) : "dans les parametres on peut
+    autoriser le merge automatique et definir 2 seuils" - ligne UNIQUE
+    (id=1 impose), reglable par le creator via /creator/settings. Pas de
+    notion multi-tenant ici (coherent avec l'absence de "projet", US3.9)."""
+
+    __tablename__ = "platform_settings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    auto_merge_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Seuil "sans doute" : fusion automatique si auto_merge_enabled.
+    auto_merge_threshold: Mapped[float] = mapped_column(Float, default=0.97, nullable=False)
+    # Seuil de suggestion (entre les deux : proposition, jamais automatique).
+    suggest_merge_threshold: Mapped[float] = mapped_column(Float, default=0.90, nullable=False)

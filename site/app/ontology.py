@@ -22,7 +22,35 @@ from .config import settings
 _PREFIXES = (
     "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n"
     "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+    "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n"
 )
+
+# IAF-E7 US7.9 : relations et attributs extraits (US13.4) comme de vraies
+# proprietes OWL, a PORTEE GLOBALE (une seule definition reutilisee par
+# toutes les classes qui l'emploient) - decide le 2026-09-28, par opposition
+# aux concepts qui restent par classe (US7.5).
+PROPERTIES_GRAPH = "http://iafactory.local/ontology/properties"
+
+
+def _run_update(update: str) -> None:
+    r = requests.post(
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/update",
+        data=update.encode("utf-8"),
+        headers={"Content-Type": "application/sparql-update; charset=utf-8"},
+        timeout=15,
+    )
+    r.raise_for_status()
+
+
+def _run_query(query: str) -> list[dict]:
+    r = requests.get(
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/sparql",
+        params={"query": query},
+        headers={"Accept": "application/sparql-results+json"},
+        timeout=15,
+    )
+    r.raise_for_status()
+    return r.json().get("results", {}).get("bindings", [])
 
 
 def _slug(label: str) -> str:
@@ -104,12 +132,87 @@ def list_concepts(class_id: str) -> list[dict]:
         f"{_PREFIXES}"
         f"SELECT ?concept ?label WHERE {{ GRAPH <{graph}> {{ ?concept a owl:Class ; rdfs:label ?label . }} }}"
     )
+    bindings = _run_query(query)
+    return [{"uri": b["concept"]["value"], "label": b["label"]["value"]} for b in bindings]
+
+
+def property_uri(label: str) -> str:
+    return f"{PROPERTIES_GRAPH}#{_slug(label)}"
+
+
+def _ensure_global_property(label: str, owl_type: str) -> str:
+    """IAF-E7 US7.9. `owl_type` = "owl:ObjectProperty" ou "owl:DatatypeProperty".
+    Portee globale (PROPERTIES_GRAPH), idempotent comme ensure_concept."""
+    uri = property_uri(label)
+    label_escaped = label.replace('"', '\\"')
+    update = (
+        f"{_PREFIXES}"
+        f"INSERT DATA {{ GRAPH <{PROPERTIES_GRAPH}> {{ <{uri}> a {owl_type} ; rdfs:label \"{label_escaped}\"@fr . }} }}"
+    )
+    _run_update(update)
+    return uri
+
+
+def ensure_relation_property(label: str) -> str:
+    return _ensure_global_property(label, "owl:ObjectProperty")
+
+
+def ensure_attribute_property(label: str) -> str:
+    return _ensure_global_property(label, "owl:DatatypeProperty")
+
+
+def _escape_literal(s: str) -> str:
+    return s.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def taxonomy_graph_uri(taxonomy_id: str) -> str:
+    return f"http://iafactory.local/taxonomies/{taxonomy_id}"
+
+
+def taxonomy_concept_uri(taxonomy_id: str, pref_label: str) -> str:
+    return f"{taxonomy_graph_uri(taxonomy_id)}#{_slug(pref_label)}"
+
+
+def write_taxonomy(taxonomy_id: str, name: str, clusters: list[dict]) -> None:
+    """US3.18. `clusters` : liste de {"pref_label": str, "alt_labels": [str,...]}.
+    Le graphe nomme EST le `skos:ConceptScheme` (URI coherente et stable pour
+    le telechargement, US3.16/US3.18)."""
+    graph = taxonomy_graph_uri(taxonomy_id)
+    triples = [f'<{graph}> a skos:ConceptScheme ; rdfs:label "{_escape_literal(name)}"@fr .']
+    for cluster in clusters:
+        uri = taxonomy_concept_uri(taxonomy_id, cluster["pref_label"])
+        triples.append(
+            f'<{uri}> a skos:Concept ; skos:inScheme <{graph}> ; '
+            f'skos:prefLabel "{_escape_literal(cluster["pref_label"])}"@fr .'
+        )
+        for alt in cluster["alt_labels"]:
+            if alt != cluster["pref_label"]:
+                triples.append(f'<{uri}> skos:altLabel "{_escape_literal(alt)}"@fr .')
+    update = f"{_PREFIXES}INSERT DATA {{ GRAPH <{graph}> {{ {' '.join(triples)} }} }}"
+    _run_update(update)
+
+
+def export_taxonomy_turtle(taxonomy_id: str) -> bytes:
+    """Export SKOS/Turtle du graphe nomme de la taxonomie, depuis Fuseki
+    (source de verite) - pas regenere depuis Neo4j (meme principe que
+    class_ontology_owl, US3.16)."""
+    graph = taxonomy_graph_uri(taxonomy_id)
     r = requests.get(
-        f"{settings.fuseki_url}/{settings.fuseki_dataset}/sparql",
-        params={"query": query},
-        headers={"Accept": "application/sparql-results+json"},
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/data",
+        params={"graph": graph},
+        headers={"Accept": "text/turtle"},
         timeout=15,
     )
     r.raise_for_status()
-    bindings = r.json().get("results", {}).get("bindings", [])
-    return [{"uri": b["concept"]["value"], "label": b["label"]["value"]} for b in bindings]
+    return r.content
+
+
+def merge_class_ontology(source_class_id: str, target_class_id: str) -> None:
+    """IAF-E7 US7.6 (etendue) : fusion de deux classes - transfere le contenu
+    RDF du graphe source vers le graphe cible (ADD, sans ecraser ce qui existe
+    deja) puis vide le graphe source. L'URI du graphe source reste valide
+    (coherence des URI demandee explicitement) mais devient vide - un
+    telechargement ulterieur renvoie une ontologie vide, pas une erreur."""
+    source = class_graph_uri(source_class_id)
+    target = class_graph_uri(target_class_id)
+    _run_update(f"ADD <{source}> TO <{target}> ; CLEAR GRAPH <{source}>")

@@ -18,13 +18,13 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import worker
+from .. import class_merge, taxonomy_builder, worker
 from ..config import settings
 from ..db import get_db
 from ..deps import require_role
 from ..graph import get_driver
 from ..models import Document, DocumentStatus, PipelineRun, Role, User
-from ..ontology import class_graph_uri, set_concept_metadata
+from ..ontology import class_graph_uri, export_taxonomy_turtle, set_concept_metadata
 
 router = APIRouter(prefix="/creator", dependencies=[Depends(require_role(Role.creator))])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -279,6 +279,7 @@ def list_classes(request: Request, user: User = Depends(require_role(Role.creato
     with driver.session() as session:
         rows = list(session.run(
             "MATCH (c:DocumentClass) "
+            "WHERE NOT coalesce(c.status, '') STARTS WITH 'fusionnee' "
             "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
             "RETURN c.id AS id, c.name AS name, c.status AS status, c.created_at AS created_at, "
             "       count(DISTINCT d) AS document_count "
@@ -305,6 +306,11 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
                 },
                 status_code=404,
             )
+        if head["status"] and str(head["status"]).startswith("fusionnee_dans:"):
+            # US7.6 (etendue) : URI coherente (demande explicite) - l'ancienne
+            # classe redirige vers celle qui l'a absorbee plutot que 404.
+            target_id = str(head["status"]).split(":", 1)[1]
+            return RedirectResponse(f"/creator/classes/{target_id}", status_code=status.HTTP_302_FOUND)
         documents = list(session.run(
             "MATCH (c:DocumentClass {id: $cid})<-[r:IN_CLASS]-(d:Document) "
             "RETURN d.filename AS filename, d.sha256 AS sha256, r.score AS score, "
@@ -390,18 +396,82 @@ def class_ontology_owl(class_id: str):
 @router.get("/corpus")
 def list_corpus(request: Request, user: User = Depends(require_role(Role.creator))):
     """US3.17 : vue d'ensemble des corpus - meme donnees que /creator/classes,
-    presentees comme point d'entree "corpus documentaires"."""
+    presentees comme point d'entree "corpus documentaires". US7.6 (etendue) :
+    suggestions de fusion entre corpus proches, a valider ou rejeter."""
     driver = get_driver()
     with driver.session() as session:
         rows = list(session.run(
             "MATCH (c:DocumentClass) "
+            "WHERE NOT coalesce(c.status, '') STARTS WITH 'fusionnee' "
             "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
             "RETURN c.id AS id, c.name AS name, c.status AS status, "
             "       count(DISTINCT d) AS document_count "
             "ORDER BY document_count DESC"
         ))
+        suggestions = list(session.run(
+            "MATCH (a:DocumentClass)-[r:SIMILAR_TO {status: 'suggested'}]-(b:DocumentClass) "
+            "WHERE a.id < b.id "
+            "RETURN a.id AS a_id, a.name AS a_name, b.id AS b_id, b.name AS b_name, "
+            "       r.score AS score, r.structural_score AS structural_score, r.semantic_score AS semantic_score "
+            "ORDER BY r.score DESC"
+        ))
     corpus = [dict(row) for row in rows]
-    return templates.TemplateResponse(request, "creator_corpus.html", {"corpus": corpus, "user": user})
+    return templates.TemplateResponse(
+        request, "creator_corpus.html", {"corpus": corpus, "suggestions": suggestions, "user": user},
+    )
+
+
+@router.post("/classes/merge")
+def merge_classes_route(
+    class_a: str = Form(...),
+    class_b: str = Form(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role(Role.creator)),
+):
+    """US7.6 (etendue) : le creator valide une suggestion de fusion."""
+    driver = get_driver()
+    with driver.session() as session:
+        class_merge.merge_classes(session, db, class_a, class_b)
+    return RedirectResponse("/creator/corpus", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/classes/dismiss-suggestion")
+def dismiss_suggestion_route(
+    class_a: str = Form(...),
+    class_b: str = Form(...),
+    user: User = Depends(require_role(Role.creator)),
+):
+    driver = get_driver()
+    with driver.session() as session:
+        session.run(
+            "MATCH (a:DocumentClass {id: $a})-[r:SIMILAR_TO]-(b:DocumentClass {id: $b}) SET r.status = 'dismissed'",
+            a=class_a, b=class_b,
+        )
+    return RedirectResponse("/creator/corpus", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/settings")
+def settings_form(request: Request, db: Session = Depends(get_db), user: User = Depends(require_role(Role.creator))):
+    """US7.6 (etendue) : "dans les parametres on peut autoriser le merge
+    automatique et definir 2 seuils"."""
+    platform = class_merge.get_platform_settings(db)
+    return templates.TemplateResponse(request, "creator_settings.html", {"platform": platform, "user": user})
+
+
+@router.post("/settings")
+def settings_submit(
+    auto_merge_enabled: bool = Form(False),
+    auto_merge_threshold: float = Form(...),
+    suggest_merge_threshold: float = Form(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role(Role.creator)),
+):
+    platform = class_merge.get_platform_settings(db)
+    platform.auto_merge_enabled = auto_merge_enabled
+    platform.auto_merge_threshold = max(0.0, min(1.0, auto_merge_threshold))
+    platform.suggest_merge_threshold = max(0.0, min(1.0, suggest_merge_threshold))
+    db.commit()
+    return RedirectResponse("/creator/settings", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/taxonomy")
@@ -441,3 +511,94 @@ def taxonomy_edit(
             cid=class_id, label=label, definition=definition.strip(), translation_en=translation_en.strip(),
         )
     return RedirectResponse("/creator/taxonomy", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/taxonomies")
+def list_taxonomies(request: Request, user: User = Depends(require_role(Role.creator))):
+    """US3.18 : taxonomies SKOS deja construites + formulaire pour en
+    construire une nouvelle a partir des corpus choisis."""
+    driver = get_driver()
+    with driver.session() as session:
+        taxonomies = list(session.run(
+            "MATCH (t:Taxonomy) "
+            "OPTIONAL MATCH (t)-[:FROM_CORPUS]->(c:DocumentClass) "
+            "RETURN t.id AS id, t.name AS name, t.created_at AS created_at, t.concept_count AS concept_count, "
+            "       collect(c.name) AS corpus_names "
+            "ORDER BY t.created_at DESC"
+        ))
+        corpus_options = list(session.run(
+            "MATCH (c:DocumentClass) WHERE NOT coalesce(c.status, '') STARTS WITH 'fusionnee' "
+            "RETURN c.id AS id, c.name AS name ORDER BY c.name"
+        ))
+    return templates.TemplateResponse(
+        request, "creator_taxonomies.html",
+        {"taxonomies": taxonomies, "corpus_options": corpus_options, "error": None, "user": user},
+    )
+
+
+@router.post("/taxonomies/build")
+def build_taxonomy_route(
+    request: Request,
+    name: str = Form(...),
+    class_ids: list[str] = Form(...),
+    user: User = Depends(require_role(Role.creator)),
+):
+    try:
+        taxonomy_id = taxonomy_builder.build_taxonomy(name.strip() or "Taxonomie", class_ids)
+    except ValueError as exc:
+        driver = get_driver()
+        with driver.session() as session:
+            taxonomies = list(session.run(
+                "MATCH (t:Taxonomy) OPTIONAL MATCH (t)-[:FROM_CORPUS]->(c:DocumentClass) "
+                "RETURN t.id AS id, t.name AS name, t.created_at AS created_at, t.concept_count AS concept_count, "
+                "       collect(c.name) AS corpus_names ORDER BY t.created_at DESC"
+            ))
+            corpus_options = list(session.run(
+                "MATCH (c:DocumentClass) WHERE NOT coalesce(c.status, '') STARTS WITH 'fusionnee' "
+                "RETURN c.id AS id, c.name AS name ORDER BY c.name"
+            ))
+        return templates.TemplateResponse(
+            request, "creator_taxonomies.html",
+            {"taxonomies": taxonomies, "corpus_options": corpus_options, "error": str(exc), "user": user},
+            status_code=422,
+        )
+    return RedirectResponse(f"/creator/taxonomies/{taxonomy_id}", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/taxonomies/{taxonomy_id}")
+def taxonomy_detail(request: Request, taxonomy_id: str, user: User = Depends(require_role(Role.creator))):
+    driver = get_driver()
+    with driver.session() as session:
+        head = session.run(
+            "MATCH (t:Taxonomy {id: $id}) "
+            "OPTIONAL MATCH (t)-[:FROM_CORPUS]->(c:DocumentClass) "
+            "RETURN t.name AS name, t.created_at AS created_at, collect(c.name) AS corpus_names",
+            id=taxonomy_id,
+        ).single()
+        if head is None:
+            return templates.TemplateResponse(
+                request, "creator_taxonomy_detail.html",
+                {"taxonomy_id": taxonomy_id, "name": None, "concepts": [], "corpus_names": [], "user": user},
+                status_code=404,
+            )
+        concepts = list(session.run(
+            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(tc:TaxonomyConcept) "
+            "RETURN tc.pref_label AS pref_label, tc.alt_labels AS alt_labels ORDER BY tc.pref_label",
+            id=taxonomy_id,
+        ))
+    return templates.TemplateResponse(
+        request, "creator_taxonomy_detail.html",
+        {
+            "taxonomy_id": taxonomy_id, "name": head["name"], "corpus_names": head["corpus_names"],
+            "concepts": concepts, "user": user,
+        },
+    )
+
+
+@router.get("/taxonomies/{taxonomy_id}/skos.ttl")
+def taxonomy_export(taxonomy_id: str):
+    content = export_taxonomy_turtle(taxonomy_id)
+    return Response(
+        content=content, media_type="text/turtle",
+        headers={"Content-Disposition": f'attachment; filename="taxonomie-{taxonomy_id}.ttl"'},
+    )

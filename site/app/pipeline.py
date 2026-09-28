@@ -338,6 +338,8 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
         n_concepts = _write_concepts(session, class_id, sha256, vocabulary)
 
         n_entities = 0
+        seen_relation_types: set[str] = set()
+        seen_attribute_keys: set[str] = set()
         for chunk_id, text, section in chunk_rows:
             try:
                 extracted = chat_json(
@@ -370,6 +372,12 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
                     "CALL apoc.create.setProperty(e, $key, $value) YIELD node RETURN node",
                     name=ent_name, class_id=class_id, key=key, value=str(value),
                 )
+                if key not in seen_attribute_keys:  # IAF-E7 US7.9 : owl:DatatypeProperty global
+                    seen_attribute_keys.add(key)
+                    try:
+                        ontology.ensure_attribute_property(key)
+                    except Exception:
+                        pass  # Fuseki indisponible : l'attribut reste dans Neo4j, pas de silence en amont (US3.4)
 
             for rel in extracted.get("relations", []):
                 src, rtype, tgt = rel.get("source"), rel.get("relation"), rel.get("target")
@@ -381,6 +389,12 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
                     "MERGE (s)-[r:REL {type: $rtype}]->(t)",
                     src=src, tgt=tgt, rtype=rtype, class_id=class_id,
                 )
+                if rtype not in seen_relation_types:  # IAF-E7 US7.9 : owl:ObjectProperty global
+                    seen_relation_types.add(rtype)
+                    try:
+                        ontology.ensure_relation_property(rtype)
+                    except Exception:
+                        pass
 
     return IngestResult(
         status=status,

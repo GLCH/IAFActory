@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Parametres - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Parametres</div>
+  <div class="page-header"><h1>Parametres</h1></div>
+
+  <div class="card" style="max-width: 520px;">
+    <h2>Fusion automatique des classes</h2>
+    <p class="muted">Apres chaque document ingere, sa classe est comparee a toutes les autres (score combine
+       structurel + semantique, IAF-E7 US7.4/US7.6). Deux seuils : au-dela du seuil "automatique", la fusion
+       se fait sans intervention si l'option est activee ; entre les deux seuils, une suggestion est creee
+       pour ton examen (<a href="/creator/corpus">Corpus</a>).</p>
+    <form method="post" action="/creator/settings">
+      <div class="field">
+        <label><input type="checkbox" name="auto_merge_enabled" style="width:auto;" {% if platform.auto_merge_enabled %}checked{% endif %}>
+          Autoriser la fusion automatique</label>
+      </div>
+      <div class="field">
+        <label>Seuil automatique ("sans doute")</label>
+        <input type="number" name="auto_merge_threshold" min="0" max="1" step="0.01" value="{{ platform.auto_merge_threshold }}">
+      </div>
+      <div class="field">
+        <label>Seuil de suggestion</label>
+        <input type="number" name="suggest_merge_threshold" min="0" max="1" step="0.01" value="{{ platform.suggest_merge_threshold }}">
+      </div>
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

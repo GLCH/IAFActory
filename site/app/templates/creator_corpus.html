@@ -6,10 +6,40 @@
   <div class="breadcrumb"><a href="/">IAFActory</a> / Corpus</div>
   <div class="page-header">
     <h1>Corpus documentaires</h1>
-    <div class="actions"><a class="btn" href="/creator/taxonomy">Taxonomie des concepts</a></div>
+    <div class="actions">
+      <a class="btn" href="/creator/settings">Parametres</a>
+      <a class="btn" href="/creator/taxonomy">Vocabulaire</a>
+    </div>
   </div>
   <p class="muted">Un corpus = une classe documentaire et les documents qui lui sont rattaches (US3.9). Pas de
      notion de projet dans le site (decide le 2026-09-27) : cette vue est la meme que "Classes", classee ici par taille.</p>
+
+  {% if suggestions %}
+  <div class="card">
+    <h2>Suggestions de fusion</h2>
+    <p class="muted">Ces corpus sont assez proches (score structurel + semantique) pour etre peut-etre le meme.
+       Valide pour fusionner (le plus petit est absorbe dans le plus grand), ou rejette.</p>
+    <div class="stack">
+      {% for s in suggestions %}
+      <div>
+        <strong>{{ s.a_name }}</strong> &harr; <strong>{{ s.b_name }}</strong>
+        &middot; score {{ "%.0f"|format(s.score * 100) }}%
+        (structurel {{ "%.0f"|format(s.structural_score * 100) }}%, semantique {{ "%.0f"|format(s.semantic_score * 100) }}%)
+        <form class="inline" method="post" action="/creator/classes/merge">
+          <input type="hidden" name="class_a" value="{{ s.a_id }}">
+          <input type="hidden" name="class_b" value="{{ s.b_id }}">
+          <button type="submit" class="btn btn-sm btn-primary" onsubmit="return confirm('Fusionner ?');">Fusionner</button>
+        </form>
+        <form class="inline" method="post" action="/creator/classes/dismiss-suggestion">
+          <input type="hidden" name="class_a" value="{{ s.a_id }}">
+          <input type="hidden" name="class_b" value="{{ s.b_id }}">
+          <button type="submit" class="btn btn-sm">Rejeter</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <div class="card" style="padding: 0;">
     <table class="table">

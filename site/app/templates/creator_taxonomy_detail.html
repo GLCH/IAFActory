@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ name or "Taxonomie" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/taxonomies">Taxonomies</a> / {{ name or "introuvable" }}</div>
+  {% if not name %}
+  <p class="alert">Taxonomie introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>{{ name }}</h1>
+    <div class="actions"><a class="btn btn-primary" href="/creator/taxonomies/{{ taxonomy_id }}/skos.ttl">Exporter (SKOS/Turtle)</a></div>
+  </div>
+  <p class="muted">Corpus sources : {{ corpus_names|reject("none")|join(", ") }}</p>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Concept (skos:prefLabel)</th><th>Variantes (skos:altLabel)</th></tr></thead>
+      <tbody>
+        {% for c in concepts %}
+        <tr>
+          <td>{{ c.pref_label }}</td>
+          <td class="muted">{{ (c.alt_labels|reject("equalto", c.pref_label)|list)|join(", ") }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="2" class="table-empty">Aucun concept.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
