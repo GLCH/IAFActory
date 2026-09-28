@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Documents - IAFActory{% endblock %}
+{% block body %}
+<header>
+  <div><a href="/">IAFActory</a> / Mes documents</div>
+  <div><a href="/creator/documents/new">+ Deposer un document</a> - <a href="/creator/classes">Classes</a></div>
+</header>
+
+<table style="width:100%; border-collapse: collapse;">
+  <thead>
+    <tr style="text-align:left; border-bottom: 1px solid #ccc;">
+      <th>Fichier</th><th>Statut</th><th>Classe</th><th>Chunks</th><th>Entites</th><th>Depose le</th><th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in documents %}
+    <tr style="border-bottom: 1px solid #eee;">
+      <td>{{ d.filename }}</td>
+      <td>
+        <span class="role">{{ d.status.value }}</span>
+        {% if d.status.value == "recognized" %}<small>(reconnu)</small>{% endif %}
+        {% if d.status.value == "provisional" %}<small>(classe provisoire creee)</small>{% endif %}
+      </td>
+      <td>{% if d.class_name %}<a href="/creator/classes/{{ d.neo4j_class_id }}">{{ d.class_name }}</a>{% endif %}</td>
+      <td>{{ d.chunk_count }}</td>
+      <td>{{ d.entity_count }}</td>
+      <td>{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>
+        {% if d.error_message %}<span class="error" title="{{ d.error_message }}">detail</span>{% endif %}
+        {% if d.status.value in ("received", "error") %}
+        <form class="inline" method="post" action="/creator/documents/{{ d.id }}/retry">
+          <button type="submit">Relancer</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7">Aucun document depose pour l'instant.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

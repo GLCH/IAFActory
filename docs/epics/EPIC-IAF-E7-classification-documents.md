@@ -6,6 +6,8 @@ Objectif : savoir si un document appartient à des classes documentaires connues
 
 Questions transverses : classes partagées entre projets ? langues ? volumétrie (documents, classes) ?
 
+**Mesure reelle 2026-09-27/28** (site/, premiere version simplifiee a un seul signal - embedding moyen du document, cosinus, seuil fixe 0.75, nomic-embed-text via Ollama local) : 5 documents de test topiquement distincts (joint torique, roulement a billes, capteur de pression, document sans rapport sur la validation d'ontologies) ont tous ete rattaches a la meme classe par ce signal seul, un score atteignant 0.993. Confirme reellement (pas juste suppose) que la cascade complete US7.2/US7.3 (MinHash/LSH, domaines, arbitrage LLM) est necessaire avant de pouvoir se fier a la reconnaissance - le signal embedding seul ne suffit pas a ce seuil avec ce modele. Detail : [EPIC-IAF-E3](EPIC-IAF-E3-graph-rag.md).
+
 ## US7.1 Extraire sans a priori le schéma d'un document
 - En tant que creator, je veux que chaque document soit analysé sans ontologie imposée, pour connaître ses propres types d'entités et de relations.
 - Prérequis : IAF-21 (chunks), fournisseur LLM (IAF-4).

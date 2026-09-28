@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Poser une question - IAFActory{% endblock %}
+{% block body %}
+<header>
+  <div><a href="/">IAFActory</a> / Poser une question</div>
+</header>
+
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<form method="post" action="/ask">
+  <p><label>Question<br>
+    <input type="text" name="question" value="{{ question or '' }}" style="width:100%" required></label></p>
+  <button type="submit">Demander</button>
+</form>
+
+{% if answer %}
+<h2>Reponse</h2>
+<p>{{ answer }}</p>
+
+<h3>Passages utilises</h3>
+<ul>
+  {% for h in hits %}
+  <li>
+    <strong>{{ h.doc }}</strong> / {{ h.section }} (score {{ "%.3f"|format(h.score) }},
+    voie <span class="role">{{ h.route }}</span>{% if h.entities %} - entites : {{ h.entities|join(", ") }}{% endif %})
+    <br><small>{{ h.text[:200] }}{% if h.text|length > 200 %}...{% endif %}</small>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

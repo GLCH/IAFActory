@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ name or "Classe" }} - IAFActory{% endblock %}
+{% block body %}
+<header>
+  <div><a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> / {{ name or "introuvable" }}</div>
+  <div><a href="/creator/documents">Mes documents</a></div>
+</header>
+
+{% if not name %}
+<p class="error">Classe introuvable.</p>
+{% else %}
+<p>Statut : <span class="role">{{ status }}</span></p>
+
+<h2>Ontologie apprise (schema induit par l'extraction)</h2>
+<p><small>Types d'entites et relations effectivement extraits de cette classe - pas une ontologie
+   OWL versionnee dans Fuseki (US3.3 reste a faire pour ce vertical slice).</small></p>
+<table style="width:100%; border-collapse: collapse; margin-bottom:1.5rem;">
+  <thead><tr style="text-align:left; border-bottom: 1px solid #ccc;"><th>Type d'entite</th><th>Occurrences</th></tr></thead>
+  <tbody>
+    {% for et in entity_types %}
+    <tr style="border-bottom: 1px solid #eee;"><td>{{ et.type or "(sans type)" }}</td><td>{{ et.entity_count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">Aucune entite extraite pour l'instant.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<table style="width:100%; border-collapse: collapse; margin-bottom:1.5rem;">
+  <thead><tr style="text-align:left; border-bottom: 1px solid #ccc;"><th>Relation</th><th>Occurrences</th></tr></thead>
+  <tbody>
+    {% for r in relations %}
+    <tr style="border-bottom: 1px solid #eee;"><td>{{ r.type }}</td><td>{{ r.relation_count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">Aucune relation extraite pour l'instant.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Documents de cette classe</h2>
+<table style="width:100%; border-collapse: collapse;">
+  <thead><tr style="text-align:left; border-bottom: 1px solid #ccc;"><th>Fichier</th><th>Score de rattachement</th><th>Methode</th></tr></thead>
+  <tbody>
+    {% for d in documents %}
+    <tr style="border-bottom: 1px solid #eee;"><td>{{ d.filename }}</td><td>{{ "%.3f"|format(d.score) if d.score is not none else "" }}</td><td>{{ d.method }}</td></tr>
+    {% else %}
+    <tr><td colspan="3">Aucun document.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

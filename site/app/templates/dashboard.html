@@ -14,13 +14,15 @@
   </section>
 {% elif user.role.value == "creator" %}
   <section>
-    <h2>Mes projets</h2>
-    <p>Creation de projets, d'agents, de tests de validation : a venir (IAF-E3, IAF-E4, IAF-E6).</p>
+    <h2>Documents</h2>
+    <p><a href="/creator/documents/new">Deposer un document</a> - <a href="/creator/documents">Mes documents</a> - <a href="/creator/classes">Classes documentaires</a></p>
+    <p>Creation d'agents, de tests de validation : a venir (IAF-E4, IAF-E6).</p>
   </section>
 {% else %}
   <section>
-    <h2>Projets visibles</h2>
-    <p>Consultation et sessions avec les agents : a venir (IAF-E10).</p>
+    <h2>Interroger le service</h2>
+    <p><a href="/ask">Poser une question</a></p>
+    <p>Sessions avec les agents : a venir (IAF-E10).</p>
   </section>
 {% endif %}
 {% endblock %}

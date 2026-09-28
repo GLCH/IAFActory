@@ -8,13 +8,15 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .routers import admin, auth, dashboard
+from .routers import admin, ask, auth, dashboard, documents
 
 app = FastAPI(title="IAFActory")
 app.mount("/static", StaticFiles(directory=str(Path(__file__).resolve().parent / "static")), name="static")
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(admin.router)
+app.include_router(documents.router)
+app.include_router(ask.router)
 
 
 @app.get("/healthz")
