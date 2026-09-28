@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import unicodedata
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -234,17 +235,35 @@ def _write_concepts(session, class_id: str, document_sha256: str, vocabulary: li
     return written
 
 
-def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResult:
+def ingest_document(
+    sha256: str, filename: str, stored_path: Path,
+    on_step: Callable[[str, str, str | None], None] | None = None,
+) -> IngestResult:
     """Fait tourner le document a travers I (structure + chunks + embeddings),
     R (rattachement a une classe existante ou creation, score combine
     structurel + semantique), et S (extraction d'entites/relations par chunk
     pour le graph RAG). Ecrit dans Neo4j et Fuseki ; ne touche pas Postgres
-    (l'appelant reporte le resultat sur la ligne `Document`)."""
+    (l'appelant reporte le resultat sur la ligne `Document`).
+
+    `on_step(phase, label, detail)` : rappel optionnel (ajoute le 2026-09-28,
+    demande explicite de "plus d'information sur quelle etape a fait quelque
+    chose") pour tracer la progression reelle - worker.py l'utilise pour
+    ecrire des lignes `PipelineStep` (Postgres), pipeline.py ne connait pas
+    Postgres (separation deja en place, cf. le commentaire ci-dessus). Un
+    echec du rappel ne doit jamais faire echouer l'ingestion elle-meme."""
+    def step(phase: str, label: str, detail: str | None = None) -> None:
+        if on_step is not None:
+            try:
+                on_step(phase, label, detail)
+            except Exception:
+                pass
+
     suffix = stored_path.suffix.lower()
     parse = PARSERS.get(suffix)
     if parse is None:
         raise UnsupportedFormat(f"format non pris en charge : {suffix or 'sans extension'}")
 
+    step("Ingestion", "Analyse structurelle", filename)
     metadata, root = parse(str(stored_path))
     elements = flatten(root)
     struct_profile = _structural_profile(elements)
@@ -312,6 +331,8 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
         if not chunk_embeddings:
             raise ValueError("document sans texte extrait (page blanche, ou contenu non textuel)")
 
+        step("Ingestion", "Decoupage et embeddings", f"{n_chunks} chunks")
+
         # IAF-E7 US7.1 : etape dediee d'extraction de vocabulaire, sur un
         # extrait du document (pas chunk par chunk comme l'extraction
         # d'entites ci-dessous).
@@ -319,6 +340,7 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
         if not vocabulary:
             warnings.append("extraction de vocabulaire vide ou ratee (US7.1) : score semantique a 0")
         concept_labels = {_normalize_label(v["concept"]) for v in vocabulary}
+        step("Ingestion", "Extraction du vocabulaire (US7.1)", f"{len(vocabulary)} termes" if vocabulary else "echec ou vide")
 
         recognized_id, recognized_name, structural_score, semantic_score, combined = _find_best_class(
             session, struct_profile, concept_labels,
@@ -348,13 +370,18 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
                 sha256=sha256, cid=class_id, name=class_name, score=combined,
                 struct_score=structural_score, sem_score=semantic_score, method=method,
             )
+        step(
+            "Ingestion", "Reconnaissance de classe (US7.4)",
+            f"{method} -> {class_name} ({combined:.0%})",
+        )
 
         n_concepts = _write_concepts(session, class_id, sha256, vocabulary)
+        step("Structuration", "Ecriture ontologie OWL (concepts, US7.5)", f"{n_concepts} concepts")
 
         n_entities = 0
         seen_relation_types: set[str] = set()
         seen_attribute_keys: set[str] = set()
-        for chunk_id, text, section in chunk_rows:
+        for i, (chunk_id, text, section) in enumerate(chunk_rows, start=1):
             try:
                 extracted = chat_json(
                     f"Extrait (section \"{section}\") :\n{text}",
@@ -365,6 +392,7 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
                 )
             except Exception as exc:  # un chunk qui echoue n'invalide pas le document (US3.4)
                 warnings.append(f"extraction ratee pour un chunk ({section!r}) : {exc}")
+                step("Structuration", f"Extraction entites/relations - chunk {i}/{len(chunk_rows)}", "echec")
                 continue
 
             for ent in extracted.get("entities", []):
@@ -411,6 +439,16 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
                         ontology.ensure_relation_property(rtype)
                     except Exception:
                         pass
+
+            step(
+                "Structuration", f"Extraction entites/relations - chunk {i}/{len(chunk_rows)}",
+                f"section {section!r}",
+            )
+
+        step(
+            "Structuration", "Extraction entites/relations terminee",
+            f"{n_entities} entites, {len(seen_relation_types)} types de relation, {len(seen_attribute_keys)} attributs",
+        )
 
     return IngestResult(
         status=status,

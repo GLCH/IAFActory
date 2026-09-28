@@ -248,3 +248,26 @@ def merge_class_ontology(source_class_id: str, target_class_id: str) -> None:
     source = class_graph_uri(source_class_id)
     target = class_graph_uri(target_class_id)
     _run_update(f"ADD <{source}> TO <{target}> ; CLEAR GRAPH <{source}>")
+
+
+def delete_concept(class_id: str, label: str) -> None:
+    """Ajoute le 2026-09-28 (gouvernance : purger un concept mal induit sans
+    supprimer toute la classe). `DELETE WHERE` (forme raccourcie) est valide
+    ICI - le bug reel trouve le 2026-09-28 (US3.17) concernait uniquement son
+    usage avec FILTER, pas ce cas simple (un seul triple pattern)."""
+    uri = concept_uri(class_id, label)
+    graph = class_graph_uri(class_id)
+    _run_update(f"{_PREFIXES}DELETE WHERE {{ GRAPH <{graph}> {{ <{uri}> ?p ?o . }} }}")
+
+
+def delete_class_ontology(class_id: str) -> None:
+    """Vide (et laisse vide, pas supprime - meme principe que
+    merge_class_ontology) le graphe nomme d'une classe supprimee cote Neo4j.
+    SILENT : une classe dont l'ecriture Fuseki avait deja echoue a l'ingestion
+    (Fuseki indisponible, cf. pipeline.py) n'a pas de graphe a vider - ne doit
+    pas faire echouer la suppression pour autant."""
+    _run_update(f"CLEAR SILENT GRAPH <{class_graph_uri(class_id)}>")
+
+
+def delete_taxonomy(taxonomy_id: str) -> None:
+    _run_update(f"CLEAR SILENT GRAPH <{taxonomy_graph_uri(taxonomy_id)}>")

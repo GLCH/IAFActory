@@ -36,7 +36,7 @@
 
   <div class="card" style="padding: 0;">
     <table class="table">
-      <thead><tr><th>Taxonomie</th><th>Corpus sources</th><th>Concepts</th><th>Construite le</th></tr></thead>
+      <thead><tr><th>Taxonomie</th><th>Corpus sources</th><th>Concepts</th><th>Construite le</th><th></th></tr></thead>
       <tbody>
         {% for t in taxonomies %}
         <tr>
@@ -44,9 +44,15 @@
           <td class="muted">{{ t.corpus_names|reject("none")|join(", ") }}</td>
           <td>{{ t.concept_count }}</td>
           <td class="muted">{{ t.created_at }}</td>
+          <td>
+            <form class="inline" method="post" action="/creator/taxonomies/{{ t.id }}/delete"
+                  onsubmit="return confirm('Supprimer la taxonomie {{ t.name }} ?');">
+              <button type="submit" class="btn btn-sm btn-danger">Effacer</button>
+            </form>
+          </td>
         </tr>
         {% else %}
-        <tr><td colspan="4" class="table-empty">Aucune taxonomie construite pour l'instant.</td></tr>
+        <tr><td colspan="5" class="table-empty">Aucune taxonomie construite pour l'instant.</td></tr>
         {% endfor %}
       </tbody>
     </table>

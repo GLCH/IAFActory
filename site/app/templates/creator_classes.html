@@ -12,7 +12,7 @@
   <div class="card" style="padding: 0;">
     <table class="table">
       <thead>
-        <tr><th>Classe</th><th>Statut</th><th>Documents</th><th>Creee le</th></tr>
+        <tr><th>Classe</th><th>Statut</th><th>Documents</th><th>Creee le</th><th></th></tr>
       </thead>
       <tbody>
         {% for c in classes %}
@@ -21,9 +21,15 @@
           <td><span class="badge">{{ c.status }}</span></td>
           <td>{{ c.document_count }}</td>
           <td class="muted">{{ c.created_at }}</td>
+          <td>
+            <form class="inline" method="post" action="/creator/classes/{{ c.id }}/delete"
+                  onsubmit="return confirm('Supprimer la classe {{ c.name }} et ses {{ c.document_count }} document(s) ?');">
+              <button type="submit" class="btn btn-sm btn-danger">Effacer</button>
+            </form>
+          </td>
         </tr>
         {% else %}
-        <tr><td colspan="4" class="table-empty">Aucune classe pour l'instant : deposez un document.</td></tr>
+        <tr><td colspan="5" class="table-empty">Aucune classe pour l'instant : deposez un document.</td></tr>
         {% endfor %}
       </tbody>
     </table>

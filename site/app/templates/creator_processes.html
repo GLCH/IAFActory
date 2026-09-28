@@ -36,6 +36,23 @@
           </td>
           <td>{% if r.run.error_message %}<span class="detail-link" title="{{ r.run.error_message }}">detail</span>{% endif %}</td>
         </tr>
+        {% if r.steps %}
+        <tr>
+          <td colspan="6" style="padding-top: 0;">
+            <details>
+              <summary class="muted">{{ r.steps|length }} etape(s) - Ingestion/Structuration</summary>
+              <ul style="margin: 0.4rem 0 0.6rem 1.2rem; padding: 0;">
+                {% for s in r.steps %}
+                <li class="muted">
+                  {{ s.at.strftime("%H:%M:%S") }} &middot; <strong>{{ s.phase }}</strong> &middot; {{ s.label }}
+                  {% if s.detail %} &mdash; {{ s.detail }}{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+            </details>
+          </td>
+        </tr>
+        {% endif %}
         {% else %}
         <tr><td colspan="6" class="table-empty">Aucun processus pour l'instant.</td></tr>
         {% endfor %}

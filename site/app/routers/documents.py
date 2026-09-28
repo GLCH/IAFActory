@@ -23,8 +23,15 @@ from ..config import settings
 from ..db import get_db
 from ..deps import require_role
 from ..graph import get_driver
-from ..models import Document, DocumentStatus, PipelineRun, Role, User
-from ..ontology import class_graph_uri, export_taxonomy_turtle, set_concept_metadata
+from ..models import Document, DocumentStatus, PipelineRun, PipelineStep, Role, User
+from ..ontology import (
+    class_graph_uri,
+    delete_class_ontology,
+    delete_concept as ontology_delete_concept,
+    delete_taxonomy as ontology_delete_taxonomy,
+    export_taxonomy_turtle,
+    set_concept_metadata,
+)
 
 router = APIRouter(prefix="/creator", dependencies=[Depends(require_role(Role.creator))])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -154,14 +161,26 @@ def list_documents(request: Request, db: Session = Depends(get_db), user: User =
 
 @router.get("/processes")
 def list_processes(request: Request, db: Session = Depends(get_db), user: User = Depends(require_role(Role.creator))):
-    """IAF-E13 US13.7 : suivi des executions asynchrones du pipeline."""
+    """IAF-E13 US13.7 : suivi des executions asynchrones du pipeline.
+    Ajoute le 2026-09-28 : le detail par etape (PipelineStep) - "quelle etape
+    a fait quelque chose (ou beaucoup)" sur l'ingestion et la structuration
+    (vocabulaire du doc d'architecture semantique). Pas d'etape "Exposition"
+    ici : elle a lieu au moment d'une question du viewer, pas a l'ingestion -
+    voir models.py:PipelineStep."""
     rows = db.execute(
         select(PipelineRun, Document.filename)
         .join(Document, PipelineRun.document_id == Document.id)
         .order_by(PipelineRun.created_at.desc())
         .limit(200)
     ).all()
-    runs = [{"run": run, "filename": filename} for run, filename in rows]
+    run_ids = [run.id for run, _ in rows]
+    steps_by_run: dict[uuid.UUID, list[PipelineStep]] = {rid: [] for rid in run_ids}
+    if run_ids:
+        for s in db.scalars(
+            select(PipelineStep).where(PipelineStep.run_id.in_(run_ids)).order_by(PipelineStep.at)
+        ):
+            steps_by_run[s.run_id].append(s)
+    runs = [{"run": run, "filename": filename, "steps": steps_by_run[run.id]} for run, filename in rows]
     return templates.TemplateResponse(request, "creator_processes.html", {"runs": runs, "user": user})
 
 
@@ -238,6 +257,66 @@ def download_document(document_id: uuid.UUID, db: Session = Depends(get_db)):
         media_type=doc.content_type,
         headers={"Content-Disposition": f'attachment; filename="{doc.filename}"'},
     )
+
+
+def _delete_document_neo4j(session, sha256: str) -> None:
+    """Supprime le contenu Neo4j PROPRE a un document (elements structurels,
+    chunks) - jamais les Concept/Entity de sa classe, partages avec d'autres
+    documents. Partagee par la suppression d'un document seul et la
+    suppression en cascade d'une classe entiere ci-dessous."""
+    session.run(
+        "MATCH (d:Document {sha256: $sha256})-[:HAS_ELEMENT]->(:StructElement)-[:CHILD*0..]->(:StructElement)-[:HAS_CHUNK]->(c:Chunk) "
+        "DETACH DELETE c",
+        sha256=sha256,
+    )
+    session.run(
+        "MATCH (d:Document {sha256: $sha256})-[:HAS_ELEMENT]->(top:StructElement)-[:CHILD*0..]->(el:StructElement) "
+        "DETACH DELETE el",
+        sha256=sha256,
+    )
+    session.run("MATCH (d:Document {sha256: $sha256}) DETACH DELETE d", sha256=sha256)
+
+
+def _delete_document_postgres(doc: Document, db: Session) -> None:
+    """Supprime la ligne Document, ses PipelineRun/PipelineStep (etrangere
+    sans cascade declaree - ordre important) et le fichier sur le volume.
+    N'appelle PAS db.commit() : l'appelant decide du regroupement transactionnel."""
+    suffix = Path(doc.filename).suffix.lower()
+    (settings.documents_dir / f"{doc.sha256}{suffix}").unlink(missing_ok=True)
+    for run in db.scalars(select(PipelineRun).where(PipelineRun.document_id == doc.id)):
+        for pipeline_step in db.scalars(select(PipelineStep).where(PipelineStep.run_id == run.id)):
+            db.delete(pipeline_step)
+        # flush() a CHAQUE niveau : aucune relationship() ORM n'est declaree
+        # entre ces tables (seulement des ForeignKey() brutes), donc
+        # SQLAlchemy ne peut pas deduire seul l'ordre correct des DELETE - bug
+        # reel rencontre au premier test (2026-09-28), deux fois de suite
+        # (pipeline_runs->documents, puis pipeline_steps->pipeline_runs) avant
+        # de flusher a chaque etape plutot qu'une seule fois a la fin.
+        db.flush()
+        db.delete(run)
+    db.flush()
+    db.delete(doc)
+
+
+@router.post("/documents/{document_id}/delete")
+def delete_document(
+    document_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(require_role(Role.creator)),
+):
+    """Ajoute le 2026-09-28 (gouvernance, demande explicite). Ne touche PAS
+    aux Concept/Entity de sa classe : partages avec les AUTRES documents de la
+    meme classe (ou simplement conserves comme trace de ce qui a ete appris,
+    meme si ce document disparait) - limite assumee, comme class_merge.py ne
+    migre pas les entites d'une classe fusionnee (US7.6)."""
+    doc = db.get(Document, document_id)
+    if doc is None:
+        return RedirectResponse("/creator/documents", status_code=status.HTTP_303_SEE_OTHER)
+
+    driver = get_driver()
+    with driver.session() as session:
+        _delete_document_neo4j(session, doc.sha256)
+    _delete_document_postgres(doc, db)
+    db.commit()
+    return RedirectResponse("/creator/documents", status_code=status.HTTP_303_SEE_OTHER)
 
 
 def _render_graph_svg(nodes: dict[str, str], edges: list[tuple[str, str, str]], size: int = 640) -> str:
@@ -396,6 +475,66 @@ def class_ontology_owl(class_id: str):
         content=r.content, media_type="application/rdf+xml",
         headers={"Content-Disposition": f'attachment; filename="classe-{class_id}.owl"'},
     )
+
+
+@router.post("/classes/{class_id}/delete")
+def delete_class(class_id: str, db: Session = Depends(get_db), user: User = Depends(require_role(Role.creator))):
+    """Ajoute le 2026-09-28 (gouvernance, demande explicite) - "classe" et
+    "corpus" sont le MEME objet Neo4j (DocumentClass, decide le 2026-09-27) :
+    cette route sert les deux pages. Suppression en CASCADE (pas de refus si
+    la classe a des documents) : plus utile pour purger les classes de test
+    ou erronees que de forcer un vidage document par document - confirme par
+    la demande elle-meme ("effacer un objet du service"). Supprime aussi les
+    Concept/Entity propres a la classe (contrairement a la suppression d'un
+    document seul ci-dessus) : ils ne sont PAS partages entre classes (chaque
+    Concept est cle par (label, class_id), pipeline.py)."""
+    driver = get_driver()
+    with driver.session() as session:
+        doc_shas = [
+            r["sha256"] for r in session.run(
+                "MATCH (c:DocumentClass {id: $cid})<-[:IN_CLASS]-(d:Document) RETURN d.sha256 AS sha256",
+                cid=class_id,
+            )
+        ]
+        for sha256 in doc_shas:
+            _delete_document_neo4j(session, sha256)
+        session.run(
+            "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) DETACH DELETE concept",
+            cid=class_id,
+        )
+        session.run("MATCH (e:Entity {class_id: $cid}) DETACH DELETE e", cid=class_id)
+        session.run("MATCH (c:DocumentClass {id: $cid}) DETACH DELETE c", cid=class_id)
+
+    for doc in db.scalars(select(Document).where(Document.neo4j_class_id == class_id)):
+        _delete_document_postgres(doc, db)
+    db.commit()
+
+    try:
+        delete_class_ontology(class_id)
+    except Exception:
+        pass  # Fuseki indisponible : la classe reste supprimee cote Neo4j/Postgres, meme principe qu'a l'ingestion (US3.4)
+    return RedirectResponse("/creator/classes", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/classes/{class_id}/concepts/delete")
+def delete_concept_route(
+    class_id: str, label: str = Form(...), user: User = Depends(require_role(Role.creator)),
+):
+    """Ajoute le 2026-09-28 (gouvernance) : purger un concept induit a tort
+    (ex. "Concept", "Symbole" observes reellement comme types d'entites peu
+    utiles lors du test de la reconnaissance LaTeX) sans supprimer toute la
+    classe."""
+    driver = get_driver()
+    with driver.session() as session:
+        session.run(
+            "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept {label: $label}) DETACH DELETE concept",
+            cid=class_id, label=label,
+        )
+    try:
+        ontology_delete_concept(class_id, label)
+    except Exception:
+        pass
+    return RedirectResponse(f"/creator/classes/{class_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/corpus")
@@ -619,3 +758,23 @@ def taxonomy_export(taxonomy_id: str):
         content=content, media_type="text/turtle",
         headers={"Content-Disposition": f'attachment; filename="taxonomie-{taxonomy_id}.ttl"'},
     )
+
+
+@router.post("/taxonomies/{taxonomy_id}/delete")
+def delete_taxonomy_route(taxonomy_id: str, user: User = Depends(require_role(Role.creator))):
+    """Ajoute le 2026-09-28 (gouvernance) : une taxonomie est une vue DERIVEE
+    (US3.18/19) - la supprimer n'affecte aucune classe, document ou concept
+    source, contrairement a la suppression d'une classe ci-dessus."""
+    driver = get_driver()
+    with driver.session() as session:
+        session.run(
+            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(top:TaxonomyConcept)-[:NARROWER*0..]->(child:TaxonomyConcept) "
+            "DETACH DELETE child",
+            id=taxonomy_id,
+        )
+        session.run("MATCH (t:Taxonomy {id: $id}) DETACH DELETE t", id=taxonomy_id)
+    try:
+        ontology_delete_taxonomy(taxonomy_id)
+    except Exception:
+        pass
+    return RedirectResponse("/creator/taxonomies", status_code=status.HTTP_303_SEE_OTHER)

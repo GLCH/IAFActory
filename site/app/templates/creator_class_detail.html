@@ -8,7 +8,13 @@
     <h1>{{ name or "Classe introuvable" }}</h1>
     <div class="actions">
       <a class="btn" href="/creator/documents">Mes documents</a>
-      {% if name %}<a class="btn" href="/creator/classes/{{ class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>{% endif %}
+      {% if name %}
+      <a class="btn" href="/creator/classes/{{ class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>
+      <form class="inline" method="post" action="/creator/classes/{{ class_id }}/delete"
+            onsubmit="return confirm('Supprimer la classe {{ name }} et tous ses documents ?');">
+        <button type="submit" class="btn btn-danger">Effacer la classe</button>
+      </form>
+      {% endif %}
     </div>
   </div>
 
@@ -40,12 +46,22 @@
        automatiquement par le LLM a partir du vocabulaire des documents (US7.1) - pas de gouvernance
        collective a ce stade.</p>
     <table class="table">
-      <thead><tr><th>Concept</th><th>Termes observes</th></tr></thead>
+      <thead><tr><th>Concept</th><th>Termes observes</th><th></th></tr></thead>
       <tbody>
         {% for c in concepts %}
-        <tr><td>{{ c.label }}</td><td class="muted">{{ c.terms|reject("none")|join(", ") }}</td></tr>
+        <tr>
+          <td>{{ c.label }}</td>
+          <td class="muted">{{ c.terms|reject("none")|join(", ") }}</td>
+          <td>
+            <form class="inline" method="post" action="/creator/classes/{{ class_id }}/concepts/delete"
+                  onsubmit="return confirm('Supprimer le concept {{ c.label }} de cette ontologie ?');">
+              <input type="hidden" name="label" value="{{ c.label }}">
+              <button type="submit" class="btn btn-sm btn-danger">Effacer</button>
+            </form>
+          </td>
+        </tr>
         {% else %}
-        <tr><td colspan="2" class="table-empty">Aucun concept induit pour l'instant.</td></tr>
+        <tr><td colspan="3" class="table-empty">Aucun concept induit pour l'instant.</td></tr>
         {% endfor %}
       </tbody>
     </table>

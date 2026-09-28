@@ -15,6 +15,10 @@
       <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}">Voir la classe</a>
       <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>
       {% endif %}
+      <form class="inline" method="post" action="/creator/documents/{{ document.id }}/delete"
+            onsubmit="return confirm('Supprimer {{ document.filename }} ?');">
+        <button type="submit" class="btn btn-danger">Effacer</button>
+      </form>
     </div>
   </div>
 

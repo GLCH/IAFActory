@@ -9,7 +9,13 @@
   {% else %}
   <div class="page-header">
     <h1>{{ name }}</h1>
-    <div class="actions"><a class="btn btn-primary" href="/creator/taxonomies/{{ taxonomy_id }}/skos.ttl">Exporter (SKOS/Turtle)</a></div>
+    <div class="actions">
+      <a class="btn btn-primary" href="/creator/taxonomies/{{ taxonomy_id }}/skos.ttl">Exporter (SKOS/Turtle)</a>
+      <form class="inline" method="post" action="/creator/taxonomies/{{ taxonomy_id }}/delete"
+            onsubmit="return confirm('Supprimer la taxonomie {{ name }} ?');">
+        <button type="submit" class="btn btn-danger">Effacer</button>
+      </form>
+    </div>
   </div>
   <p class="muted">Corpus sources : {{ corpus_names|reject("none")|join(", ") }}</p>
 

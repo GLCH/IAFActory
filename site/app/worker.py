@@ -20,7 +20,7 @@ from pathlib import Path
 
 from . import class_merge
 from .db import SessionLocal
-from .models import Document, DocumentStatus, PipelineRun, PipelineRunStatus
+from .models import Document, DocumentStatus, PipelineRun, PipelineRunStatus, PipelineStep
 from .pdf_struct import ScannedDocument
 from .pipeline import UnsupportedFormat, ingest_document
 
@@ -59,8 +59,17 @@ def _execute(run_id: uuid.UUID, document_id: uuid.UUID, stored_path: Path) -> No
         run.started_at = datetime.now(timezone.utc)
         db.commit()
 
+        # Ajoute le 2026-09-28 : trace chaque etape reelle du pipeline
+        # (demande explicite de detail par etape/agent sur /creator/processes).
+        # Commit immediat par etape (pas dans la transaction principale) pour
+        # que la progression soit visible EN COURS d'execution, pas seulement
+        # a la fin - c'est tout l'interet par rapport au statut global existant.
+        def on_step(phase: str, label: str, detail: str | None) -> None:
+            db.add(PipelineStep(run_id=run_id, phase=phase, label=label, detail=detail))
+            db.commit()
+
         try:
-            result = ingest_document(doc.sha256, doc.filename, stored_path)
+            result = ingest_document(doc.sha256, doc.filename, stored_path, on_step=on_step)
         except (UnsupportedFormat, ScannedDocument) as exc:
             doc.status = DocumentStatus.error
             doc.error_message = str(exc)

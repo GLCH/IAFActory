@@ -105,6 +105,27 @@ class PipelineRun(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class PipelineStep(Base):
+    """Ajoutee le 2026-09-28 (suite a la demande de detail par etape) : trace
+    UNE etape reelle du pipeline (Ingestion/Structuration - voir pipeline.py,
+    `ingest_document(..., on_step=...)`). Complement de `PipelineRun` (statut
+    global uniquement) - PAS un remplacement de l'ADR 0006 `stage_runs`
+    (reprise fine par etape reste hors scope, seulement de la visibilite).
+    Volontairement pas d'etape "Exposition" ici : cette phase a lieu au
+    moment d'une question du viewer (routers/ask.py), pas au depot d'un
+    document - inventer une etape ici serait mentir sur ce que fait le
+    systeme (regle du projet : pas de resultat invente)."""
+
+    __tablename__ = "pipeline_steps"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("pipeline_runs.id"), nullable=False, index=True)
+    phase: Mapped[str] = mapped_column(String(32), nullable=False)  # "Ingestion" ou "Structuration" (vocabulaire du doc d'architecture)
+    label: Mapped[str] = mapped_column(String(255), nullable=False)
+    detail: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
 class PlatformSettings(Base):
     """IAF-E7 US7.6 (etendue le 2026-09-28) : "dans les parametres on peut
     autoriser le merge automatique et definir 2 seuils" - ligne UNIQUE
