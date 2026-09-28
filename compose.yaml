@@ -168,6 +168,9 @@ services:
       FUSEKI_HOST: fuseki
       FUSEKI_PORT: "3030"
       DOCUMENTS_DIR: /data/documents
+      # Observabilite (2026-09-29) : vide par defaut (voir profil
+      # "observability" ci-dessous) - handler Loki inert tant que non definie.
+      LOKI_URL: ${LOKI_URL:-}
     volumes:
       - site_documents:/data/documents
     ports:
@@ -189,6 +192,39 @@ services:
     ports:
       - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
 
+  # Observabilite (logging applicatif -> Grafana), ajoutee le 2026-09-29 -
+  # demande explicite : "genere le code, l'infra... mais ne l'active pas".
+  # Derriere le profil "observability" (meme principe que "llm" ci-dessus) :
+  # AUCUN de ces deux services ne demarre avec un simple `docker compose up`.
+  # Pour l'activer un jour : `docker compose --profile observability up -d`
+  # PUIS definir LOKI_URL=http://loki:3100 sur le service `site` (config.py,
+  # observability.py) - vide par defaut, le handler de logs reste inert tant
+  # que cette variable n'est pas posee, meme si ce conteneur tourne.
+  loki:
+    image: grafana/loki:3.6.13
+    profiles: ["observability"]
+    restart: unless-stopped
+    volumes:
+      - ./infra/observability/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "127.0.0.1:${LOKI_PORT:-3100}:3100"
+
+  grafana:
+    image: grafana/grafana:13.2.2
+    profiles: ["observability"]
+    restart: unless-stopped
+    depends_on:
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - ./infra/observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/loki.yaml:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+
 volumes:
   pgdata:
   neo4j_data:
@@ -196,3 +232,5 @@ volumes:
   site_documents:
   fuseki_data:
   ollama_data:
+  loki_data:
+  grafana_data:

@@ -8,7 +8,10 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from .observability import configure_logging
 from .routers import admin, ask, auth, dashboard, documents
+
+configure_logging()  # inert par defaut (LOKI_URL non definie) - voir observability.py
 
 app = FastAPI(title="IAFActory")
 app.mount("/static", StaticFiles(directory=str(Path(__file__).resolve().parent / "static")), name="static")

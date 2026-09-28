@@ -71,16 +71,22 @@ def concept_uri(class_id: str, label: str) -> str:
     return f"{class_graph_uri(class_id)}#{_slug(label)}"
 
 
-def ensure_concept(class_id: str, label: str) -> str:
+def ensure_concept(class_id: str, label: str, language: str = "fr") -> str:
     """Ecrit (idempotent : INSERT DATA d'un triple deja present est un
     no-op) le concept comme une classe OWL dans le graphe nomme de la classe
-    documentaire. Renvoie l'URI du concept."""
+    documentaire. Renvoie l'URI du concept.
+
+    `language` : bug reel corrige le 2026-09-29 - le tag RDF etait TOUJOURS
+    `@fr`, meme pour un concept induit sur un document en anglais (etiquette
+    RDF factuellement fausse). Code ISO 639-1 detecte par le LLM lors de
+    l'extraction du vocabulaire (US7.1) ; repli sur "fr" si absent/inconnu."""
     uri = concept_uri(class_id, label)
     graph = class_graph_uri(class_id)
     label_escaped = label.replace('"', '\\"')
+    lang_tag = (language or "fr").strip().lower()[:2] or "fr"
     update = (
         f"{_PREFIXES}"
-        f"INSERT DATA {{ GRAPH <{graph}> {{ <{uri}> a owl:Class ; rdfs:label \"{label_escaped}\"@fr . }} }}"
+        f"INSERT DATA {{ GRAPH <{graph}> {{ <{uri}> a owl:Class ; rdfs:label \"{label_escaped}\"@{lang_tag} . }} }}"
     )
     r = requests.post(
         f"{settings.fuseki_url}/{settings.fuseki_dataset}/update",
@@ -159,6 +165,20 @@ def ensure_relation_property(label: str) -> str:
 
 def ensure_attribute_property(label: str) -> str:
     return _ensure_global_property(label, "owl:DatatypeProperty")
+
+
+def list_properties(owl_type: str) -> list[str]:
+    """Ajoute le 2026-09-29 : libelles des proprietes globales deja connues
+    (owl_type = "owl:ObjectProperty" ou "owl:DatatypeProperty"), pour la
+    normalisation par similarite d'embedding des types de relations/attributs
+    extraits (demande explicite : reduire le nombre d'ontologies quasi-
+    doublons en comparant aux termes deja connus)."""
+    query = (
+        f"{_PREFIXES}"
+        f"SELECT ?label WHERE {{ GRAPH <{PROPERTIES_GRAPH}> {{ ?p a {owl_type} ; rdfs:label ?label . }} }}"
+    )
+    bindings = _run_query(query)
+    return [b["label"]["value"] for b in bindings]
 
 
 def _escape_literal(s: str) -> str:
@@ -271,3 +291,32 @@ def delete_class_ontology(class_id: str) -> None:
 
 def delete_taxonomy(taxonomy_id: str) -> None:
     _run_update(f"CLEAR SILENT GRAPH <{taxonomy_graph_uri(taxonomy_id)}>")
+
+
+def list_graphs() -> list[str]:
+    """Ajoute le 2026-09-29 (archivage admin) : tous les graphes nommes du
+    dataset (classes, proprietes globales, taxonomies)."""
+    bindings = _run_query("SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } }")
+    return [b["g"]["value"] for b in bindings]
+
+
+def export_graph_turtle(graph_uri: str) -> bytes:
+    """Export Turtle d'UN graphe nomme quelconque (archivage admin - plus
+    generique que export_taxonomy_turtle/class_ontology_owl, qui restent pour
+    l'usage creator normal)."""
+    r = requests.get(
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/data",
+        params={"graph": graph_uri},
+        headers={"Accept": "text/turtle"},
+        timeout=30,
+    )
+    r.raise_for_status()
+    return r.content
+
+
+def wipe_all() -> None:
+    """Admin uniquement (routers/admin.py, demande explicite "vider
+    completement le service"). Supprime TOUS les graphes nommes du dataset
+    (classes, proprietes globales, taxonomies) - irreversible ; l'appelant
+    est responsable d'archiver avant si besoin (voir archive_all, admin.py)."""
+    _run_update("DROP SILENT ALL")

@@ -32,6 +32,29 @@ Simplifications restantes, non cachees :
 - le vocabulaire est extrait sur un extrait du document (les premiers
   chunks, borne en taille), pas le texte integral (cout/latence sur le
   modele local).
+
+**Revision du 2026-09-29** (demande explicite : vocabulaire trop pauvre,
+score semantique toujours a 0%, pas de normalisation, tout traite en
+francais) :
+- score semantique : Jaccard sur libelles EXACTS remplace par une
+  correspondance souple par EMBEDDING (_concept_set_similarity) - le
+  Jaccard exact restait quasiment toujours a 0% en pratique (mesure reelle,
+  deux documents proches n'inventent jamais le meme libelle mot pour mot) ;
+- vocabulaire : jusqu'a 150 termes (etait 10-20), le LLM recoit les
+  concepts DEJA CONNUS de toutes les classes pour les reutiliser plutot que
+  d'en inventer des doublons proches ;
+- normalisation (_TypeNormalizer) : types d'entites (par classe), relations
+  et attributs (globaux, US7.9), et concepts (par classe) reutilisent un
+  libelle deja connu si un nouveau lui est assez proche par embedding ;
+- langue : detectee par le LLM (etape vocabulaire), utilisee pour le tag
+  RDF des concepts (ontology.ensure_concept) - etait TOUJOURS "@fr", meme
+  pour un document en anglais (bug reel corrige) - et pour instruire
+  l'extraction par chunk d'ecrire dans la langue source, jamais traduite.
+Non fait dans cette revision (voir docs/epics/EPIC-IAF-E7-classification-documents.md
+US7.10) : construction explicite d'un corpus a partir de N documents
+similaires en un seul lot (le rattachement reste incrementiel, document par
+document) - voir class_merge.batch_cluster_classes() pour un premier pas
+(regroupement de classes provisoires DEJA creees, pas la creation initiale).
 """
 from __future__ import annotations
 
@@ -43,7 +66,7 @@ from pathlib import Path
 
 from . import docx_struct, latex_struct, markdown_struct, ontology, pdf_struct, pptx_struct
 from .config import settings
-from .graph import chat_json, embed, get_driver
+from .graph import chat_json, cosine_similarity, embed, get_driver
 from .models import DocumentStatus
 from .struct_element import StructElement, flatten
 
@@ -57,8 +80,25 @@ PARSERS = {
 
 STRUCT_KINDS = ("Section", "Paragraph", "Table", "Equation")
 
+# Seuil de similarite cosinus au-dela duquel deux libelles de type (entite,
+# relation, attribut ou concept) sont consideres comme le MEME type - ajoute
+# le 2026-09-29 (demande explicite : normaliser pour reduire le nombre
+# d'ontologies quasi-doublons entre documents). NON calibre (meme prudence
+# que le reste du projet, US7.7).
+NORMALIZE_MATCH_THRESHOLD = 0.85
+
+# Seuil de similarite cosinus pour le score SEMANTIQUE (US7.4) - remplace le
+# 2026-09-29 le recouvrement Jaccard sur libelles EXACTS, qui restait
+# quasiment toujours a 0% en pratique (constate reellement : deux documents
+# proches inducent des libelles de concept jamais identiques mot pour mot,
+# ex. "Fonction de perte" vs "Perte", donc leur intersection de chaines etait
+# vide). NON calibre.
+CONCEPT_MATCH_THRESHOLD = 0.80
+
 EXTRACTION_SYSTEM = (
     "Tu extrais des entites et relations d'un extrait de document technique. "
+    "Ecris les noms, types et valeurs extraits DANS LA LANGUE DU DOCUMENT SOURCE, sans jamais "
+    "traduire (demande explicite : tout traitement reste dans la langue du document). "
     "Reponds UNIQUEMENT en JSON valide, sans texte autour, au format exact : "
     '{"entities":[{"name":"...","type":"..."}],'
     '"attributes":[{"entity":"...","key":"...","value":"..."}],'
@@ -69,17 +109,26 @@ EXTRACTION_SYSTEM = (
 # IAF-E7 US7.1 : etape dediee, distincte de l'extraction d'entites ci-dessus.
 # Vocabulaire = termes du domaine (pas des entites nommees precises), chacun
 # associe au concept (classe OWL) qu'il represente.
+# Revise le 2026-09-29 (demande explicite) : jusqu'a 150 termes (etait 10-20,
+# jugee trop pauvre), reutilisation des concepts DEJA CONNUS du corpus
+# (fournis en entree, cf. extract_vocabulary) pour reduire les doublons
+# proches plutot que d'en creer un nouveau a chaque fois, et langue du
+# document detectee et respectee (pas de traduction imposee en francais).
 VOCABULARY_SYSTEM = (
-    "Tu extrais le vocabulaire technique d'un document (10 a 20 termes les plus significatifs, "
-    "pas des entites nommees precises comme un nom de societe). Le document peut relever de "
-    "n'importe quel domaine technique, y compris mathematique ou machine learning (ex: fonction "
-    "de perte, gradient, notation mathematique, algorithme, hyperparametre) - ne privilegie pas "
-    "un domaine industriel par defaut. Pour chaque terme, donne le concept general auquel il "
-    "appartient (un ou deux mots, en francais, ex: Materiau, Norme, Fonction de perte, Algorithme, "
-    "Notation mathematique, Fournisseur). Reponds UNIQUEMENT en JSON valide, sans texte autour, au "
-    'format exact : {"vocabulary":[{"term":"...","concept":"..."}]}.'
+    "Tu extrais le vocabulaire technique d'un document, aussi exhaustif que raisonnable "
+    "(jusqu'a 150 termes les plus significatifs, pas des entites nommees precises comme un nom de "
+    "societe). Le document peut relever de n'importe quel domaine (scientifique, historique, "
+    "technique, mathematique, ou autre) - ne privilegie aucun domaine par defaut. Pour chaque terme, "
+    "donne le concept general auquel il appartient (un ou deux mots). Si un des concepts DEJA CONNUS "
+    "fournis en debut de message s'applique, REUTILISE-LE A L'IDENTIQUE plutot que d'en creer un "
+    "proche (ex. ne cree pas \"Materiaux\" si \"Materiau\" existe deja) - cela reduit le nombre de "
+    "concepts redondants entre documents. Detecte la langue du document et ecris TOUS les termes et "
+    "concepts DANS CETTE LANGUE, jamais traduits. Reponds UNIQUEMENT en JSON valide, sans texte "
+    'autour, au format exact : {"language":"code ISO 639-1 (ex. fr, en, de)",'
+    '"vocabulary":[{"term":"...","concept":"..."}]}.'
 )
-VOCABULARY_TEXT_LIMIT = 4000  # caracteres ; borne le cout/latence sur le modele local
+VOCABULARY_TEXT_LIMIT = 12000  # releve de 4000 le 2026-09-29 : plus de texte source pour ~150 termes au lieu de 10-20
+KNOWN_CONCEPTS_LIMIT = 200  # borne le prompt (concepts deja connus, toutes classes confondues)
 
 
 class UnsupportedFormat(ValueError):
@@ -110,46 +159,125 @@ def _normalize_label(label: str) -> str:
     return "".join(c for c in decomposed if not unicodedata.combining(c))
 
 
-def extract_vocabulary(text: str, model: str) -> list[dict]:
-    """IAF-E7 US7.1. Renvoie une liste de {"term", "concept"} ; liste vide
-    (pas d'exception) si l'appel echoue - un vocabulaire absent ne doit pas
-    invalider le document (meme principe que US3.4 pour l'extraction par
-    chunk)."""
+def extract_vocabulary(
+    text: str, model: str, known_concepts: list[str] | None = None,
+) -> tuple[list[dict], str | None]:
+    """IAF-E7 US7.1. Renvoie (liste de {"term", "concept"}, langue detectee ou
+    None) ; vocabulaire vide (pas d'exception) si l'appel echoue - un
+    vocabulaire absent ne doit pas invalider le document (meme principe que
+    US3.4 pour l'extraction par chunk). `known_concepts` (ajoute 2026-09-29) :
+    libelles de concepts deja connus (toutes classes confondues), fournis au
+    LLM pour qu'il les reutilise au lieu d'inventer des doublons proches."""
     excerpt = text[:VOCABULARY_TEXT_LIMIT]
+    prompt = excerpt
+    if known_concepts:
+        prompt = f"Concepts deja connus (reutilise-les si pertinent) : {', '.join(known_concepts)}\n\n{excerpt}"
     try:
-        # max_tokens releve a 3000 (addendum US3.15, 2026-09-28) : constate
-        # reellement tronque a 1200 (defaut de chat_json) sur un document
-        # scientifique reel - 10-20 termes + concept + jetons de raisonnement
-        # Gemini 2.5 depassent largement 1200.
-        result = chat_json(excerpt, model=model, system=VOCABULARY_SYSTEM, timeout=90, max_tokens=3000)
+        # max_tokens releve a 8000 (2026-09-29, etait 3000) : jusqu'a 150
+        # termes + concept en JSON, plus les jetons de "raisonnement" internes
+        # de Gemini 2.5 (deja documente ailleurs dans ce fichier), depasse
+        # largement 3000 - latence plus elevee, non mesuree finement, cout
+        # assume en echange d'un vocabulaire moins pauvre (demande explicite).
+        result = chat_json(prompt, model=model, system=VOCABULARY_SYSTEM, timeout=150, max_tokens=8000)
     except Exception:
-        return []
+        return [], None
     vocabulary = []
     for item in result.get("vocabulary", []):
         term, concept = item.get("term"), item.get("concept")
         if term and concept:
             vocabulary.append({"term": term, "concept": concept})
-    return vocabulary
+    language = result.get("language")
+    return vocabulary, language if isinstance(language, str) and language.strip() else None
 
 
-def _structural_profile(elements: list[StructElement]) -> dict[str, float]:
+class _TypeNormalizer:
+    """Ajoute le 2026-09-29 (demande explicite : normaliser les types
+    d'entites/relations/attributs et les concepts pour reduire le nombre
+    d'ontologies quasi-doublons). Reutilise un libelle deja connu si un
+    nouveau lui est assez proche par embedding (`NORMALIZE_MATCH_THRESHOLD`),
+    au lieu de creer un synonyme ; sinon l'ajoute a son propre cache pour que
+    les occurrences suivantes DANS LE MEME document s'y comparent aussi."""
+
+    def __init__(self, known_labels: list[str]):
+        self._labels: list[str] = []
+        self._vectors: list[list[float]] = []
+        for label in known_labels:
+            if label:
+                self._add(label)
+
+    def _add(self, label: str) -> None:
+        self._labels.append(label)
+        self._vectors.append(embed(label))
+
+    def normalize(self, raw: str) -> str:
+        if not raw:
+            return raw
+        raw_normalized = _normalize_label(raw)
+        for label in self._labels:
+            if _normalize_label(label) == raw_normalized:
+                return label
+        vector = embed(raw)
+        best_label, best_score = None, 0.0
+        for label, known_vector in zip(self._labels, self._vectors):
+            score = cosine_similarity(vector, known_vector)
+            if score > best_score:
+                best_label, best_score = label, score
+        if best_label is not None and best_score >= NORMALIZE_MATCH_THRESHOLD:
+            return best_label
+        self._labels.append(raw)
+        self._vectors.append(vector)
+        return raw
+
+    def vector_for(self, label: str) -> list[float] | None:
+        try:
+            return self._vectors[self._labels.index(label)]
+        except ValueError:
+            return None
+
+
+def _concept_set_similarity(a: list[tuple[str, list[float]]], b: list[tuple[str, list[float]]]) -> float:
+    """Remplace le 2026-09-29 le recouvrement Jaccard sur libelles EXACTS
+    (voir CONCEPT_MATCH_THRESHOLD ci-dessus pour la mesure reelle qui a
+    motive ce changement). Correspondance souple par embedding, symetrique :
+    proportion de `a` ayant un match dans `b`, et inversement, moyennees."""
+    if not a or not b:
+        return 0.0
+    matched_a = sum(1 for _, va in a if any(cosine_similarity(va, vb) >= CONCEPT_MATCH_THRESHOLD for _, vb in b))
+    matched_b = sum(1 for _, vb in b if any(cosine_similarity(va, vb) >= CONCEPT_MATCH_THRESHOLD for _, va in a))
+    return (matched_a / len(a) + matched_b / len(b)) / 2
+
+
+def _structural_profile(elements: list[StructElement], citation_count: int = 0) -> dict[str, float]:
+    """`citation_count` ajoute le 2026-09-29 (demande explicite : les
+    citations font partie de "l'organisation du contenu" a matcher
+    structurellement) - densite (citations par element), PAS une proportion
+    de plus dans STRUCT_KINDS (qui doivent sommer a 1) : une densite est une
+    grandeur differente, geree a part par _profile_similarity ci-dessous.
+    Vient de latex_struct.py (metadata["citation_count"]) ; 0 pour les autres
+    formats (pas de notion de citation dans .docx/.pdf/.pptx/.md)."""
     counts = {kind: 0 for kind in STRUCT_KINDS}
     for elem in elements:
         if elem.kind in counts:
             counts[elem.kind] += 1
     total = sum(counts.values())
-    if total == 0:
-        return {kind: 0.0 for kind in STRUCT_KINDS}
-    return {kind: n / total for kind, n in counts.items()}
+    profile = {kind: 0.0 for kind in STRUCT_KINDS} if total == 0 else {kind: n / total for kind, n in counts.items()}
+    profile["citation_density"] = citation_count / total if total else 0.0
+    return profile
 
 
 def _profile_similarity(a: dict[str, float], b: dict[str, float]) -> float:
-    """1 - distance L1 / 2 : les deux profils sont des distributions de
-    proportions (somme 1), la distance L1 entre deux distributions est bornee
-    a [0, 2], donc cette similarite est bornee a [0, 1]. Simple et explicable
-    plutot qu'une mesure plus sophistiquee non calibree (US7.7 tranchera)."""
+    """1 - distance L1 / 2 sur les proportions STRUCT_KINDS (bornee a [0, 1],
+    simple et explicable plutot qu'une mesure plus sophistiquee non calibree,
+    US7.7 tranchera), combinee a la similarite de densite de citations
+    (ajoutee le 2026-09-29, echelle arbitraire de 5 citations/element = tres
+    dense - NON calibree comme le reste). Ponderation 80/20 : les proportions
+    STRUCT_KINDS restent le signal principal, la densite de citations un
+    signal d'appoint (absente pour la plupart des formats)."""
     l1 = sum(abs(a.get(k, 0.0) - b.get(k, 0.0)) for k in STRUCT_KINDS)
-    return max(0.0, 1.0 - l1 / 2)
+    kind_similarity = max(0.0, 1.0 - l1 / 2)
+    citation_diff = abs(a.get("citation_density", 0.0) - b.get("citation_density", 0.0))
+    citation_similarity = max(0.0, 1.0 - citation_diff / 5.0)
+    return 0.8 * kind_similarity + 0.2 * citation_similarity
 
 
 def _ensure_vector_index(session, dimensions: int) -> None:
@@ -162,40 +290,48 @@ def _ensure_vector_index(session, dimensions: int) -> None:
 
 
 def _find_best_class(
-    session, struct_profile: dict[str, float], concept_labels: set[str],
+    session, struct_profile: dict[str, float], concept_vectors: list[tuple[str, list[float]]],
 ) -> tuple[str | None, str | None, float, float, float]:
     """IAF-E7 US7.4 : score combine (structurel + semantique) contre chaque
     classe existante. Une classe sans document membre (profil structurel
     indefini) ou sans concept connu obtient un score nul sur l'axe
     correspondant - une classe toute neuve ne "reconnait" donc jamais un
-    nouveau document par accident."""
+    nouveau document par accident.
+
+    `concept_vectors` : liste de (libelle, embedding) du document candidat -
+    remplace le 2026-09-29 le `set[str]` de libelles normalises (voir
+    _concept_set_similarity : le score semantique restait quasiment toujours
+    a 0%, mesure reellement, car deux documents proches n'inventent jamais le
+    MEME libelle mot pour mot)."""
     rows = list(session.run(
         "MATCH (c:DocumentClass) "
         "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
         "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
         "RETURN c.id AS id, c.name AS name, "
         "       collect(DISTINCT {section: d.profile_section, paragraph: d.profile_paragraph, "
-        "                         table: d.profile_table, equation: d.profile_equation}) AS profiles, "
-        "       collect(DISTINCT concept.label) AS concepts"
+        "                         table: d.profile_table, equation: d.profile_equation, "
+        "                         citation: d.profile_citation_density}) AS profiles, "
+        "       collect(DISTINCT CASE WHEN concept.embedding IS NOT NULL "
+        "                             THEN {label: concept.label, embedding: concept.embedding} END) AS concepts"
     ))
     best = (None, None, 0.0, 0.0, 0.0)
     best_combined = 0.0
     for row in rows:
         profiles = [p for p in row["profiles"] if p.get("section") is not None]
         if profiles:
-            # p[kind.lower()] peut etre None pour "equation" sur un document
-            # ingere avant son ajout (2026-09-28) au sein d'une classe qui a
-            # par ailleurs des documents plus recents - 0.0 par defaut.
+            # p[kind.lower()] peut etre None pour "equation"/"citation" sur un
+            # document ingere avant leur ajout, au sein d'une classe qui a par
+            # ailleurs des documents plus recents - 0.0 par defaut.
             avg_profile = {
                 kind: sum(p[kind.lower()] or 0.0 for p in profiles) / len(profiles) for kind in STRUCT_KINDS
             }
+            avg_profile["citation_density"] = sum(p.get("citation") or 0.0 for p in profiles) / len(profiles)
             structural_score = _profile_similarity(struct_profile, avg_profile)
         else:
             structural_score = 0.0
 
-        class_concepts = {_normalize_label(c) for c in row["concepts"] if c}
-        union = class_concepts | concept_labels
-        semantic_score = len(class_concepts & concept_labels) / len(union) if union else 0.0
+        class_concepts = [(c["label"], c["embedding"]) for c in row["concepts"] if c is not None]
+        semantic_score = _concept_set_similarity(class_concepts, concept_vectors)
 
         combined = (structural_score + semantic_score) / 2
         if combined > best_combined:
@@ -204,32 +340,45 @@ def _find_best_class(
     return best
 
 
-def _write_concepts(session, class_id: str, document_sha256: str, vocabulary: list[dict]) -> int:
+def _write_concepts(
+    session, class_id: str, document_sha256: str, vocabulary: list[dict],
+    language: str | None, concept_normalizer: "_TypeNormalizer",
+) -> int:
     """Ecrit chaque concept induit comme classe OWL dans Fuseki (US7.5) et
     son rattachement dans Neo4j (lecture rapide pour les ecrans du site,
     US3.14). Un concept qui echoue a s'ecrire dans Fuseki ne bloque pas les
-    autres (meme principe que l'extraction par chunk, US3.4)."""
+    autres (meme principe que l'extraction par chunk, US3.4).
+
+    Ajoute le 2026-09-29 : `concept_normalizer` reutilise un libelle DEJA
+    CONNU de cette classe si le nouveau lui est assez proche par embedding
+    (reduit les concepts quasi-doublons DANS une classe, complementaire du
+    `known_concepts` passe a extract_vocabulary qui vise plutot a reduire les
+    doublons ENTRE classes) ; l'embedding de chaque libelle final est stocke
+    sur le noeud Concept pour que _find_best_class (US7.4) et
+    class_merge.class_similarity (US7.6) le comparent sans le recalculer."""
     written = 0
     seen_labels: set[str] = set()
     for item in vocabulary:
-        label = item["concept"]
+        label = concept_normalizer.normalize(item["concept"])
         normalized = _normalize_label(label)
         if normalized in seen_labels:
             continue
         seen_labels.add(normalized)
         try:
-            uri = ontology.ensure_concept(class_id, label)
+            uri = ontology.ensure_concept(class_id, label, language or "fr")
         except Exception:
             continue  # Fuseki indisponible ou erreur reseau : le concept reste absent, pas de silence en amont (log gateway)
+        vector = concept_normalizer.vector_for(label)
         session.run(
             "MERGE (c:DocumentClass {id: $class_id}) "
             "MERGE (concept:Concept {label: $label, class_id: $class_id}) "
-            "SET concept.uri = $uri "
+            "SET concept.uri = $uri, concept.embedding = $embedding "
             "MERGE (c)-[:HAS_CONCEPT]->(concept) "
             "WITH concept "
             "MATCH (d:Document {sha256: $sha256}) "
             "MERGE (d)-[:MENTIONS_CONCEPT {term: $term}]->(concept)",
-            class_id=class_id, label=label, uri=uri, sha256=document_sha256, term=item["term"],
+            class_id=class_id, label=label, uri=uri, embedding=vector,
+            sha256=document_sha256, term=item["term"],
         )
         written += 1
     return written
@@ -266,7 +415,10 @@ def ingest_document(
     step("Ingestion", "Analyse structurelle", filename)
     metadata, root = parse(str(stored_path))
     elements = flatten(root)
-    struct_profile = _structural_profile(elements)
+    # "citation_count" ajoute le 2026-09-29 dans latex_struct.py uniquement
+    # (organisation du contenu LaTeX - citations, cf. module docstring) ; 0
+    # par defaut pour les formats qui ne le renseignent pas.
+    struct_profile = _structural_profile(elements, metadata.get("citation_count", 0))
 
     driver = get_driver()
     warnings: list[str] = []
@@ -276,11 +428,11 @@ def ingest_document(
             "SET d.title = $title, d.author = $author, d.subject = $subject, "
             "    d.filename = $filename, d.status = 'ingere', d.ingested_at = datetime(), "
             "    d.profile_section = $section, d.profile_paragraph = $paragraph, d.profile_table = $table, "
-            "    d.profile_equation = $equation",
+            "    d.profile_equation = $equation, d.profile_citation_density = $citation_density",
             sha256=sha256, title=metadata.get("title"), author=metadata.get("author"),
             subject=metadata.get("subject"), filename=filename,
             section=struct_profile["Section"], paragraph=struct_profile["Paragraph"], table=struct_profile["Table"],
-            equation=struct_profile["Equation"],
+            equation=struct_profile["Equation"], citation_density=struct_profile["citation_density"],
         )
 
         def write_element(elem, parent_neo_id):
@@ -335,15 +487,44 @@ def ingest_document(
 
         # IAF-E7 US7.1 : etape dediee d'extraction de vocabulaire, sur un
         # extrait du document (pas chunk par chunk comme l'extraction
-        # d'entites ci-dessous).
-        vocabulary = extract_vocabulary("\n".join(text_parts), settings.extraction_model)
+        # d'entites ci-dessous). "known_concepts" (2026-09-29) : concepts deja
+        # induits TOUTES CLASSES confondues, fournis au LLM pour qu'il les
+        # reutilise plutot que d'en inventer des doublons proches - reduit le
+        # nombre d'ontologies representant une connaissance deja connue
+        # (demande explicite).
+        known_concepts = [
+            r["label"] for r in session.run(
+                "MATCH (:DocumentClass)-[:HAS_CONCEPT]->(concept:Concept) "
+                "RETURN DISTINCT concept.label AS label LIMIT $limit",
+                limit=KNOWN_CONCEPTS_LIMIT,
+            ) if r["label"]
+        ]
+        vocabulary, language = extract_vocabulary(
+            "\n".join(text_parts), settings.extraction_model, known_concepts=known_concepts,
+        )
         if not vocabulary:
             warnings.append("extraction de vocabulaire vide ou ratee (US7.1) : score semantique a 0")
-        concept_labels = {_normalize_label(v["concept"]) for v in vocabulary}
-        step("Ingestion", "Extraction du vocabulaire (US7.1)", f"{len(vocabulary)} termes" if vocabulary else "echec ou vide")
+        step(
+            "Ingestion", "Extraction du vocabulaire (US7.1)",
+            f"{len(vocabulary)} termes, langue {language or 'inconnue'}" if vocabulary else "echec ou vide",
+        )
+
+        # Concepts induits pour CE document, embeddes une fois (2026-09-29) -
+        # remplace le recouvrement Jaccard sur libelles exacts (voir
+        # _concept_set_similarity), qui restait quasiment toujours a 0%
+        # (mesure reelle). Deduplique par libelle normalise avant d'embedder
+        # (evite d'embedder 2 fois "Algorithme" si plusieurs termes y menent).
+        seen_concept_labels: set[str] = set()
+        concept_vectors: list[tuple[str, list[float]]] = []
+        for v in vocabulary:
+            normalized = _normalize_label(v["concept"])
+            if normalized in seen_concept_labels:
+                continue
+            seen_concept_labels.add(normalized)
+            concept_vectors.append((v["concept"], embed(v["concept"])))
 
         recognized_id, recognized_name, structural_score, semantic_score, combined = _find_best_class(
-            session, struct_profile, concept_labels,
+            session, struct_profile, concept_vectors,
         )
 
         if recognized_id is not None and combined >= settings.recognition_threshold:
@@ -374,8 +555,37 @@ def ingest_document(
             "Ingestion", "Reconnaissance de classe (US7.4)",
             f"{method} -> {class_name} ({combined:.0%})",
         )
+        session.run("MATCH (d:Document {sha256: $sha256}) SET d.language = $language", sha256=sha256, language=language)
 
-        n_concepts = _write_concepts(session, class_id, sha256, vocabulary)
+        # Normalisation des concepts/types/attributs/relations (2026-09-29,
+        # demande explicite : "reduire le nombre d'ontologies" en comparant
+        # aux termes deja connus). Un normaliseur par categorie, initialise
+        # avec ce qui est DEJA connu (concepts : par CLASSE, comme les
+        # concepts eux-memes ; types d'entites : par CLASSE, comme Entity.type ;
+        # relations/attributs : GLOBAUX, comme leurs proprietes OWL, US7.9).
+        known_class_concepts = [
+            r["label"] for r in session.run(
+                "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) RETURN DISTINCT concept.label AS label",
+                cid=class_id,
+            ) if r["label"]
+        ]
+        concept_normalizer = _TypeNormalizer(known_class_concepts)
+        known_entity_types = [
+            r["type"] for r in session.run(
+                "MATCH (e:Entity {class_id: $cid}) RETURN DISTINCT e.type AS type", cid=class_id,
+            ) if r["type"]
+        ]
+        entity_type_normalizer = _TypeNormalizer(known_entity_types)
+        try:
+            relation_normalizer = _TypeNormalizer(ontology.list_properties("owl:ObjectProperty"))
+            attribute_normalizer = _TypeNormalizer(ontology.list_properties("owl:DatatypeProperty"))
+        except Exception:
+            # Fuseki indisponible : normalisation reduite au cache du document
+            # en cours plutot que d'echouer l'ingestion (US3.4).
+            relation_normalizer = _TypeNormalizer([])
+            attribute_normalizer = _TypeNormalizer([])
+
+        n_concepts = _write_concepts(session, class_id, sha256, vocabulary, language, concept_normalizer)
         step("Structuration", "Ecriture ontologie OWL (concepts, US7.5)", f"{n_concepts} concepts")
 
         n_entities = 0
@@ -399,6 +609,7 @@ def ingest_document(
                 name, etype = ent.get("name"), ent.get("type", "Autre")
                 if not name:
                     continue
+                etype = entity_type_normalizer.normalize(etype)
                 session.run(
                     "MERGE (e:Entity {name: $name, class_id: $class_id}) "
                     "SET e.type = $type "
@@ -411,6 +622,7 @@ def ingest_document(
                 ent_name, key, value = attr.get("entity"), attr.get("key"), attr.get("value")
                 if not (ent_name and key):
                     continue
+                key = attribute_normalizer.normalize(key)
                 session.run(
                     "MATCH (e:Entity {name: $name, class_id: $class_id}) "
                     "CALL apoc.create.setProperty(e, $key, $value) YIELD node RETURN node",
@@ -427,6 +639,7 @@ def ingest_document(
                 src, rtype, tgt = rel.get("source"), rel.get("relation"), rel.get("target")
                 if not (src and rtype and tgt):
                     continue
+                rtype = relation_normalizer.normalize(rtype)
                 session.run(
                     "MATCH (s:Entity {name: $src, class_id: $class_id}), "
                     "(t:Entity {name: $tgt, class_id: $class_id}) "

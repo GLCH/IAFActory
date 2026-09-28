@@ -11,6 +11,7 @@
     <h1>{{ document.filename }}</h1>
     <div class="actions">
       <a class="btn btn-primary" href="/creator/documents/{{ document.id }}/download">Telecharger</a>
+      <a class="btn" href="#graphe">Voir le graphe{% if not graph_svg %} (aucun){% endif %}</a>
       {% if document.neo4j_class_id %}
       <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}">Voir la classe</a>
       <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>
@@ -31,13 +32,16 @@
     {% if document.error_message %}<p class="muted">{{ document.error_message }}</p>{% endif %}
   </div>
 
-  {% if graph_svg %}
-  <div class="card">
+  <div class="card" id="graphe">
     <h2>Graphe de connaissance</h2>
+    {% if graph_svg %}
     <p class="muted">Entites et relations extraites de ce document (disposition en cercle, sans bibliotheque JS).</p>
     <div style="max-width: 640px; margin: 0 auto;">{{ graph_svg | safe }}</div>
+    {% else %}
+    <p class="muted">Aucune donnee de graphe pour ce document (aucune entite extraite pour l'instant - voir les
+       chunks ci-dessous, ou l'onglet Processus si l'extraction a echoue).</p>
+    {% endif %}
   </div>
-  {% endif %}
 
   <div class="card">
     <h2>Chunks</h2>

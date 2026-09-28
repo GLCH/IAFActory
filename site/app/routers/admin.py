@@ -6,18 +6,23 @@ fabriquer un admin depuis le web."""
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Form, Request, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import delete as sa_delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from .. import ontology
+from ..archive import build_archive
+from ..config import settings
 from ..db import get_db
 from ..deps import require_role
-from ..models import Role, User
+from ..graph import get_driver
+from ..models import Document, PipelineRun, PipelineStep, Role, User
 from ..security import MIN_PASSWORD_LENGTH, hash_password
 
 router = APIRouter(prefix="/admin", dependencies=[Depends(require_role(Role.admin))])
@@ -95,3 +100,64 @@ def delete_user(
         db.delete(target)
         db.commit()
     return RedirectResponse("/admin/users", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/archive")
+def archive_form(request: Request, user: User = Depends(require_role(Role.admin))):
+    """Ajoute le 2026-09-29, demande explicite. Archive (export lecture
+    seule, .zip) et suppression complete (irreversible, confirmation par mot
+    tape - une simple confirm() JS n'a pas semble suffisante pour une action
+    qui efface TOUT, contrairement a US3.20 objet par objet)."""
+    error = request.query_params.get("error")
+    done = request.query_params.get("done")
+    return templates.TemplateResponse(
+        request, "admin_archive.html", {"user": user, "error": error, "done": done},
+    )
+
+
+@router.post("/archive/download")
+def archive_download(db: Session = Depends(get_db), user: User = Depends(require_role(Role.admin))):
+    content = build_archive(db)
+    filename = f"iafactory-archive-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.zip"
+    return Response(
+        content=content, media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/wipe")
+def wipe_all_route(
+    confirm: str = Form(...), db: Session = Depends(get_db), user: User = Depends(require_role(Role.admin)),
+):
+    """Irreversible - demande explicite ("tu peux vider completement le
+    service de tous les documents, les classes, et tout le reste"). Ne
+    touche PAS aux comptes utilisateurs (User) : "tout le reste" est compris
+    ici comme le CONTENU (documents, classes, concepts, entites, taxonomies,
+    executions de pipeline), pas la gestion des comptes (US5.x, un sujet
+    distinct) - a confirmer si une portee plus large etait voulue."""
+    if confirm != "EFFACER TOUT":
+        return RedirectResponse("/admin/archive?error=confirm", status_code=status.HTTP_303_SEE_OTHER)
+
+    driver = get_driver()
+    with driver.session() as session:
+        session.run("MATCH (n) DETACH DELETE n")
+
+    if settings.documents_dir.exists():
+        for path in settings.documents_dir.iterdir():
+            if path.is_file():
+                path.unlink()
+
+    # Ordre des DELETE Core (execute(delete(...))) explicite, plutot que
+    # db.delete(obj) un par un : evite le bug de flush deja rencontre le
+    # 2026-09-28 (aucune relationship() ORM declaree entre ces tables).
+    db.execute(sa_delete(PipelineStep))
+    db.execute(sa_delete(PipelineRun))
+    db.execute(sa_delete(Document))
+    db.commit()
+
+    try:
+        ontology.wipe_all()
+    except Exception:
+        pass
+
+    return RedirectResponse("/admin/archive?done=1", status_code=status.HTTP_303_SEE_OTHER)

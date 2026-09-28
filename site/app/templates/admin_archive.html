@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Archivage - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Archivage</div>
+  <div class="page-header">
+    <h1>Archivage et remise a zero</h1>
+  </div>
+
+  {% if error == "confirm" %}<p class="alert">Mot de confirmation incorrect - rien n'a ete supprime.</p>{% endif %}
+  {% if done %}<p class="alert" style="color: var(--color-primary);">Service entierement vide (documents, classes, ontologies, taxonomies). Les comptes utilisateurs sont conserves.</p>{% endif %}
+
+  <div class="card">
+    <h2>Archiver</h2>
+    <p class="muted">Telecharge un .zip contenant les documents originaux, l'export du graphe Neo4j (JSON), l'export
+       des ontologies/taxonomies Fuseki (Turtle) et les tables Postgres (documents, executions de pipeline) -
+       jamais les mots de passe. Lecture seule : pas de restauration depuis cette archive pour l'instant.</p>
+    <form method="post" action="/admin/archive/download">
+      <button type="submit" class="btn btn-primary">Telecharger l'archive complete</button>
+    </form>
+  </div>
+
+  <div class="card" style="border-color: var(--color-danger-border);">
+    <h2>Tout effacer</h2>
+    <p class="muted">Supprime TOUS les documents, classes, concepts, entites, taxonomies et executions de pipeline -
+       dans Postgres, Neo4j et Fuseki. Irreversible. Les comptes utilisateurs (admin/creator/viewer) sont conserves.
+       Archivez d'abord si vous voulez garder une trace.</p>
+    <form method="post" action="/admin/wipe"
+          onsubmit="return confirm('Tout va etre efface definitivement. Continuer ?');">
+      <div class="field">
+        <label>Tapez EFFACER TOUT pour confirmer</label>
+        <input type="text" name="confirm" required placeholder="EFFACER TOUT">
+      </div>
+      <button type="submit" class="btn btn-danger">Tout effacer</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

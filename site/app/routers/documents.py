@@ -404,19 +404,21 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
         profile_row = session.run(
             "MATCH (c:DocumentClass {id: $cid})<-[:IN_CLASS]-(d:Document) "
             "RETURN avg(d.profile_section) AS section, avg(d.profile_paragraph) AS paragraph, "
-            "       avg(d.profile_table) AS table, avg(d.profile_equation) AS equation",
+            "       avg(d.profile_table) AS table, avg(d.profile_equation) AS equation, "
+            "       avg(d.profile_citation_density) AS citation",
             cid=class_id,
         ).single()
         # avg() renvoie null si aucun document membre n'a de profil (documents
         # ingeres avant l'ajout du profil structurel au pipeline, 2026-09-28) -
         # verifier le champ lui-meme, pas seulement le nombre de documents.
-        # "equation" (ajoute le 2026-09-28, addendum US3.15) peut rester null
-        # si aucun document membre n'a ce champ (documents plus anciens).
+        # "equation"/"citation" peuvent rester null si aucun document membre
+        # n'a ce champ (documents plus anciens, ou format sans citations).
         profile = None
         if profile_row and profile_row["section"] is not None:
             profile = {
                 "section": profile_row["section"], "paragraph": profile_row["paragraph"],
                 "table": profile_row["table"], "equation": profile_row["equation"] or 0.0,
+                "citation": profile_row["citation"] or 0.0,
             }
         concepts = list(session.run(
             "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) "
@@ -563,6 +565,16 @@ def list_corpus(request: Request, user: User = Depends(require_role(Role.creator
     return templates.TemplateResponse(
         request, "creator_corpus.html", {"corpus": corpus, "suggestions": suggestions, "user": user},
     )
+
+
+@router.post("/corpus/batch-cluster")
+def batch_cluster_route(user: User = Depends(require_role(Role.creator))):
+    """Ajoute le 2026-09-29 : "construire le corpus a partir de n documents
+    similaires" - compare toutes les classes actives entre elles en un lot,
+    plutot que seulement une classe neuve contre les autres. Les suggestions
+    creees se valident normalement sur cette meme page."""
+    class_merge.batch_cluster_classes()
+    return RedirectResponse("/creator/corpus", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/classes/merge")

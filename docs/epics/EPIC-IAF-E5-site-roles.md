@@ -47,6 +47,7 @@ Questions transverses : authentification (locale, SSO) ? granularite des exclusi
 - Acceptance criteria : l'arret stoppe agents et groupes du projet ; l'effacement demande une confirmation explicite et supprime donnees Postgres, graphe Neo4j, graphe nomme Fuseki et fichiers ; action journalisee avec l'admin auteur ; un creator ne peut pas effacer le projet d'un autre.
 - Exemples : apres effacement du projet P, plus aucun noeud Neo4j ni triplet Fuseki associe a P (verifie par requete).
 - Questions : suppression definitive ou corbeille avec delai ?
+- **Implemente et teste le 2026-09-29** (demande explicite : "tu peux vider completement le service [...] ajoute une fonctionnalite pour l'admin de tout archiver") - adapte a l'absence de "projet" (US3.9) : la portee est le SERVICE entier. `/admin/archive` : export .zip complet (documents, Neo4j JSON, Fuseki Turtle par graphe, Postgres JSON), lecture seule. `/admin/wipe` : supprime tout (Postgres/Neo4j/Fuseki), confirmation par mot tape ("EFFACER TOUT") - PAS les comptes utilisateurs (portee volontairement limitee au contenu). Teste reellement sur l'instance de developpement : archive verifiee (21 fichiers), wipe confirme vide dans les 4 magasins par requete directe, 7 comptes conserves, service fonctionnel apres coup (nouvel upload accepte). Jira : IAF-33.
 
 ## US5.6 Definir les capacites des creators
 - Jira : IAF-82.

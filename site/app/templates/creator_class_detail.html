@@ -33,7 +33,8 @@
       section {{ "%.0f"|format(profile.section * 100) }}%,
       paragraphe {{ "%.0f"|format(profile.paragraph * 100) }}%,
       tableau {{ "%.0f"|format(profile.table * 100) }}%,
-      equation {{ "%.0f"|format(profile.equation * 100) }}%
+      equation {{ "%.0f"|format(profile.equation * 100) }}%,
+      densite de citations {{ "%.2f"|format(profile.citation) }}
     </p>
     {% else %}
     <p class="muted">Pas encore de profil structurel (aucun document membre).</p>

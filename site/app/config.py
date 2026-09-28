@@ -76,6 +76,14 @@ class Settings(BaseSettings):
     # chiffre est le seuil RUNTIME, pas la preuve que l'algorithme l'atteint.
     recognition_threshold: float = 0.90
 
+    # Observabilite (ajoute le 2026-09-29, demande explicite : "genere le
+    # code, l'infra... mais ne l'active pas"). Vide par defaut = handler Loki
+    # jamais installe (observability.py), comportement identique a avant.
+    # Le service docker-compose "loki"/"grafana" est lui-meme derriere le
+    # profil "observability" (`docker compose --profile observability up`),
+    # jamais demarre par defaut.
+    loki_url: str = ""
+
     @property
     def database_url(self) -> str:
         return (

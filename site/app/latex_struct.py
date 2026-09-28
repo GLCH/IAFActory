@@ -135,6 +135,13 @@ def parse(path: str) -> tuple[dict, StructElement]:
         "title": _clean(title_match.group(1)) if title_match else None,
         "author": _clean(author_match.group(1)) if author_match else None,
         "subject": None,
+        # Ajoute le 2026-09-29 (demande explicite : "organisation du contenu
+        # - section, subsection, ..., citations, theorems, definitions" pour
+        # le matching STRUCTUREL) - densite de citations, pas une proportion
+        # STRUCT_KINDS de plus (une citation n'est pas un bloc de contenu au
+        # meme titre qu'un paragraphe/tableau/equation, c'est un marqueur
+        # inline - voir pipeline.py:_structural_profile).
+        "citation_count": len(_CITE_RE.findall(text)),
     }
 
     # Ne garde que le corps du document (entre \begin{document} et

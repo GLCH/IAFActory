@@ -9,10 +9,15 @@
     <div class="actions">
       <a class="btn" href="/creator/settings">Parametres</a>
       <a class="btn" href="/creator/taxonomy">Vocabulaire</a>
+      <form class="inline" method="post" action="/creator/corpus/batch-cluster">
+        <button type="submit" class="btn btn-primary">Regrouper les corpus proches</button>
+      </form>
     </div>
   </div>
   <p class="muted">Un corpus = une classe documentaire et les documents qui lui sont rattaches (US3.9). Pas de
-     notion de projet dans le site (decide le 2026-09-27) : cette vue est la meme que "Classes", classee ici par taille.</p>
+     notion de projet dans le site (decide le 2026-09-27) : cette vue est la meme que "Classes", classee ici par taille.
+     "Regrouper les corpus proches" compare TOUTES les classes entre elles (pas seulement une classe neuve) et
+     propose une fusion pour chaque paire assez proche - a valider ci-dessous.</p>
 
   {% if suggestions %}
   <div class="card">

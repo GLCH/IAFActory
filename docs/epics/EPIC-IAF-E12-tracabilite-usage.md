@@ -39,3 +39,8 @@ Questions transverses : durée de rétention ? le creator voit-il l'activité de
 - Prérequis : US12.3.
 - Acceptance criteria : rôle Postgres en lecture seule limité aux vues de reporting ; documentation des vues ; aucune donnée sensible dans ces vues ; le service Grafana n'est pas déployé dans ce périmètre.
 - Statut : différé (décision de l'utilisateur : « à terme »).
+- **Addendum 2026-09-29** : demande DISTINCTE (logging applicatif, pas le journal d'activité structuré US12.1-12.3, toujours pas fait) - "ajoute un logging applicatif qui doit être poussé vers un grafana. Genere le code, l'infra... mais ne l'active pas". Fait, INERT par défaut (aucun changement de comportement sans configuration explicite) :
+  - `site/app/observability.py` : handler de logging Python minimal, POST direct vers l'API push de Loki (format vérifié via la documentation officielle) - n'installe rien tant que `LOKI_URL` (config.py) est vide.
+  - `compose.yaml` : services `loki` (grafana/loki:3.6.13) + `grafana` (grafana/grafana:13.2.2, versions stables vérifiées) derrière le profil `observability` (même principe que le profil `llm` déjà existant pour ollama) - confirmé absent de `docker compose config --services` sans ce profil.
+  - `infra/observability/loki-config.yaml` + `grafana-datasources.yaml` : provisioning Grafana→Loki automatique, adaptés du fichier officiel du dépôt grafana/loki.
+  - Non testé en conditions réelles (demande explicite de ne pas activer) - à faire si/quand l'activation est demandée. Jira : IAF-78.

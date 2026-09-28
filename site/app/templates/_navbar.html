@@ -4,6 +4,7 @@
     {% if user.role.value == "admin" %}
       <a href="/admin/users/new"{% if active == "admin_new" %} class="active"{% endif %}>Nouvel utilisateur</a>
       <a href="/admin/users"{% if active == "admin_users" %} class="active"{% endif %}>Utilisateurs</a>
+      <a href="/admin/archive"{% if active == "admin_archive" %} class="active"{% endif %}>Archivage</a>
     {% elif user.role.value == "creator" %}
       <a href="/creator/documents/new"{% if active == "creator_new" %} class="active"{% endif %}>Deposer</a>
       <a href="/creator/documents"{% if active == "creator_documents" %} class="active"{% endif %}>Documents</a>

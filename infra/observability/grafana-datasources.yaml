@@ -1,0 +1,14 @@
+# Provisioning automatique de la source de donnees Loki dans Grafana (verifie
+# via la documentation officielle Grafana le 2026-09-29, pas devine).
+# Genere en meme temps que loki-config.yaml - voir son en-tete pour le
+# principe "code genere mais pas active" (profil docker-compose
+# "observability", jamais demarre par defaut).
+apiVersion: 1
+
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: true
+    editable: true
