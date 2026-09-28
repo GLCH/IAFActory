@@ -6,8 +6,10 @@ distincts rattaches a la meme classe, un score a 0.993.
 
 Reconnaissance a deux signaux maintenant, decide par l'utilisateur le
 2026-09-28 :
-- **structurel** : profil de proportions (Section/Paragraph/Table) du
-  document compare a la moyenne des documents deja dans chaque classe ;
+- **structurel** : profil de proportions (Section/Paragraph/Table/Equation,
+  "Equation" ajoute le 2026-09-28 - addendum US3.15, discrimine les documents
+  scientifiques) du document compare a la moyenne des documents deja dans
+  chaque classe ;
 - **semantique** : vocabulaire extrait par une etape LLM DEDIEE (US7.1,
   distincte de l'extraction d'entites par chunk ci-dessous), chaque terme
   associe a un concept induit par le LLM, compare par recouvrement (Jaccard)
@@ -52,7 +54,7 @@ PARSERS = {
     ".tex": latex_struct.parse,
 }
 
-STRUCT_KINDS = ("Section", "Paragraph", "Table")
+STRUCT_KINDS = ("Section", "Paragraph", "Table", "Equation")
 
 EXTRACTION_SYSTEM = (
     "Tu extrais des entites et relations d'un extrait de document technique. "
@@ -68,9 +70,12 @@ EXTRACTION_SYSTEM = (
 # associe au concept (classe OWL) qu'il represente.
 VOCABULARY_SYSTEM = (
     "Tu extrais le vocabulaire technique d'un document (10 a 20 termes les plus significatifs, "
-    "pas des entites nommees precises comme un nom de societe). Pour chaque terme, donne le "
-    "concept general auquel il appartient (un ou deux mots, en francais, ex: Materiau, Norme, "
-    "Dimension, Fournisseur, Procede). Reponds UNIQUEMENT en JSON valide, sans texte autour, au "
+    "pas des entites nommees precises comme un nom de societe). Le document peut relever de "
+    "n'importe quel domaine technique, y compris mathematique ou machine learning (ex: fonction "
+    "de perte, gradient, notation mathematique, algorithme, hyperparametre) - ne privilegie pas "
+    "un domaine industriel par defaut. Pour chaque terme, donne le concept general auquel il "
+    "appartient (un ou deux mots, en francais, ex: Materiau, Norme, Fonction de perte, Algorithme, "
+    "Notation mathematique, Fournisseur). Reponds UNIQUEMENT en JSON valide, sans texte autour, au "
     'format exact : {"vocabulary":[{"term":"...","concept":"..."}]}.'
 )
 VOCABULARY_TEXT_LIMIT = 4000  # caracteres ; borne le cout/latence sur le modele local
@@ -111,7 +116,11 @@ def extract_vocabulary(text: str, model: str) -> list[dict]:
     chunk)."""
     excerpt = text[:VOCABULARY_TEXT_LIMIT]
     try:
-        result = chat_json(excerpt, model=model, system=VOCABULARY_SYSTEM, timeout=90)
+        # max_tokens releve a 3000 (addendum US3.15, 2026-09-28) : constate
+        # reellement tronque a 1200 (defaut de chat_json) sur un document
+        # scientifique reel - 10-20 termes + concept + jetons de raisonnement
+        # Gemini 2.5 depassent largement 1200.
+        result = chat_json(excerpt, model=model, system=VOCABULARY_SYSTEM, timeout=90, max_tokens=3000)
     except Exception:
         return []
     vocabulary = []
@@ -165,7 +174,7 @@ def _find_best_class(
         "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
         "RETURN c.id AS id, c.name AS name, "
         "       collect(DISTINCT {section: d.profile_section, paragraph: d.profile_paragraph, "
-        "                         table: d.profile_table}) AS profiles, "
+        "                         table: d.profile_table, equation: d.profile_equation}) AS profiles, "
         "       collect(DISTINCT concept.label) AS concepts"
     ))
     best = (None, None, 0.0, 0.0, 0.0)
@@ -173,8 +182,11 @@ def _find_best_class(
     for row in rows:
         profiles = [p for p in row["profiles"] if p.get("section") is not None]
         if profiles:
+            # p[kind.lower()] peut etre None pour "equation" sur un document
+            # ingere avant son ajout (2026-09-28) au sein d'une classe qui a
+            # par ailleurs des documents plus recents - 0.0 par defaut.
             avg_profile = {
-                kind: sum(p[kind.lower()] for p in profiles) / len(profiles) for kind in STRUCT_KINDS
+                kind: sum(p[kind.lower()] or 0.0 for p in profiles) / len(profiles) for kind in STRUCT_KINDS
             }
             structural_score = _profile_similarity(struct_profile, avg_profile)
         else:
@@ -244,10 +256,12 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
             "MERGE (d:Document {sha256: $sha256}) "
             "SET d.title = $title, d.author = $author, d.subject = $subject, "
             "    d.filename = $filename, d.status = 'ingere', d.ingested_at = datetime(), "
-            "    d.profile_section = $section, d.profile_paragraph = $paragraph, d.profile_table = $table",
+            "    d.profile_section = $section, d.profile_paragraph = $paragraph, d.profile_table = $table, "
+            "    d.profile_equation = $equation",
             sha256=sha256, title=metadata.get("title"), author=metadata.get("author"),
             subject=metadata.get("subject"), filename=filename,
             section=struct_profile["Section"], paragraph=struct_profile["Paragraph"], table=struct_profile["Table"],
+            equation=struct_profile["Equation"],
         )
 
         def write_element(elem, parent_neo_id):
@@ -346,6 +360,8 @@ def ingest_document(sha256: str, filename: str, stored_path: Path) -> IngestResu
                     f"Extrait (section \"{section}\") :\n{text}",
                     model=settings.extraction_model,
                     system=EXTRACTION_SYSTEM,
+                    max_tokens=4000,  # meme raison que extract_vocabulary ci-dessus ; releve encore une fois (3000
+                    # encore insuffisant sur 2 chunks/8 mesures reellement le 2026-09-28)
                 )
             except Exception as exc:  # un chunk qui echoue n'invalide pas le document (US3.4)
                 warnings.append(f"extraction ratee pour un chunk ({section!r}) : {exc}")

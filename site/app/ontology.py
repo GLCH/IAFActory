@@ -169,25 +169,57 @@ def taxonomy_graph_uri(taxonomy_id: str) -> str:
     return f"http://iafactory.local/taxonomies/{taxonomy_id}"
 
 
-def taxonomy_concept_uri(taxonomy_id: str, pref_label: str) -> str:
-    return f"{taxonomy_graph_uri(taxonomy_id)}#{_slug(pref_label)}"
-
-
-def write_taxonomy(taxonomy_id: str, name: str, clusters: list[dict]) -> None:
-    """US3.18. `clusters` : liste de {"pref_label": str, "alt_labels": [str,...]}.
-    Le graphe nomme EST le `skos:ConceptScheme` (URI coherente et stable pour
-    le telechargement, US3.16/US3.18)."""
+def write_taxonomy(taxonomy_id: str, name: str, tree: list[dict]) -> None:
+    """US3.18, hierarchie ajoutee US3.19 (2026-09-28, revient sur la decision
+    "liste plate" prise le meme jour dans US3.18 - l'utilisateur a redemande
+    une vraie classification hierarchique). `tree` : liste de concepts de TETE,
+    chacun {"pref_label": str, "alt_labels": [str,...], "children": [meme
+    forme, "children" vide - 2 niveaux dans cette version]}. Un concept de
+    tete SANS enfant est un concept isole (aucun regroupement plus general
+    trouve pour lui) - meme resultat visuel qu'une liste plate (US3.18), pas
+    de niveau fictif invente pour un concept qui n'en a pas besoin. Le graphe
+    nomme EST le `skos:ConceptScheme` (URI coherente et stable pour le
+    telechargement, US3.16/US3.18)."""
     graph = taxonomy_graph_uri(taxonomy_id)
     triples = [f'<{graph}> a skos:ConceptScheme ; rdfs:label "{_escape_literal(name)}"@fr .']
-    for cluster in clusters:
-        uri = taxonomy_concept_uri(taxonomy_id, cluster["pref_label"])
+    used_slugs: set[str] = set()
+
+    def _unique_uri(label: str) -> str:
+        # Bug reel constate le 2026-09-28 : le LLM charge de nommer un groupe
+        # general (US3.19) peut choisir un libelle identique a celui d'un de
+        # ses membres (ex. groupe {"Fonction", "Fonction de perte"} nomme
+        # "Fonction") - sans ce garde-fou, le concept general et le concept
+        # fin partagent la MEME URI (meme slug), et se retrouvent chacun
+        # skos:broader/skos:narrower d'EUX-MEMES dans l'export SKOS.
+        slug = _slug(label)
+        candidate, n = slug, 2
+        while candidate in used_slugs:
+            candidate = f"{slug}-{n}"
+            n += 1
+        used_slugs.add(candidate)
+        return f"{graph}#{candidate}"
+
+    def _concept_triples(node: dict, parent_uri: str | None) -> None:
+        uri = _unique_uri(node["pref_label"])
         triples.append(
             f'<{uri}> a skos:Concept ; skos:inScheme <{graph}> ; '
-            f'skos:prefLabel "{_escape_literal(cluster["pref_label"])}"@fr .'
+            f'skos:prefLabel "{_escape_literal(node["pref_label"])}"@fr .'
         )
-        for alt in cluster["alt_labels"]:
-            if alt != cluster["pref_label"]:
+        for alt in node["alt_labels"]:
+            if alt != node["pref_label"]:
                 triples.append(f'<{uri}> skos:altLabel "{_escape_literal(alt)}"@fr .')
+        if parent_uri is None:
+            triples.append(f'<{graph}> skos:hasTopConcept <{uri}> .')
+            triples.append(f'<{uri}> skos:topConceptOf <{graph}> .')
+        else:
+            triples.append(f'<{uri}> skos:broader <{parent_uri}> .')
+            triples.append(f'<{parent_uri}> skos:narrower <{uri}> .')
+        for child in node.get("children", []):
+            _concept_triples(child, uri)
+
+    for top in tree:
+        _concept_triples(top, None)
+
     update = f"{_PREFIXES}INSERT DATA {{ GRAPH <{graph}> {{ {' '.join(triples)} }} }}"
     _run_update(update)
 

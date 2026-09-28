@@ -62,10 +62,17 @@ def chat(prompt: str, model: str, system: str | None = None, timeout: int = 90, 
     return content
 
 
-def chat_json(prompt: str, model: str, system: str | None = None, timeout: int = 90) -> dict:
+def chat_json(prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 1200) -> dict:
     """Demande une reponse JSON stricte ; les petits modeles locaux entourent
-    parfois le JSON de texte ou de ``` : on extrait le premier bloc {...}."""
-    raw = chat(prompt, model=model, system=system, timeout=timeout)
+    parfois le JSON de texte ou de ``` : on extrait le premier bloc {...}.
+    `max_tokens` par defaut = celui de `chat()` ; les appelants qui demandent
+    une liste plus longue (ex. 10-20 termes de vocabulaire, US7.1) doivent le
+    relever - constate reellement le 2026-09-28 (addendum US3.15) : avec le
+    defaut 1200, la reponse Gemini 2.5 est TRONQUEE en plein JSON (jetons de
+    "raisonnement" internes consommes avant le contenu, cf. chat() ci-dessus),
+    pas vide comme dans le cas deja documente - erreur de parsing JSON plutot
+    qu'une reponse vide, mais meme cause."""
+    raw = chat(prompt, model=model, system=system, timeout=timeout, max_tokens=max_tokens)
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     if not match:
         raise ValueError(f"pas de JSON dans la reponse du modele : {raw!r}")

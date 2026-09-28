@@ -325,15 +325,20 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
         profile_row = session.run(
             "MATCH (c:DocumentClass {id: $cid})<-[:IN_CLASS]-(d:Document) "
             "RETURN avg(d.profile_section) AS section, avg(d.profile_paragraph) AS paragraph, "
-            "       avg(d.profile_table) AS table",
+            "       avg(d.profile_table) AS table, avg(d.profile_equation) AS equation",
             cid=class_id,
         ).single()
         # avg() renvoie null si aucun document membre n'a de profil (documents
         # ingeres avant l'ajout du profil structurel au pipeline, 2026-09-28) -
         # verifier le champ lui-meme, pas seulement le nombre de documents.
+        # "equation" (ajoute le 2026-09-28, addendum US3.15) peut rester null
+        # si aucun document membre n'a ce champ (documents plus anciens).
         profile = None
         if profile_row and profile_row["section"] is not None:
-            profile = {"section": profile_row["section"], "paragraph": profile_row["paragraph"], "table": profile_row["table"]}
+            profile = {
+                "section": profile_row["section"], "paragraph": profile_row["paragraph"],
+                "table": profile_row["table"], "equation": profile_row["equation"] or 0.0,
+            }
         concepts = list(session.run(
             "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) "
             "OPTIONAL MATCH (:Document)-[m:MENTIONS_CONCEPT]->(concept) "
@@ -581,11 +586,23 @@ def taxonomy_detail(request: Request, taxonomy_id: str, user: User = Depends(req
                 {"taxonomy_id": taxonomy_id, "name": None, "concepts": [], "corpus_names": [], "user": user},
                 status_code=404,
             )
-        concepts = list(session.run(
-            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(tc:TaxonomyConcept) "
-            "RETURN tc.pref_label AS pref_label, tc.alt_labels AS alt_labels ORDER BY tc.pref_label",
+        # US3.19 : arbre a 2 niveaux (concepts de tete + leurs enfants
+        # NARROWER, vide pour un concept isole) - plus la liste plate
+        # HAS_TAXONOMY_CONCEPT seule (US3.18).
+        top_rows = list(session.run(
+            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(top:TaxonomyConcept) "
+            "OPTIONAL MATCH (top)-[:NARROWER]->(child:TaxonomyConcept) "
+            "RETURN top.pref_label AS pref_label, top.alt_labels AS alt_labels, "
+            "       collect(CASE WHEN child IS NULL THEN NULL ELSE "
+            "         {pref_label: child.pref_label, alt_labels: child.alt_labels} END) AS children "
+            "ORDER BY top.pref_label",
             id=taxonomy_id,
         ))
+        concepts = [
+            {"pref_label": r["pref_label"], "alt_labels": r["alt_labels"],
+             "children": sorted((c for c in r["children"] if c is not None), key=lambda c: c["pref_label"])}
+            for r in top_rows
+        ]
     return templates.TemplateResponse(
         request, "creator_taxonomy_detail.html",
         {

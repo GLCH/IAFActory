@@ -13,15 +13,23 @@
   </div>
   <p class="muted">Corpus sources : {{ corpus_names|reject("none")|join(", ") }}</p>
 
+  <p class="muted">Hierarchie a 2 niveaux (US3.19, classification ascendante hierarchique sur les embeddings des libelles).
+     Un concept sans enfant est isole : aucun regroupement plus general n'a ete trouve pour lui.</p>
   <div class="card" style="padding: 0;">
     <table class="table">
       <thead><tr><th>Concept (skos:prefLabel)</th><th>Variantes (skos:altLabel)</th></tr></thead>
       <tbody>
         {% for c in concepts %}
         <tr>
-          <td>{{ c.pref_label }}</td>
+          <td><strong>{{ c.pref_label }}</strong></td>
           <td class="muted">{{ (c.alt_labels|reject("equalto", c.pref_label)|list)|join(", ") }}</td>
         </tr>
+        {% for child in c.children %}
+        <tr>
+          <td style="padding-left: 2em;">&#8627; {{ child.pref_label }}</td>
+          <td class="muted">{{ (child.alt_labels|reject("equalto", child.pref_label)|list)|join(", ") }}</td>
+        </tr>
+        {% endfor %}
         {% else %}
         <tr><td colspan="2" class="table-empty">Aucun concept.</td></tr>
         {% endfor %}

@@ -33,12 +33,18 @@ def _class_profile_and_concepts(session, class_id: str) -> tuple[dict | None, se
     profile_row = session.run(
         "MATCH (c:DocumentClass {id: $cid})<-[:IN_CLASS]-(d:Document) "
         "RETURN avg(d.profile_section) AS section, avg(d.profile_paragraph) AS paragraph, "
-        "       avg(d.profile_table) AS table",
+        "       avg(d.profile_table) AS table, avg(d.profile_equation) AS equation",
         cid=class_id,
     ).single()
     profile = None
     if profile_row and profile_row["section"] is not None:
-        profile = {"Section": profile_row["section"], "Paragraph": profile_row["paragraph"], "Table": profile_row["table"]}
+        # avg(d.profile_equation) est null si aucun document membre n'a ce
+        # champ (documents ingeres avant son ajout, 2026-09-28) - 0.0 par
+        # defaut plutot qu'un None qui casserait _profile_similarity.
+        profile = {
+            "Section": profile_row["section"], "Paragraph": profile_row["paragraph"],
+            "Table": profile_row["table"], "Equation": profile_row["equation"] or 0.0,
+        }
     concept_row = session.run(
         "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) RETURN collect(concept.label) AS labels",
         cid=class_id,
