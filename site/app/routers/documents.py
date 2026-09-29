@@ -9,7 +9,6 @@ import hashlib
 import uuid
 from pathlib import Path
 
-import requests
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -23,10 +22,11 @@ from ..deps import require_role
 from ..graph import get_driver
 from ..models import Document, DocumentStatus, PipelineRun, PipelineStep, Role, User
 from ..ontology import (
-    class_graph_uri,
+    class_graph_has_content,
     delete_class_ontology,
     delete_concept as ontology_delete_concept,
     delete_taxonomy as ontology_delete_taxonomy,
+    export_class_owl,
     export_taxonomy_turtle,
     set_concept_metadata,
 )
@@ -471,19 +471,14 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
 def class_ontology_owl(class_id: str):
     """US3.16 : export RDF/XML de l'ontologie semantique de la classe,
     recupere directement depuis Fuseki (source de verite, ADR 0001) - pas
-    regenere depuis Neo4j."""
-    graph = class_graph_uri(class_id)
-    r = requests.get(
-        f"{settings.fuseki_url}/{settings.fuseki_dataset}/data",
-        params={"graph": graph},
-        headers={"Accept": "application/rdf+xml"},
-        timeout=15,
-    )
-    if r.status_code == 404:
+    regenere depuis Neo4j. Fusionne desormais le graphe de la classe
+    (concepts) et le graphe global des proprietes (relations/attributs,
+    US7.9) - bug reel corrige le 2026-09-29, voir ontology.export_class_owl."""
+    if not class_graph_has_content(class_id):
         return Response("aucune ontologie pour cette classe", status_code=404)
-    r.raise_for_status()
+    content = export_class_owl(class_id)
     return Response(
-        content=r.content, media_type="application/rdf+xml",
+        content=content, media_type="application/rdf+xml",
         headers={"Content-Disposition": f'attachment; filename="classe-{class_id}.owl"'},
     )
 

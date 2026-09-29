@@ -142,6 +142,49 @@ def list_concepts(class_id: str) -> list[dict]:
     return [{"uri": b["concept"]["value"], "label": b["label"]["value"]} for b in bindings]
 
 
+def class_graph_has_content(class_id: str) -> bool:
+    r = requests.get(
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/sparql",
+        params={"query": f"ASK {{ GRAPH <{class_graph_uri(class_id)}> {{ ?s ?p ?o }} }}"},
+        headers={"Accept": "application/sparql-results+json"},
+        timeout=15,
+    )
+    r.raise_for_status()
+    return bool(r.json().get("boolean", False))
+
+
+def export_class_owl(class_id: str) -> bytes:
+    """US3.16, bug reel corrige le 2026-09-29 (signale par l'utilisateur :
+    "dans l'ontologie, on n'a toujours pas d'object properties alors qu'il y
+    a des relations associees"). Les concepts (owl:Class, US7.5) et les
+    proprietes (owl:ObjectProperty/DatatypeProperty, US7.9) vivent dans deux
+    graphes nommes SEPARES depuis leur conception meme - decide le
+    2026-09-28, "proprietes partagees globalement, pas par classe". Mais
+    l'export ne recuperait QUE le graphe de la classe : les proprietes
+    existaient bien dans Fuseki (verifie directement le 2026-09-29 - 836
+    owl:ObjectProperty et 352 owl:DatatypeProperty presents) mais
+    n'apparaissaient jamais dans un export telecharge, malgre les relations
+    associees visibles dans le graphe de connaissance (Neo4j). Corrige par
+    une requete SPARQL CONSTRUCT fusionnant les deux graphes nommes - Fuseki
+    fait la fusion et la serialisation RDF/XML, pas de fusion manuelle cote
+    Python. Chaque classe voit donc le meme vocabulaire de proprietes
+    partage (coherent avec la decision "global", pas de domain/range par
+    classe dans cette version - question deja ouverte dans US7.9)."""
+    query = (
+        "CONSTRUCT { ?s ?p ?o } WHERE { "
+        f"{{ GRAPH <{class_graph_uri(class_id)}> {{ ?s ?p ?o }} }} UNION "
+        f"{{ GRAPH <{PROPERTIES_GRAPH}> {{ ?s ?p ?o }} }} }}"
+    )
+    r = requests.get(
+        f"{settings.fuseki_url}/{settings.fuseki_dataset}/sparql",
+        params={"query": query},
+        headers={"Accept": "application/rdf+xml"},
+        timeout=30,
+    )
+    r.raise_for_status()
+    return r.content
+
+
 def property_uri(label: str) -> str:
     return f"{PROPERTIES_GRAPH}#{_slug(label)}"
 
