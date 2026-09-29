@@ -71,6 +71,14 @@ Testé réellement via `/v1/chat/completions` (`curl` direct sur la passerelle) 
 
 **Décidé le 2026-09-28** : `gemini-vertex-flash` devient le modèle par défaut du site (`extraction_model`/`answer_model`, `site/app/config.py`) à la place d'`ollama-local`, qui causait la plupart des lenteurs et des échecs de délai constatés cette session (plusieurs minutes par document, parfois plus d'une heure sur un document de 91 chunks). Gain mesuré sur un document de test comparable : environ 37 secondes avec Gemini contre plusieurs minutes avec Ollama local. Coût réel mais faible (Flash) ; aucun budget par agent (US11.3) n'est encore appliqué par le site.
 
+## Cause racine trouvee et corrigee le 2026-09-29 (jetons de "raisonnement" Gemini)
+
+Signale par l'utilisateur sur des documents reels ("l'ingestion n'est pas encore fonctionnelle, la partie Ontologie semantique est vide"). Le point deja constate le 2026-09-28 ci-dessus (jetons de raisonnement consommant `max_tokens`) etait plus grave que sa premiere description ne le laissait penser : ce n'est pas seulement une reponse VIDE occasionnelle a corriger en relevant `max_tokens` - sur un contenu dense (LaTeX academique, notation mathematique), Gemini 2.5 Flash peut consommer **jusqu'a 87% du budget de completion en jetons de raisonnement invisibles avant tout texte utile**, mesure directement dans `usage.completion_tokens_details.reasoning_tokens` de la reponse (2913 jetons de raisonnement pour 412 de texte reel sur un prompt court). Sur 6 documents reels dedenses, ceci causait une TRONCATURE JSON sur la quasi-totalite des appels d'extraction (vocabulaire ET par chunk), meme apres plusieurs hausses de `max_tokens` (3000 -> 8000) faites le 2026-09-29 plus tot - ces hausses visaient le symptome, pas la cause.
+
+**Corrige** : `reasoning_effort: "disable"` (parametre LiteLLM, verifie via sa documentation officielle - [docs.litellm.ai/docs/providers/vertex](https://docs.litellm.ai/docs/providers/vertex), pas devine) ajoute par defaut a tous les appels `site/app/graph.py:chat()`/`chat_json()` - mappe sur `thinking.budget_tokens: 0` cote Vertex AI. Verifie reellement : le meme prompt qui tronquait avant est desormais complet, rapide, et `reasoning_tokens` disparait entierement du `usage` de la reponse.
+
+**Mesure reelle sur les 6 documents de l'utilisateur** (60 a 147 chunks chacun, papiers academiques denses en notation mathematique) : `entity_count` passe de quasi-zero/quelques dizaines a plusieurs centaines par document (310, 431, 444, 187, 513, 383) ; les 6 classes ont desormais une ontologie semantique non vide (25 a 38 concepts chacune). Echecs residuels isoles dus a des coupures reseau transitoires (DNS/500, deja documentees comme probleme d'environnement Windows/Docker de cette machine) - non lies a ce correctif.
+
 ## Questions ouvertes
 
 - Qui règle les alias d'usage système : admin seul (tranché en conception 9).
