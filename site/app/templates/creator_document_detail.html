@@ -11,7 +11,7 @@
     <h1>{{ document.filename }}</h1>
     <div class="actions">
       <a class="btn btn-primary" href="/creator/documents/{{ document.id }}/download">Telecharger</a>
-      <a class="btn" href="#graphe">Voir le graphe{% if not graph_svg %} (aucun){% endif %}</a>
+      <a class="btn" href="#graphe">Voir le graphe{% if not graph_nodes %} (aucun){% endif %}</a>
       {% if document.neo4j_class_id %}
       <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}">Voir la classe</a>
       <a class="btn" href="/creator/classes/{{ document.neo4j_class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>
@@ -34,9 +34,31 @@
 
   <div class="card" id="graphe">
     <h2>Graphe de connaissance</h2>
-    {% if graph_svg %}
-    <p class="muted">Entites et relations extraites de ce document (disposition en cercle, sans bibliotheque JS).</p>
-    <div style="max-width: 640px; margin: 0 auto;">{{ graph_svg | safe }}</div>
+    {% if graph_nodes %}
+    <p class="muted">
+      {{ graph_nodes|length }} entites{% if graph_total_entities and graph_total_entities > graph_nodes|length %}
+      sur {{ graph_total_entities }} au total (graphe limite aux plus connectees){% endif %} &middot;
+      molette pour zoomer, glisser le fond pour deplacer la vue, glisser un noeud pour le repositionner.
+    </p>
+    <div id="kg-network" style="height: 600px; border: 1px solid var(--color-border); border-radius: 8px;"></div>
+    <script src="{{ graph_js_cdn }}"></script>
+    <script>
+      (function () {
+        var nodes = new vis.DataSet({{ graph_nodes | tojson }});
+        var edges = new vis.DataSet({{ graph_edges | tojson }});
+        var container = document.getElementById("kg-network");
+        var network = new vis.Network(container, { nodes: nodes, edges: edges }, {
+          physics: { stabilization: { iterations: 150 } },
+          interaction: { hover: true, navigationButtons: true, keyboard: true },
+          nodes: { shape: "dot", size: 14, font: { size: 12 } },
+          edges: { font: { size: 10, align: "middle" }, color: { color: "#cbd0d8" }, arrows: { to: { enabled: true, scaleFactor: 0.5 } } },
+        });
+        // Sans ceci, la vue initiale reste au cadrage par defaut (zoom trop
+        // proche) plutot que d'englober tout le graphe une fois etale par la
+        // simulation physique - constate reellement au premier test.
+        network.once("stabilizationIterationsDone", function () { network.fit(); });
+      })();
+    </script>
     {% else %}
     <p class="muted">Aucune donnee de graphe pour ce document (aucune entite extraite pour l'instant - voir les
        chunks ci-dessous, ou l'onglet Processus si l'extraction a echoue).</p>

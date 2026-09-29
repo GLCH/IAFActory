@@ -6,10 +6,8 @@ et pipeline.py pour ce qui reste simplifie par rapport aux epics complets."""
 from __future__ import annotations
 
 import hashlib
-import math
 import uuid
 from pathlib import Path
-from xml.sax.saxutils import escape as xml_escape
 
 import requests
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status
@@ -195,7 +193,7 @@ def document_detail(
     if doc is None:
         return templates.TemplateResponse(
             request, "creator_document_detail.html",
-            {"document": None, "chunks": [], "graph_svg": None, "user": user},
+            {"document": None, "chunks": [], "graph_nodes": [], "graph_edges": [], "user": user},
             status_code=404,
         )
 
@@ -236,10 +234,14 @@ def document_detail(
             for row in rel_rows:
                 edges.append((row["source"], row["type"], row["target"]))
 
-    graph_svg = _render_graph_svg(nodes, edges) if nodes else None
+    graph_nodes, graph_edges, graph_total_entities = _build_graph_data(nodes, edges) if nodes else ([], [], 0)
     return templates.TemplateResponse(
         request, "creator_document_detail.html",
-        {"document": doc, "chunks": chunks, "graph_svg": graph_svg, "user": user},
+        {
+            "document": doc, "chunks": chunks, "user": user,
+            "graph_nodes": graph_nodes, "graph_edges": graph_edges,
+            "graph_total_entities": graph_total_entities, "graph_js_cdn": GRAPH_JS_CDN,
+        },
     )
 
 
@@ -319,37 +321,44 @@ def delete_document(
     return RedirectResponse("/creator/documents", status_code=status.HTTP_303_SEE_OTHER)
 
 
-def _render_graph_svg(nodes: dict[str, str], edges: list[tuple[str, str, str]], size: int = 640) -> str:
-    """US3.16 : graphe de connaissance sans bibliotheque JS externe (coherent
-    avec le reste du site, aucune etape de build). Disposition en cercle -
-    lisible jusqu'a une trentaine de noeuds, pas une mise en page a ressorts
-    (force-directed) : simplification assumee."""
-    center = size / 2
-    radius = size / 2 - 90
-    names = list(nodes.keys())
-    positions: dict[str, tuple[float, float]] = {}
-    for i, name in enumerate(names):
-        angle = 2 * math.pi * i / max(len(names), 1)
-        positions[name] = (center + radius * math.cos(angle), center + radius * math.sin(angle))
+# US3.16, revise le 2026-09-29 (demande explicite : "ajoute une bibliotheque
+# js pour pouvoir naviguer dans le graph") - remplace le rendu SVG statique
+# (disposition en cercle, ecrite a la main) par vis-network (CDN cdnjs,
+# version 10.1.2 verifiee via sa documentation, pas devinee), qui apporte
+# zoom/glisser/deplacement des noeuds sans etape de build (un seul <script>).
+# Plafond honnete a MAX_GRAPH_NODES : un document reel peut desormais avoir
+# plusieurs centaines d'entites (US7.1/EXTRACTION_SYSTEM revises le
+# 2026-09-29) - un graphe de 900+ noeuds resterait illisible et couteux a
+# stabiliser cote navigateur meme avec une bibliotheque interactive ; garde
+# les entites les plus connectees (degre), le reste visible via les chunks.
+GRAPH_JS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/vis-network/10.1.2/standalone/umd/vis-network.min.js"
+MAX_GRAPH_NODES = 150
 
-    parts = [f'<svg viewBox="0 0 {size} {size}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">']
-    for src, rel, tgt in edges:
-        if src not in positions or tgt not in positions:
-            continue
-        x1, y1 = positions[src]
-        x2, y2 = positions[tgt]
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-        parts.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#cbd0d8" stroke-width="1.5" />')
-        parts.append(f'<text x="{mx:.1f}" y="{my:.1f}" font-size="10" fill="#667085">{xml_escape(rel or "")}</text>')
-    for name, (x, y) in positions.items():
-        parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="26" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />')
-        label = name if len(name) <= 14 else name[:13] + "…"
-        parts.append(
-            f'<text x="{x:.1f}" y="{y:.1f}" font-size="10" text-anchor="middle" '
-            f'dominant-baseline="middle" fill="#1a1d23">{xml_escape(label)}</text>'
-        )
-    parts.append("</svg>")
-    return "".join(parts)
+
+def _build_graph_data(
+    nodes: dict[str, str], edges: list[tuple[str, str, str]],
+) -> tuple[list[dict], list[dict], int]:
+    """Renvoie (noeuds vis-network, arcs vis-network, nombre total d'entites
+    AVANT plafonnement) - le gabarit affiche ce dernier si le graphe a ete
+    reduit, pour ne jamais laisser croire que la vue est complete sans le dire."""
+    total = len(nodes)
+    if total > MAX_GRAPH_NODES:
+        degree: dict[str, int] = {name: 0 for name in nodes}
+        for src, _, tgt in edges:
+            if src in degree:
+                degree[src] += 1
+            if tgt in degree:
+                degree[tgt] += 1
+        kept = set(sorted(nodes, key=lambda n: degree.get(n, 0), reverse=True)[:MAX_GRAPH_NODES])
+        nodes = {n: t for n, t in nodes.items() if n in kept}
+        edges = [(s, r, t) for s, r, t in edges if s in kept and t in kept]
+
+    graph_nodes = [
+        {"id": name, "label": name if len(name) <= 30 else name[:29] + "…", "title": name, "group": etype or "Autre"}
+        for name, etype in nodes.items()
+    ]
+    graph_edges = [{"from": s, "to": t, "label": r or ""} for s, r, t in edges]
+    return graph_nodes, graph_edges, total
 
 
 @router.get("/classes")
