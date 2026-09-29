@@ -33,46 +33,67 @@ def embed(text: str) -> list[float]:
     return r.json()["data"][0]["embedding"]
 
 
-def chat(prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 1200) -> str:
+def chat(
+    prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 1200,
+    reasoning_effort: str | None = "disable",
+) -> str:
+    """`reasoning_effort="disable"` par defaut (ajoute le 2026-09-29) - CAUSE
+    RACINE trouvee et verifiee, pas juste une nouvelle hausse de max_tokens :
+    sur un document reel dense (LaTeX academique, jargon technique), Gemini
+    2.5 Flash consommait jusqu'a 87% du budget de completion en jetons de
+    "raisonnement" INVISIBLES avant tout texte utile (mesure directe du champ
+    `usage.completion_tokens_details.reasoning_tokens` de la reponse - ex.
+    2913 jetons de raisonnement pour 412 de texte reel sur un prompt court),
+    d'ou les troncatures JSON persistantes meme apres plusieurs hausses de
+    max_tokens (4000, 8000...) qui ne visaient QUE le symptome. `reasoning_effort:
+    "disable"` (parametre LiteLLM, verifie via sa documentation officielle -
+    mappe sur `thinking.budget_tokens: 0` cote Vertex AI, pas devine) supprime
+    entierement ces jetons de raisonnement : reponse complete et rapide sur le
+    meme prompt qui tronquait avant, verifie reellement (`reasoning_tokens`
+    absent du usage, JSON bien forme). Nos usages (extraction structuree,
+    reponse courte) n'ont jamais eu besoin d'un raisonnement etendu - laisse
+    overridable (None = comportement par defaut du modele) si un futur appel
+    en avait vraiment besoin."""
     messages = []
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
+    payload = {"model": model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
+    if reasoning_effort:
+        payload["reasoning_effort"] = reasoning_effort
     r = requests.post(
         f"{settings.llm_gateway_url}/v1/chat/completions",
         headers={"Authorization": f"Bearer {settings.litellm_master_key}"},
         # max_tokens borne la generation : un modele local peut partir en boucle
         # (repetitions) et faire tourner l'appel bien au-dela du raisonnable
-        # (mesure poc/RESULTATS.md). Releve a 1200 le 2026-09-28 (passage a
-        # gemini-vertex-flash) : les modeles Gemini 2.5 consomment des jetons
-        # de "raisonnement" internes qui comptent dans max_tokens - constate
-        # reellement (reponse vide, finish_reason "length", avec max_tokens=10
-        # entierement consomme par le raisonnement avant tout texte).
-        json={"model": model, "messages": messages, "temperature": 0, "max_tokens": max_tokens},
+        # (mesure poc/RESULTATS.md).
+        json=payload,
         timeout=timeout,
     )
     r.raise_for_status()
     content = r.json()["choices"][0]["message"]["content"]
     if content is None:
-        # Vu reellement avec gemini-vertex-flash : max_tokens trop bas pour
-        # depasser les jetons de raisonnement internes -> reponse vide plutot
-        # qu'une exception cote passerelle. Remonte comme une erreur normale
-        # (les appelants traitent deja un echec de chat() comme non bloquant).
+        # Vu reellement avec gemini-vertex-flash avant l'ajout de
+        # reasoning_effort="disable" ci-dessus : max_tokens trop bas face aux
+        # jetons de raisonnement internes -> reponse vide plutot qu'une
+        # exception cote passerelle. Devrait etre rare desormais ; remonte
+        # comme une erreur normale (les appelants traitent deja un echec de
+        # chat() comme non bloquant) au cas ou.
         raise ValueError("reponse vide du modele (max_tokens probablement insuffisant face au raisonnement interne)")
     return content
 
 
-def chat_json(prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 1200) -> dict:
+def chat_json(
+    prompt: str, model: str, system: str | None = None, timeout: int = 90, max_tokens: int = 1200,
+    reasoning_effort: str | None = "disable",
+) -> dict:
     """Demande une reponse JSON stricte ; les petits modeles locaux entourent
     parfois le JSON de texte ou de ``` : on extrait le premier bloc {...}.
-    `max_tokens` par defaut = celui de `chat()` ; les appelants qui demandent
-    une liste plus longue (ex. 10-20 termes de vocabulaire, US7.1) doivent le
-    relever - constate reellement le 2026-09-28 (addendum US3.15) : avec le
-    defaut 1200, la reponse Gemini 2.5 est TRONQUEE en plein JSON (jetons de
-    "raisonnement" internes consommes avant le contenu, cf. chat() ci-dessus),
-    pas vide comme dans le cas deja documente - erreur de parsing JSON plutot
-    qu'une reponse vide, mais meme cause."""
-    raw = chat(prompt, model=model, system=system, timeout=timeout, max_tokens=max_tokens)
+    `max_tokens` par defaut = celui de `chat()`. `reasoning_effort="disable"`
+    par defaut (voir chat() ci-dessus pour la mesure reelle qui l'a motive) -
+    la cause principale des troncatures JSON persistantes malgre plusieurs
+    hausses de max_tokens (4000, 8000...) sur des documents reels denses."""
+    raw = chat(prompt, model=model, system=system, timeout=timeout, max_tokens=max_tokens, reasoning_effort=reasoning_effort)
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     if not match:
         raise ValueError(f"pas de JSON dans la reponse du modele : {raw!r}")
