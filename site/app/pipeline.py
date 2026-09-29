@@ -209,14 +209,21 @@ class _TypeNormalizer:
         self._labels.append(label)
         self._vectors.append(embed(label))
 
-    def normalize(self, raw: str) -> str:
+    def normalize(self, raw: str, precomputed_vector: list[float] | None = None) -> str:
+        """`precomputed_vector` (ajoute le 2026-09-29 suite a une question de
+        l'utilisateur qui a mis le doigt dessus) : evite de reembedder `raw`
+        s'il a deja ete embedde ailleurs dans le pipeline pour un autre usage
+        (ex. les concepts, deja embeddes une fois pour le score semantique de
+        reconnaissance avant meme de savoir dans quelle classe ils finiront -
+        _find_best_class ci-dessous - puis reembeddes ICI en double sans ce
+        parametre, un gaspillage reel corrige)."""
         if not raw:
             return raw
         raw_normalized = _normalize_label(raw)
         for label in self._labels:
             if _normalize_label(label) == raw_normalized:
                 return label
-        vector = embed(raw)
+        vector = precomputed_vector if precomputed_vector is not None else embed(raw)
         best_label, best_score = None, 0.0
         for label, known_vector in zip(self._labels, self._vectors):
             score = cosine_similarity(vector, known_vector)
@@ -343,6 +350,7 @@ def _find_best_class(
 def _write_concepts(
     session, class_id: str, document_sha256: str, vocabulary: list[dict],
     language: str | None, concept_normalizer: "_TypeNormalizer",
+    precomputed_vectors: dict[str, list[float]] | None = None,
 ) -> int:
     """Ecrit chaque concept induit comme classe OWL dans Fuseki (US7.5) et
     son rattachement dans Neo4j (lecture rapide pour les ecrans du site,
@@ -355,11 +363,18 @@ def _write_concepts(
     `known_concepts` passe a extract_vocabulary qui vise plutot a reduire les
     doublons ENTRE classes) ; l'embedding de chaque libelle final est stocke
     sur le noeud Concept pour que _find_best_class (US7.4) et
-    class_merge.class_similarity (US7.6) le comparent sans le recalculer."""
+    class_merge.class_similarity (US7.6) le comparent sans le recalculer.
+
+    `precomputed_vectors` (ajoute suite a une question de l'utilisateur qui a
+    releve le doublon) : les concepts ont deja ete embeddes une fois dans
+    ingest_document() pour construire `concept_vectors` (score semantique de
+    reconnaissance, AVANT de savoir dans quelle classe ils finiraient) -
+    reutilise ces vecteurs ici au lieu de les recalculer pour chaque concept."""
     written = 0
     seen_labels: set[str] = set()
     for item in vocabulary:
-        label = concept_normalizer.normalize(item["concept"])
+        raw_concept = item["concept"]
+        label = concept_normalizer.normalize(raw_concept, (precomputed_vectors or {}).get(raw_concept))
         normalized = _normalize_label(label)
         if normalized in seen_labels:
             continue
@@ -585,7 +600,13 @@ def ingest_document(
             relation_normalizer = _TypeNormalizer([])
             attribute_normalizer = _TypeNormalizer([])
 
-        n_concepts = _write_concepts(session, class_id, sha256, vocabulary, language, concept_normalizer)
+        # dict(concept_vectors) : un seul vecteur par libelle unique (deja
+        # deduplique en amont) - reutilise pour eviter de reembedder deux fois
+        # le meme concept brut (voir _write_concepts ci-dessus).
+        n_concepts = _write_concepts(
+            session, class_id, sha256, vocabulary, language, concept_normalizer,
+            precomputed_vectors=dict(concept_vectors),
+        )
         step("Structuration", "Ecriture ontologie OWL (concepts, US7.5)", f"{n_concepts} concepts")
 
         n_entities = 0
