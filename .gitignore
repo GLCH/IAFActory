@@ -11,6 +11,7 @@ site/.env
 site/__pycache__/
 site/**/__pycache__/
 site/.pytest_cache/
+site/data/
 site/*.egg-info/
 *.egg-info/
 dist/

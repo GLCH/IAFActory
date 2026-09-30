@@ -1,0 +1,27 @@
+# Exemple de configuration pour generate_documents.py (IAF-E16 US16.4).
+#
+# class_id = id Neo4j d'une classe DocumentClass DEJA EXISTANTE (visible sur
+# /creator/classes/{id}) - c'est le "lien vers les ontologies a utiliser" :
+# l'ontologie semantique de cette classe (concepts, entites, relations,
+# attributs) est lue directement dans Neo4j ; l'ontologie structurelle
+# utilisee est fixe pour toutes les classes (ontologies/structure/
+# iaf-structure-base.ttl), voir l'epic pour le detail.
+#
+# vocabulary_size doit etre l'une de ces 4 valeurs : 50, 100, 200, 500.
+# formats disponibles dans cette version : md, docx (voir US16.5 pour pptx/tex).
+
+output_dir: ./data/generated
+seed: 42
+
+classes:
+  - class_id: "3d184007-17c8-47dd-8edf-b581630de1b2"
+    count: 5
+    words: 800
+    vocabulary_size: 100
+    formats: [md, docx]
+
+  - class_id: "<remplacer-par-un-autre-id-de-classe>"
+    count: 3
+    words: 300
+    vocabulary_size: 50
+    formats: [md]
