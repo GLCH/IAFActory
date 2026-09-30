@@ -590,9 +590,10 @@ def class_ontology_graph(request: Request, class_id: str, user: User = Depends(r
 def reduce_types(request: Request, class_id: str, user: User = Depends(require_role(Role.creator))):
     """Ajoute le 2026-09-30, demande explicite : "trop de terme pour definir
     les classes, relations et attributs des ontologies [...] on doit bien
-    distinguer les entites possibles des entites types". Analyse seulement
-    (liste + suggestions) - voir type_reduction.py pour pourquoi
-    l'application automatique reste volontairement hors de cette version."""
+    distinguer les entites possibles des entites types". Analyse (liste +
+    suggestions) ; l'application se fait via /reduce-types/preview puis
+    /apply (decide avec l'utilisateur le 2026-09-30 : lot hierarchique avec
+    apercu, pas de fusion paire par paire ni d'automatique silencieux)."""
     driver = get_driver()
     with driver.session() as session:
         head = session.run("MATCH (c:DocumentClass {id: $cid}) RETURN c.name AS name", cid=class_id).single()
@@ -609,7 +610,51 @@ def reduce_types(request: Request, class_id: str, user: User = Depends(require_r
         {
             "class_id": class_id, "name": head["name"], "entity_types": entity_types,
             "suggestions": suggestions, "user": user,
+            "applied": request.query_params.get("applied"), "n_entities": request.query_params.get("n_entities"),
         },
+    )
+
+
+@router.get("/classes/{class_id}/reduce-types/preview")
+def reduce_types_preview(request: Request, class_id: str, user: User = Depends(require_role(Role.creator))):
+    """Apercu du lot AVANT ecriture (demande explicite, "on en discute") :
+    classification ascendante hierarchique complete (type_reduction.py),
+    aucune ecriture tant que le creator n'a pas clique "Appliquer" ci-dessous."""
+    driver = get_driver()
+    with driver.session() as session:
+        head = session.run("MATCH (c:DocumentClass {id: $cid}) RETURN c.name AS name", cid=class_id).single()
+        if head is None:
+            return RedirectResponse("/creator/classes", status_code=status.HTTP_303_SEE_OTHER)
+        entity_types = type_reduction.list_entity_types(session, class_id)
+    plan = type_reduction.build_reduction_plan(entity_types)
+    changed_groups = [g for g in plan if len(g["members"]) > 1]
+    unchanged_count = len(plan) - len(changed_groups)
+    return templates.TemplateResponse(
+        request, "creator_reduce_types_preview.html",
+        {
+            "class_id": class_id, "name": head["name"], "changed_groups": changed_groups,
+            "unchanged_count": unchanged_count, "user": user,
+        },
+    )
+
+
+@router.post("/classes/{class_id}/reduce-types/apply")
+def reduce_types_apply(class_id: str, user: User = Depends(require_role(Role.creator))):
+    """Applique le plan (decide avec l'utilisateur le 2026-09-30). Recalcule
+    le plan cote serveur (pas de mapping transmis par le formulaire - un plan
+    de 185 types serait volumineux a serialiser, et recalculer evite toute
+    manipulation du plan entre l'apercu et l'application)."""
+    driver = get_driver()
+    with driver.session() as session:
+        head = session.run("MATCH (c:DocumentClass {id: $cid}) RETURN c.name AS name", cid=class_id).single()
+        if head is None:
+            return RedirectResponse("/creator/classes", status_code=status.HTTP_303_SEE_OTHER)
+        entity_types = type_reduction.list_entity_types(session, class_id)
+        plan = type_reduction.build_reduction_plan(entity_types)
+        n_types, n_entities = type_reduction.apply_reduction_plan(session, class_id, plan)
+    return RedirectResponse(
+        f"/creator/classes/{class_id}/reduce-types?applied={n_types}&n_entities={n_entities}",
+        status_code=status.HTTP_303_SEE_OTHER,
     )
 
 

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Apercu de la reduction - {{ name or "Classe" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb">
+    <a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> /
+    <a href="/creator/classes/{{ class_id }}">{{ name or "introuvable" }}</a> /
+    <a href="/creator/classes/{{ class_id }}/reduce-types">Reduire les types</a> / Apercu
+  </div>
+  {% if not name %}
+  <p class="alert">Classe introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>Apercu de la reduction - {{ name }}</h1>
+    <div class="actions"><a class="btn" href="/creator/classes/{{ class_id }}/reduce-types">Retour a l'analyse</a></div>
+  </div>
+
+  <div class="card">
+    <p class="muted">
+      Classification ascendante hierarchique (meme methode que la taxonomie, US3.19) appliquee aux types d'entites
+      de cette classe. <strong>Rien n'est encore ecrit.</strong> {{ changed_groups|length }} groupe(s) seraient
+      fusionnes ; {{ unchanged_count }} type(s) resteraient isoles (aucun voisin assez proche). Chaque libelle
+      canonique (le membre le plus frequent du groupe) sera ecrit comme un concept - <code>owl:Class</code> dans
+      Fuseki, fusionne avec le vocabulaire existant (US7.1) si le meme libelle y est deja.
+    </p>
+    {% if changed_groups %}
+    <form method="post" action="/creator/classes/{{ class_id }}/reduce-types/apply"
+          onsubmit="return confirm('Appliquer la reduction : {{ changed_groups|length }} groupe(s), renommage de Entity.type sur potentiellement de nombreuses entites. Continuer ?');">
+      <button type="submit" class="btn btn-primary">Appliquer ce lot</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Type canonique (le plus frequent)</th><th>Membres fusionnes</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for g in changed_groups %}
+        <tr>
+          <td><strong>{{ g.canonical }}</strong></td>
+          <td class="muted">{{ g.members|map(attribute="type")|join(", ") }}</td>
+          <td>{{ g.total_count }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="table-empty">Aucun regroupement trouve - tous les types sont deja distincts.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

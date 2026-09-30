@@ -15,16 +15,23 @@
     <div class="actions">
       <a class="btn" href="/creator/classes/{{ class_id }}">Retour a la classe</a>
       <a class="btn" href="/creator/classes/{{ class_id }}/ontology-graph">Voir le schema</a>
+      <a class="btn btn-primary" href="/creator/classes/{{ class_id }}/reduce-types/preview">Apercu de la reduction</a>
     </div>
   </div>
+
+  {% if applied %}
+  <p class="alert" style="color: var(--color-primary);">
+    Reduction appliquee : {{ applied }} type(s) renomme(s) ({{ n_entities }} entite(s) affectee(s)), chaque type
+    canonique ecrit comme concept (owl:Class).
+  </p>
+  {% endif %}
 
   <div class="card">
     <p class="muted">
       Ceci concerne les <strong>types d'entites</strong> (la categorie de chaque entite, ex. "Theory", "Process") -
       PAS les entites elles-memes (les instances nommees, ex. "Sensorimotor Contingency Theory"). Un type d'entite
-      est invente librement par le LLM a chaque extraction (US3.4) et n'est pas encore une classe OWL formelle
-      (voir le schema). Cette page ANALYSE seulement pour l'instant - aucune fusion n'est appliquee
-      automatiquement, a discuter avant d'ecrire une action sur potentiellement de nombreux noeuds.
+      est invente librement par le LLM a chaque extraction (US3.4). "Apercu de la reduction" regroupe les types
+      proches en un lot (classification ascendante hierarchique) et montre le resultat AVANT toute ecriture.
     </p>
   </div>
 
