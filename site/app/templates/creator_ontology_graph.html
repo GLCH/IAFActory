@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Schema d'ontologie - {{ name or "Classe" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb">
+    <a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> /
+    <a href="/creator/classes/{{ class_id }}">{{ name or "introuvable" }}</a> / Schema
+  </div>
+  {% if not name %}
+  <p class="alert">Classe introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>Schema de l'ontologie - {{ name }}</h1>
+    <div class="actions"><a class="btn" href="/creator/classes/{{ class_id }}">Retour a la classe</a></div>
+  </div>
+
+  <div class="card">
+    <p class="muted">
+      Graphe de SCHEMA (les types d'objets de l'ontologie), pas les instances (voir le graphe de connaissance
+      sur chaque document). Deux vocabulaires distincts aujourd'hui, affiches differemment expres :
+      <strong>Class</strong> (rond) = concepts du vocabulaire deja ecrits comme <code>owl:Class</code> (US7.1/US7.5) ;
+      <strong>Type d'entite</strong> (losange) = types observes lors de l'extraction par chunk (US3.4), <em>pas encore</em>
+      dans l'ontologie formelle - c'est le vocabulaire a reduire (page "Reduire les types").
+      <strong>ObjectProperty</strong> (hexagone) et <strong>DatatypeProperty</strong> (carre) sont les proprietes
+      globales (US7.9), reliees aux types d'entites qui les utilisent reellement (pas de domain/range declare,
+      juste l'usage observe).
+    </p>
+  </div>
+
+  {% if graph_nodes %}
+  <div class="card">
+    {% if entity_types_total and entity_types_total > entity_types_shown %}
+    <p class="muted">{{ entity_types_shown }} types d'entites affiches sur {{ entity_types_total }} au total (les
+       plus frequents) - voir "Reduire les types" pour la longue traine non affichee ici.</p>
+    {% endif %}
+    <div id="schema-network" style="height: 650px; border: 1px solid var(--color-border); border-radius: 8px;"></div>
+    <script src="{{ graph_js_cdn }}"></script>
+    <script>
+      (function () {
+        var nodes = new vis.DataSet({{ graph_nodes | tojson }});
+        var edges = new vis.DataSet({{ graph_edges | tojson }});
+        var container = document.getElementById("schema-network");
+        var network = new vis.Network(container, { nodes: nodes, edges: edges }, {
+          physics: { stabilization: { iterations: 150 } },
+          interaction: { hover: true, navigationButtons: true, keyboard: true },
+          nodes: { size: 14, font: { size: 12 } },
+          edges: { font: { size: 9, align: "middle" }, color: { color: "#cbd0d8" }, arrows: { to: { enabled: true, scaleFactor: 0.5 } } },
+          groups: {
+            "Class (vocabulaire, owl:Class)": { shape: "dot", color: "#4f46e5" },
+            "Type d'entite (pas encore owl:Class)": { shape: "diamond", color: "#f59e0b" },
+            "owl:ObjectProperty": { shape: "hexagon", color: "#059669" },
+            "owl:DatatypeProperty": { shape: "square", color: "#dc2626" }
+          }
+        });
+        network.once("stabilizationIterationsDone", function () { network.fit(); });
+      })();
+    </script>
+  </div>
+  {% else %}
+  <p class="muted">Aucune donnee d'ontologie pour cette classe pour l'instant.</p>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

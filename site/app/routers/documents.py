@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import class_merge, taxonomy_builder, worker
+from .. import class_merge, taxonomy_builder, type_reduction, worker
 from ..config import settings
 from ..db import get_db
 from ..deps import require_role
@@ -480,6 +480,136 @@ def class_ontology_owl(class_id: str):
     return Response(
         content=content, media_type="application/rdf+xml",
         headers={"Content-Disposition": f'attachment; filename="classe-{class_id}.owl"'},
+    )
+
+
+@router.get("/classes/{class_id}/ontology-graph")
+def class_ontology_graph(request: Request, class_id: str, user: User = Depends(require_role(Role.creator))):
+    """Ajoute le 2026-09-30, demande explicite : "on doit voir les types
+    d'objets (class, object property, datatype property)". Graphe de SCHEMA
+    (TBox) - distinct du graphe de connaissance par document (US3.16, qui
+    montre des INSTANCES). Montre honnêtement une incoherence de l'ontologie
+    actuelle plutot que de la masquer : les concepts du vocabulaire (US7.1,
+    deja ecrits comme owl:Class) et les types d'entites observes par
+    extraction (US3.4, Entity.type - jamais encore ecrits comme owl:Class,
+    c'est justement ce que la page de reduction ci-apres doit corriger) sont
+    DEUX vocabulaires distincts aujourd'hui - affiches avec des styles
+    differents (pas fondus en un seul groupe) pour ne pas laisser croire
+    qu'ils sont deja unifies."""
+    driver = get_driver()
+    with driver.session() as session:
+        head = session.run("MATCH (c:DocumentClass {id: $cid}) RETURN c.name AS name", cid=class_id).single()
+        if head is None:
+            return templates.TemplateResponse(
+                request, "creator_ontology_graph.html",
+                {"class_id": class_id, "name": None, "graph_nodes": [], "graph_edges": [], "user": user},
+                status_code=404,
+            )
+        concept_labels = [
+            r["label"] for r in session.run(
+                "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept) RETURN DISTINCT concept.label AS label",
+                cid=class_id,
+            ) if r["label"]
+        ]
+        entity_types_all = [
+            (r["type"], r["n"]) for r in session.run(
+                "MATCH (e:Entity {class_id: $cid}) RETURN DISTINCT e.type AS type, count(e) AS n", cid=class_id,
+            ) if r["type"]
+        ]
+        rel_usage = list(session.run(
+            "MATCH (s:Entity {class_id: $cid})-[r:REL]->(t:Entity {class_id: $cid}) "
+            "RETURN DISTINCT s.type AS source_type, r.type AS rel_type, t.type AS target_type",
+            cid=class_id,
+        ))
+        attr_usage = list(session.run(
+            "MATCH (e:Entity {class_id: $cid}) "
+            "UNWIND [k IN keys(e) WHERE NOT k IN ['name', 'type', 'class_id']] AS key "
+            "RETURN DISTINCT e.type AS entity_type, key",
+            cid=class_id,
+        ))
+
+    # Plafond honnete (meme principe que _build_graph_data, US3.16) : ce
+    # graphe a revele reellement 89 types d'entites et 184 relations pour une
+    # seule classe (Part I, test du 2026-09-30) - illisible sans limite.
+    # Garde les types les plus FREQUENTS (les plus etablis), pas les plus
+    # rares (la longue traine, justement ce qui doit etre reduit en priorite -
+    # voir /reduce-types plutot que ce graphe pour ceux-la).
+    entity_types_total = len(entity_types_all)
+    entity_types = sorted(entity_types_all, key=lambda t: t[1], reverse=True)[:MAX_GRAPH_NODES]
+    kept_type_names = {t for t, _ in entity_types}
+    rel_usage = [
+        r for r in rel_usage if r["source_type"] in kept_type_names and r["target_type"] in kept_type_names
+    ]
+    attr_usage = [r for r in attr_usage if r["entity_type"] in kept_type_names]
+
+    graph_nodes = []
+    graph_edges = []
+    seen_ids: set[str] = set()
+
+    def add_node(node_id: str, label: str, group: str, shape: str | None = None) -> None:
+        if node_id in seen_ids:
+            return
+        seen_ids.add(node_id)
+        node = {"id": node_id, "label": label, "title": label, "group": group}
+        if shape:
+            node["shape"] = shape
+        graph_nodes.append(node)
+
+    for label in concept_labels:
+        add_node(f"class:{label}", label, "Class (vocabulaire, owl:Class)")
+    for etype, n in entity_types:
+        add_node(f"type:{etype}", f"{etype} ({n})", "Type d'entite (pas encore owl:Class)", shape="diamond")
+    for row in rel_usage:
+        src, rel, tgt = row["source_type"], row["rel_type"], row["target_type"]
+        if not (src and rel and tgt):
+            continue
+        add_node(f"type:{src}", src, "Type d'entite (pas encore owl:Class)", shape="diamond")
+        add_node(f"type:{tgt}", tgt, "Type d'entite (pas encore owl:Class)", shape="diamond")
+        add_node(f"objprop:{rel}", rel, "owl:ObjectProperty", shape="hexagon")
+        graph_edges.append({"from": f"type:{src}", "to": f"objprop:{rel}", "label": "domaine"})
+        graph_edges.append({"from": f"objprop:{rel}", "to": f"type:{tgt}", "label": "portee"})
+    for row in attr_usage:
+        etype, key = row["entity_type"], row["key"]
+        if not (etype and key):
+            continue
+        add_node(f"type:{etype}", etype, "Type d'entite (pas encore owl:Class)", shape="diamond")
+        add_node(f"dataprop:{key}", key, "owl:DatatypeProperty", shape="square")
+        graph_edges.append({"from": f"type:{etype}", "to": f"dataprop:{key}", "label": ""})
+
+    return templates.TemplateResponse(
+        request, "creator_ontology_graph.html",
+        {
+            "class_id": class_id, "name": head["name"], "graph_nodes": graph_nodes, "graph_edges": graph_edges,
+            "graph_js_cdn": GRAPH_JS_CDN, "user": user,
+            "entity_types_shown": len(entity_types), "entity_types_total": entity_types_total,
+        },
+    )
+
+
+@router.get("/classes/{class_id}/reduce-types")
+def reduce_types(request: Request, class_id: str, user: User = Depends(require_role(Role.creator))):
+    """Ajoute le 2026-09-30, demande explicite : "trop de terme pour definir
+    les classes, relations et attributs des ontologies [...] on doit bien
+    distinguer les entites possibles des entites types". Analyse seulement
+    (liste + suggestions) - voir type_reduction.py pour pourquoi
+    l'application automatique reste volontairement hors de cette version."""
+    driver = get_driver()
+    with driver.session() as session:
+        head = session.run("MATCH (c:DocumentClass {id: $cid}) RETURN c.name AS name", cid=class_id).single()
+        if head is None:
+            return templates.TemplateResponse(
+                request, "creator_reduce_types.html",
+                {"class_id": class_id, "name": None, "entity_types": [], "suggestions": [], "user": user},
+                status_code=404,
+            )
+        entity_types = type_reduction.list_entity_types(session, class_id)
+    suggestions = type_reduction.suggest_type_merges(entity_types)
+    return templates.TemplateResponse(
+        request, "creator_reduce_types.html",
+        {
+            "class_id": class_id, "name": head["name"], "entity_types": entity_types,
+            "suggestions": suggestions, "user": user,
+        },
     )
 
 

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Reduire les types - {{ name or "Classe" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb">
+    <a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> /
+    <a href="/creator/classes/{{ class_id }}">{{ name or "introuvable" }}</a> / Reduire les types
+  </div>
+  {% if not name %}
+  <p class="alert">Classe introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>Reduire les types d'entites - {{ name }}</h1>
+    <div class="actions">
+      <a class="btn" href="/creator/classes/{{ class_id }}">Retour a la classe</a>
+      <a class="btn" href="/creator/classes/{{ class_id }}/ontology-graph">Voir le schema</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="muted">
+      Ceci concerne les <strong>types d'entites</strong> (la categorie de chaque entite, ex. "Theory", "Process") -
+      PAS les entites elles-memes (les instances nommees, ex. "Sensorimotor Contingency Theory"). Un type d'entite
+      est invente librement par le LLM a chaque extraction (US3.4) et n'est pas encore une classe OWL formelle
+      (voir le schema). Cette page ANALYSE seulement pour l'instant - aucune fusion n'est appliquee
+      automatiquement, a discuter avant d'ecrire une action sur potentiellement de nombreux noeuds.
+    </p>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Type d'entite</th><th>Occurrences</th></tr></thead>
+      <tbody>
+        {% for t in entity_types %}
+        <tr>
+          <td>{{ t.type }}</td>
+          <td class="{{ 'muted' if t.count == 1 else '' }}">{{ t.count }}{% if t.count == 1 %} (longue traine){% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="2" class="table-empty">Aucun type d'entite pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Suggestions de regroupement</h2>
+    <p class="muted">Paires assez proches par similarite d'embedding (seuil {{ "%.0f"|format(0.75 * 100) }}%,
+       non calibre) pour etre discutees - a valider ou non, aucune fusion n'est encore appliquee.</p>
+    <table class="table">
+      <thead><tr><th>Type A</th><th>Type B</th><th>Similarite</th></tr></thead>
+      <tbody>
+        {% for s in suggestions %}
+        <tr>
+          <td>{{ s.a }}</td>
+          <td>{{ s.b }}</td>
+          <td>{{ "%.0f"|format(s.score * 100) }}%</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="table-empty">Aucune suggestion pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

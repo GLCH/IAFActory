@@ -10,6 +10,8 @@
       <a class="btn" href="/creator/documents">Mes documents</a>
       {% if name %}
       <a class="btn" href="/creator/classes/{{ class_id }}/ontology.owl">Exporter l'ontologie (OWL/XML)</a>
+      <a class="btn" href="/creator/classes/{{ class_id }}/ontology-graph">Voir le schema</a>
+      <a class="btn" href="/creator/classes/{{ class_id }}/reduce-types">Reduire les types</a>
       <form class="inline" method="post" action="/creator/classes/{{ class_id }}/delete"
             onsubmit="return confirm('Supprimer la classe {{ name }} et tous ses documents ?');">
         <button type="submit" class="btn btn-danger">Effacer la classe</button>
