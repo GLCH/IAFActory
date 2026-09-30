@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import yaml  # noqa: E402
 
 from app.doc_generator import (  # noqa: E402
-    ALLOWED_VOCABULARY_SIZES, DEFAULT_VOCABULARY_SIZE, DEFAULT_WORDS,
+    ALLOWED_VOCABULARY_SIZES, DEFAULT_VOCABULARY_SIZE, DEFAULT_WORDS, STRUCTURE_STYLES,
     generate_document, load_class_material, write_docx, write_markdown,
 )
 from app.graph import get_driver  # noqa: E402
@@ -51,12 +51,15 @@ def main() -> None:
             words = int(entry.get("words", DEFAULT_WORDS))
             vocabulary_size = int(entry.get("vocabulary_size", DEFAULT_VOCABULARY_SIZE))
             formats = entry.get("formats", ["md"])
+            structure = entry.get("structure", "flat")
 
             if vocabulary_size not in ALLOWED_VOCABULARY_SIZES:
                 raise SystemExit(
                     f"classe {class_id} : vocabulary_size doit etre l'un de {ALLOWED_VOCABULARY_SIZES}, "
                     f"recu {vocabulary_size}"
                 )
+            if structure not in STRUCTURE_STYLES:
+                raise SystemExit(f"classe {class_id} : structure doit etre l'un de {STRUCTURE_STYLES}, recu {structure!r}")
             unknown_formats = set(formats) - set(WRITERS)
             if unknown_formats:
                 raise SystemExit(
@@ -78,7 +81,9 @@ def main() -> None:
                 # meme lot soit different mais que le lot entier reste
                 # reproductible a graine globale egale.
                 doc_seed = None if seed is None else hash((seed, class_id, i)) & 0xFFFFFFFF
-                doc = generate_document(material, words=words, vocabulary_size=vocabulary_size, seed=doc_seed)
+                doc = generate_document(
+                    material, words=words, vocabulary_size=vocabulary_size, seed=doc_seed, structure=structure,
+                )
 
                 written_files = []
                 for fmt in formats:

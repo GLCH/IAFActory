@@ -102,6 +102,109 @@ def test_write_markdown_roundtrips_through_the_real_parser(tmp_path):
     assert any(e.kind == "Paragraph" for e in all_elems)
 
 
+def _material_with_biblio(**overrides) -> ClassOntologyMaterial:
+    # US16.6 : materiau avec une entite "journal" (attributs volume/pages) -
+    # doit atterrir dans la section References, pas dans le corps des
+    # chapitres.
+    return _material(
+        entities=[
+            {"name": "Alpha", "type": "Theorie", "attrs": {"portee": "large"}},
+            {"name": "Beta", "type": "Algorithme", "attrs": {"complexite": "O(n)"}},
+            {"name": "Gamma", "type": "Variable", "attrs": {}},
+            {"name": "Revue X", "type": "journal", "attrs": {"volume": "12", "pages": "1-10"}},
+        ],
+        **overrides,
+    )
+
+
+def test_book_structure_has_introduction_chapters_and_references(tmp_path):
+    material = _material_with_biblio()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=5, structure="book")
+
+    assert doc.sections[0].title == "Introduction"
+    assert doc.sections[-1].title == "References"
+    # Au moins un chapitre entre l'introduction et les references, avec des
+    # sous-chapitres (imbrication reelle, pas une structure plate).
+    chapters = doc.sections[1:-1]
+    assert chapters
+    assert all(c.subsections for c in chapters)
+
+
+def test_book_structure_rejects_unknown_structure_name():
+    material = _material()
+    with pytest.raises(ValueError):
+        generate_document(material, words=100, vocabulary_size=50, seed=1, structure="wat")
+
+
+def test_book_references_use_real_bibliographic_entity_not_invented():
+    material = _material_with_biblio()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=5, structure="book")
+    references = doc.sections[-1]
+    assert references.title == "References"
+    assert any("Revue X" in line for line in references.paragraphs)
+    assert any("volume" in line and "12" in line for line in references.paragraphs)
+
+
+def test_book_references_fall_back_to_concept_glossary_without_biblio_entities():
+    # Aucune entite bibliographique reelle : repli honnete sur un glossaire
+    # des concepts reels, jamais une fausse citation inventee.
+    material = _material()  # pas d'entite de type journal/publication/...
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=5, structure="book")
+    references = doc.sections[-1]
+    assert references.title == "References"
+    assert references.paragraphs  # au moins la ligne de glossaire
+
+
+def _flatten(elem):
+    out = [elem]
+    for c in elem.children:
+        out.extend(_flatten(c))
+    return out
+
+
+def test_write_markdown_book_structure_roundtrips_with_nested_headings(tmp_path):
+    # Note : le titre du document lui-meme (`# ...`) devient une Section de
+    # niveau 1 dans l'arbre du VRAI parseur - Introduction/Chapitre/
+    # References (niveau 2) en sont donc des ENFANTS, pas des freres au
+    # niveau racine (comportement reel de markdown_struct.parse, pas
+    # suppose).
+    material = _material_with_biblio()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=5, structure="book")
+    path = tmp_path / "livre.md"
+    write_markdown(doc, path)
+
+    metadata, root = markdown_struct.parse(str(path))
+    all_elems = _flatten(root)
+    sections_by_label = {e.label: e for e in all_elems if e.kind == "Section"}
+    assert "Introduction" in sections_by_label
+    assert "References" in sections_by_label
+    # Un chapitre doit avoir un enfant Section (le sous-chapitre) - preuve
+    # d'imbrication reelle a la lecture par le VRAI parseur.
+    chapter = next(
+        e for e in all_elems if e.kind == "Section" and e.label not in ("Introduction", "References")
+        and any(c.kind == "Section" for c in e.children)
+    )
+    assert any(child.kind == "Section" for child in chapter.children)
+
+
+def test_write_docx_book_structure_roundtrips_with_nested_headings(tmp_path):
+    material = _material_with_biblio()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=5, structure="book")
+    path = tmp_path / "livre.docx"
+    write_docx(doc, path)
+
+    metadata, root = docx_struct.parse(str(path))
+    all_elems = _flatten(root)
+    sections_by_label = {e.label: e for e in all_elems if e.kind == "Section"}
+    assert "Introduction" in sections_by_label
+    assert "References" in sections_by_label
+    chapter = next(
+        e for e in all_elems if e.kind == "Section" and e.label not in ("Introduction", "References")
+        and any(c.kind == "Section" for c in e.children)
+    )
+    assert any(child.kind == "Section" for child in chapter.children)
+
+
 def test_write_docx_roundtrips_through_the_real_parser(tmp_path):
     material = _material()
     doc = generate_document(material, words=300, vocabulary_size=50, seed=2)

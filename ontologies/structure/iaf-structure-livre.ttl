@@ -1,0 +1,55 @@
+@prefix iafs: <urn:iaf:ns:structure#> .
+@prefix iafl: <urn:iaf:ns:structure-livre#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Specialisation "livre" de l'ontologie structurelle de base
+# (iaf-structure-base.ttl) - ajoutee le 2026-09-30, demande explicite :
+# "génère moi une ontologie structurelle simple (introduction, chapitres,
+# sous chapitre, références)". Utilisee par app/doc_generator.py (IAF-E16
+# US16.6, parametre generate_document(..., structure="book")) pour donner
+# une forme de document DIFFERENTE du profil "flat" par defaut (base sur le
+# profil structurel moyen reellement observe, US7.4) : Introduction fixe en
+# premiere position, Chapitres contenant chacun des Sous-chapitres (2
+# niveaux), References fixe en derniere position.
+#
+# Chaque classe reste une specialisation de iafs:Section (role renseigne via
+# iafs:role, meme principe deja documente dans la base : "Renseigne par le
+# profil structurel d'une classe") - ce fichier n'invente pas un nouveau
+# vocabulaire d'Element racine, il specialise celui qui existe deja.
+
+<urn:iaf:ns:structure-livre> a owl:Ontology ;
+    rdfs:label "Ontologie structurelle livre IAFactory"@fr ;
+    rdfs:comment "Specialisation simple de l'ontologie structurelle de base pour un document de type livre/rapport : introduction, chapitres, sous-chapitres, references."@fr ;
+    owl:imports <urn:iaf:ns:structure> ;
+    owl:versionInfo "1" .
+
+# --- Classes -----------------------------------------------------------
+
+iafl:Introduction a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Introduction"@fr ;
+    rdfs:comment "Premiere section du document, toujours unique et en tete."@fr .
+
+iafl:Chapter a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Chapitre"@fr ;
+    rdfs:comment "Section de premier niveau apres l'introduction, contient des sous-chapitres."@fr .
+
+iafl:SubChapter a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Sous-chapitre"@fr ;
+    rdfs:comment "Section de second niveau, toujours imbriquee dans un Chapitre (iafs:hasPart)."@fr .
+
+iafl:References a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "References"@fr ;
+    rdfs:comment "Derniere section du document, toujours unique et en fin de document. Liste des references reelles (entites de type bibliographique) ou, a defaut, un glossaire des concepts reels du document - jamais une citation inventee."@fr .
+
+# --- Contraintes de forme (informatif, non verifie par un raisonneur OWL) --
+# iafs:hasPart : iafl:Chapter -> iafl:SubChapter (0..n)
+# Ordre de lecture (iafs:precedes) : iafl:Introduction, puis N x iafl:Chapter,
+# puis iafl:References - impose par app/doc_generator.py, pas par ce fichier
+# (aucune contrainte OWL de cardinalite/ordre n'est declaree ici, coherent
+# avec le reste du projet : les .ttl restent des vocabulaires, pas des
+# raisonneurs actifs).

@@ -23,10 +23,28 @@ suit le profil structurel MOYEN reellement observe sur les documents deja
 rattaches a la classe (Document.profile_section/paragraph/table, IAF-E7
 US7.4) - repli documente si la classe est encore vide de documents reels.
 
+Deux styles de structure (`structure=`, US16.6 ajoute le 2026-09-30, demande
+explicite : "génère moi une ontologie structurelle simple (introduction,
+chapitres, sous chapitre, références)") :
+- `"flat"` (par defaut, US16.1-16.4) : une section = un seul niveau, forme
+  dictee par le profil structurel MOYEN reellement observe sur la classe.
+- `"book"` (US16.6) : Introduction (fixe, premiere) puis Chapitres contenant
+  chacun des Sous-chapitres (imbrication a 2 niveaux, meme principe que
+  `taxonomy_builder.py`/US3.19), puis References (fixe, derniere). Vocabulaire
+  RDF dedie : `ontologies/structure/iaf-structure-livre.ttl` (specialise
+  `iafs:Section` de la base, meme principe que documente dans son
+  docstring : "les ontologies structurelles des classes documentaires la
+  specialisent"). La section References est construite a partir d'entites
+  REELLES dont le type ressemble a une reference bibliographique (heuristique
+  `_BIBLIOGRAPHIC_TYPE_HINTS`, ex. "journal" avec ses attributs volume/pages
+  reellement extraits par US13.4 sur des documents scientifiques reels) ; si
+  aucune n'existe pour la classe, repli honnete sur un simple GLOSSAIRE des
+  concepts reels non utilises comme titre de chapitre - jamais de fausse
+  citation inventee (auteur/annee/revue fictifs), ce serait exactement le
+  type de contenu fabrique que ce module s'interdit.
+
 Limites assumees de cette premiere version (US16.1-16.4, voir US16.5 pour la
 suite non faite) :
-- structure PLATE : une section = un seul niveau, pas de sous-sections
-  imbriquees ;
 - "Equation" (STRUCT_KINDS) non modelisee ici - seuls .md et .docx sont
   ecrits dans cette version (US16.2/US16.3), et ni markdown_struct.py ni
   docx_struct.py ne produisent ce type en lecture non plus (seul
@@ -49,6 +67,7 @@ from pathlib import Path
 ALLOWED_VOCABULARY_SIZES = (50, 100, 200, 500)
 DEFAULT_WORDS = 500
 DEFAULT_VOCABULARY_SIZE = 100
+STRUCTURE_STYLES = ("flat", "book")
 
 # Non calibre (comme le reste du projet, US7.7) : approximation grossiere du
 # nombre de mots d'une phrase-gabarit, utilisee pour dimensionner le nombre
@@ -60,6 +79,19 @@ _DEFAULT_TABLES_PER_SECTION = 0.3
 _MIN_SECTIONS = 2
 _MAX_SECTIONS = 12
 
+# US16.6 : forme du style "book" - non calibre, comme le reste du projet.
+_MIN_CHAPTERS = 2
+_MAX_CHAPTERS = 8
+_DEFAULT_SUBCHAPTERS_PER_CHAPTER = 2
+
+# US16.6 : heuristique pour reperer les entites REELLES qui ressemblent a une
+# reference bibliographique plutot qu'a un fait du corps du texte (ex. un
+# type d'entite "journal" avec des attributs volume/pages reellement extraits
+# par US13.4 sur un document scientifique reel) - substring insensible a la
+# casse sur Entity.type, jamais une liste figee de types exacts (les libelles
+# de type sont un vocabulaire libre invente par le LLM, US3.4).
+_BIBLIOGRAPHIC_TYPE_HINTS = ("journal", "publication", "book", "conference", "reference", "source", "article")
+
 _TEMPLATES = {
     "fr": {
         "concept_sentence": "Cette section aborde le concept de {topic}.",
@@ -69,6 +101,12 @@ _TEMPLATES = {
         "table_header": ["Entite", "Attribut", "Valeur"],
         "default_section_titles": ["Introduction", "Contexte", "Analyse", "Synthese", "Discussion", "Conclusion"],
         "doc_title": "Document d'exemple - {name}",
+        "introduction_title": "Introduction",
+        "references_title": "References",
+        "chapter_title_fallback": "Chapitre {n}",
+        "subchapter_title_fallback": "Sous-partie {n}",
+        "reference_entry": "{entity} - {details}.",
+        "references_glossary_intro": "Termes references dans ce document : {terms}.",
     },
     "en": {
         "concept_sentence": "This section addresses the concept of {topic}.",
@@ -78,6 +116,12 @@ _TEMPLATES = {
         "table_header": ["Entity", "Attribute", "Value"],
         "default_section_titles": ["Introduction", "Context", "Analysis", "Summary", "Discussion", "Conclusion"],
         "doc_title": "Example document - {name}",
+        "introduction_title": "Introduction",
+        "references_title": "References",
+        "chapter_title_fallback": "Chapter {n}",
+        "subchapter_title_fallback": "Subsection {n}",
+        "reference_entry": "{entity} - {details}.",
+        "references_glossary_intro": "Terms referenced in this document: {terms}.",
     },
 }
 
@@ -189,6 +233,10 @@ class GeneratedSection:
     title: str
     paragraphs: list[str]
     table: dict | None = None  # {"header": [str,...], "rows": [[str,...],...]}
+    # US16.6 : un seul niveau d'imbrication (chapitre -> sous-chapitres),
+    # jamais plus profond - meme principe a 2 niveaux que
+    # taxonomy_builder.py/US3.19. Vide pour le style "flat".
+    subsections: list["GeneratedSection"] = field(default_factory=list)
 
 
 @dataclass
@@ -202,17 +250,12 @@ class GeneratedDocument:
     warnings: list[str]
 
 
-def generate_document(
-    material: ClassOntologyMaterial, words: int = DEFAULT_WORDS,
-    vocabulary_size: int = DEFAULT_VOCABULARY_SIZE, seed: int | None = None,
-) -> GeneratedDocument:
-    if vocabulary_size not in ALLOWED_VOCABULARY_SIZES:
-        raise ValueError(f"vocabulary_size doit etre l'un de {ALLOWED_VOCABULARY_SIZES}, recu {vocabulary_size}")
-    if words <= 0:
-        raise ValueError("words doit etre positif")
-
-    rng = random.Random(seed)
-    tpl = _templates(material.language)
+def _sample_material(
+    material: ClassOntologyMaterial, vocabulary_size: int, rng: random.Random,
+) -> tuple[list[dict], list[str], list[tuple[str, str, str, str, str]], list[str]]:
+    """Echantillonnage honnete partage par les deux styles de structure
+    (US16.1/US16.6) - ne fabrique jamais au-dela du materiau reel
+    disponible (voir docstring du module)."""
     warnings = list(material.warnings)
 
     entities = list(material.entities)
@@ -233,11 +276,20 @@ def generate_document(
     sampled_names = {e["name"] for e in entities}
     relations = [rel for rel in material.relations if rel[0] in sampled_names and rel[3] in sampled_names]
 
-    # Construit la liste des FAITS reels a recomposer en phrases : relations
-    # d'abord (le contenu le plus informatif), puis attributs, puis un
-    # rappel de type pour les entites echantillonnees qu'aucune relation
-    # n'a deja mentionnees (chaque entite du vocabulaire choisi apparait au
-    # moins une fois dans le texte).
+    if not entities and not concepts:
+        warnings.append("aucun fait reel disponible (entites/relations/attributs/concepts) : document vide")
+
+    return entities, concepts, relations, warnings
+
+
+def _build_fact_sentences(
+    entities: list[dict], relations: list[tuple[str, str, str, str, str]], tpl: dict, rng: random.Random,
+) -> tuple[list[str], list[tuple[str, str, str]]]:
+    """Construit la liste des FAITS reels a recomposer en phrases : relations
+    d'abord (le contenu le plus informatif), puis attributs, puis un rappel
+    de type pour les entites echantillonnees qu'aucune relation n'a deja
+    mentionnees (chaque entite du vocabulaire choisi apparait au moins une
+    fois dans le texte)."""
     fact_sentences: list[str] = []
     used_entity_names: set[str] = set()
     for s_name, _s_type, rel_type, t_name, _t_type in relations:
@@ -258,8 +310,62 @@ def generate_document(
             fact_sentences.append(tpl["type_sentence"].format(entity=e["name"], type=e["type"]))
             used_entity_names.add(e["name"])
 
-    if not fact_sentences and not concepts:
-        warnings.append("aucun fait reel disponible (entites/relations/attributs/concepts) : document vide")
+    return fact_sentences, attribute_facts
+
+
+def generate_document(
+    material: ClassOntologyMaterial, words: int = DEFAULT_WORDS,
+    vocabulary_size: int = DEFAULT_VOCABULARY_SIZE, seed: int | None = None, structure: str = "flat",
+) -> GeneratedDocument:
+    if vocabulary_size not in ALLOWED_VOCABULARY_SIZES:
+        raise ValueError(f"vocabulary_size doit etre l'un de {ALLOWED_VOCABULARY_SIZES}, recu {vocabulary_size}")
+    if words <= 0:
+        raise ValueError("words doit etre positif")
+    if structure not in STRUCTURE_STYLES:
+        raise ValueError(f"structure doit etre l'un de {STRUCTURE_STYLES}, recu {structure!r}")
+
+    rng = random.Random(seed)
+    tpl = _templates(material.language)
+    entities, concepts, relations, warnings = _sample_material(material, vocabulary_size, rng)
+
+    if structure == "book":
+        sections, word_count, extra_warnings = _assemble_book(material, entities, concepts, relations, tpl, words, rng)
+    else:
+        sections, word_count, extra_warnings = _assemble_flat(material, entities, concepts, relations, tpl, words, rng)
+    warnings.extend(extra_warnings)
+
+    title = tpl["doc_title"].format(name=material.class_name)
+    ground_truth = {
+        "class_id": material.class_id,
+        "class_name": material.class_name,
+        "language": material.language,
+        "structure": structure,
+        "entities": [{"name": e["name"], "type": e["type"]} for e in entities],
+        "relations": [
+            {"source": s, "source_type": st, "relation": r, "target": t, "target_type": tt}
+            for s, st, r, t, tt in relations
+        ],
+        "attributes": [
+            {"entity": e["name"], "key": k, "value": str(v)} for e in entities for k, v in e["attrs"].items()
+        ],
+        "concepts": concepts,
+        "vocabulary_requested": vocabulary_size,
+        "vocabulary_available": len(material.entities),
+        "vocabulary_used": len(entities),
+    }
+
+    return GeneratedDocument(
+        title=title, language=material.language, sections=sections, word_count=word_count,
+        requested_words=words, ground_truth=ground_truth, warnings=warnings,
+    )
+
+
+def _assemble_flat(
+    material: ClassOntologyMaterial, entities: list[dict], concepts: list[str],
+    relations: list[tuple[str, str, str, str, str]], tpl: dict, words: int, rng: random.Random,
+) -> tuple[list[GeneratedSection], int, list[str]]:
+    warnings: list[str] = []
+    fact_sentences, attribute_facts = _build_fact_sentences(entities, relations, tpl, rng)
 
     # Dimensionnement des sections a partir du profil structurel REEL de la
     # classe (ou du repli documente si la classe n'a pas encore de document).
@@ -313,75 +419,189 @@ def generate_document(
             f"budget de {words} mots non atteint ({word_count} mots reels) : "
             "le materiau reel disponible pour cette classe s'est epuise avant, aucun contenu invente pour combler"
         )
+    return sections, word_count, warnings
 
-    title = tpl["doc_title"].format(name=material.class_name)
-    ground_truth = {
-        "class_id": material.class_id,
-        "class_name": material.class_name,
-        "language": material.language,
-        "entities": [{"name": e["name"], "type": e["type"]} for e in entities],
-        "relations": [
-            {"source": s, "source_type": st, "relation": r, "target": t, "target_type": tt}
-            for s, st, r, t, tt in relations
-        ],
-        "attributes": [{"entity": n, "key": k, "value": v} for n, k, v in attribute_facts],
-        "concepts": concepts,
-        "vocabulary_requested": vocabulary_size,
-        "vocabulary_available": len(material.entities),
-        "vocabulary_used": len(entities),
-    }
 
-    return GeneratedDocument(
-        title=title, language=material.language, sections=sections, word_count=word_count,
-        requested_words=words, ground_truth=ground_truth, warnings=warnings,
+def _assemble_book(
+    material: ClassOntologyMaterial, entities: list[dict], concepts: list[str],
+    relations: list[tuple[str, str, str, str, str]], tpl: dict, words: int, rng: random.Random,
+) -> tuple[list[GeneratedSection], int, list[str]]:
+    """US16.6 : Introduction (fixe, premiere) - Chapitres (chacun avec des
+    Sous-chapitres, imbrication a 2 niveaux) - References (fixe, derniere,
+    jamais inventee - voir docstring du module)."""
+    warnings: list[str] = []
+
+    reference_entities = [
+        e for e in entities if any(hint in e["type"].lower() for hint in _BIBLIOGRAPHIC_TYPE_HINTS)
+    ]
+    body_entities = [e for e in entities if e not in reference_entities]
+    body_relations = [
+        rel for rel in relations
+        if rel[0] not in {e["name"] for e in reference_entities} and rel[3] not in {e["name"] for e in reference_entities}
+    ]
+    fact_sentences, attribute_facts = _build_fact_sentences(body_entities, body_relations, tpl, rng)
+
+    target_paragraphs = max(1, round(words / _WORDS_PER_PARAGRAPH_ESTIMATE))
+    paragraphs_per_subchapter = max(1.0, material.paragraphs_per_section)
+    n_chapters = max(
+        _MIN_CHAPTERS,
+        min(_MAX_CHAPTERS, round(target_paragraphs / (paragraphs_per_subchapter * _DEFAULT_SUBCHAPTERS_PER_CHAPTER))),
     )
+    if not concepts and not fact_sentences:
+        n_chapters = 0
+
+    fact_iter = iter(fact_sentences)
+    word_count = 0
+    facts_exhausted = False
+
+    # Bug reel trouve en testant (2026-09-30) : cycler `concepts` (liste
+    # triee, ordre fixe) avec un curseur qui avance d'exactement
+    # `_DEFAULT_SUBCHAPTERS_PER_CHAPTER + 1` titres par chapitre retombe sur
+    # le MEME concept a chaque chapitre des que `len(concepts)` divise ce pas
+    # (constate avec 3 concepts et 2 sous-chapitres/chapitre - pas de 3 - le
+    # meme titre "algorithme" pour tous les chapitres). Un melange (a la
+    # graine) casse cet alignement periodique ; `concepts` (trie) reste
+    # inchange pour la verite terrain.
+    title_concepts = list(concepts)
+    rng.shuffle(title_concepts)
+
+    def _next_paragraphs(topic: str | None) -> list[str]:
+        nonlocal word_count, facts_exhausted
+        paragraphs: list[str] = []
+        if topic:
+            opening = tpl["concept_sentence"].format(topic=topic)
+            paragraphs.append(opening)
+            word_count += len(opening.split())
+        n_paragraphs = max(1, round(paragraphs_per_subchapter))
+        for _ in range(n_paragraphs):
+            if word_count >= words:
+                break
+            sentence = next(fact_iter, None)
+            if sentence is None:
+                facts_exhausted = True
+                break
+            paragraphs.append(sentence)
+            word_count += len(sentence.split())
+        return paragraphs
+
+    sections: list[GeneratedSection] = []
+
+    intro_topic = title_concepts[0] if title_concepts else None
+    intro_paragraphs = _next_paragraphs(intro_topic)
+    if intro_paragraphs:
+        sections.append(GeneratedSection(title=tpl["introduction_title"], paragraphs=intro_paragraphs))
+
+    concept_cursor = 1 if title_concepts else 0
+    for c in range(n_chapters):
+        if word_count >= words or (facts_exhausted and not title_concepts):
+            break
+        chapter_title = (
+            title_concepts[concept_cursor % len(title_concepts)]
+            if title_concepts else tpl["chapter_title_fallback"].format(n=c + 1)
+        )
+        concept_cursor += 1
+        subsections: list[GeneratedSection] = []
+        for s in range(_DEFAULT_SUBCHAPTERS_PER_CHAPTER):
+            if word_count >= words or (facts_exhausted and not title_concepts):
+                break
+            sub_topic = title_concepts[concept_cursor % len(title_concepts)] if title_concepts else None
+            if title_concepts:
+                concept_cursor += 1
+            sub_title = sub_topic or tpl["subchapter_title_fallback"].format(n=s + 1)
+            paragraphs = _next_paragraphs(sub_topic if sub_topic != chapter_title else None)
+            if paragraphs:
+                subsections.append(GeneratedSection(title=sub_title, paragraphs=paragraphs))
+        if subsections:
+            sections.append(GeneratedSection(title=chapter_title, paragraphs=[], subsections=subsections))
+
+    # References : jamais inventees. Priorite aux entites REELLES
+    # ressemblant a des references bibliographiques (heuristique de type,
+    # voir _BIBLIOGRAPHIC_TYPE_HINTS) ; a defaut, glossaire des concepts
+    # reels non utilises comme titre de chapitre/sous-chapitre - jamais de
+    # troisieme repli invente.
+    if reference_entities:
+        reference_lines = []
+        for e in reference_entities:
+            details = ", ".join(f"{k} : {v}" for k, v in e["attrs"].items()) or e["type"]
+            reference_lines.append(tpl["reference_entry"].format(entity=e["name"], details=details))
+        sections.append(GeneratedSection(title=tpl["references_title"], paragraphs=reference_lines))
+    elif title_concepts:
+        remaining_concepts = title_concepts[concept_cursor:] or concepts
+        line = tpl["references_glossary_intro"].format(terms=", ".join(remaining_concepts))
+        sections.append(GeneratedSection(title=tpl["references_title"], paragraphs=[line]))
+
+    if word_count < words and fact_sentences:
+        warnings.append(
+            f"budget de {words} mots non atteint ({word_count} mots reels) : "
+            "le materiau reel disponible pour cette classe s'est epuise avant, aucun contenu invente pour combler"
+        )
+    return sections, word_count, warnings
+
+
+def _write_markdown_section(lines: list[str], section: GeneratedSection, heading_level: int) -> None:
+    marker = "#" * min(heading_level, 6)
+    lines.append(f"{marker} {section.title}")
+    lines.append("")
+    for paragraph in section.paragraphs:
+        lines.append(paragraph)
+        lines.append("")
+    if section.table:
+        header = section.table["header"]
+        lines.append("| " + " | ".join(header) + " |")
+        lines.append("|" + "|".join("---" for _ in header) + "|")
+        for row in section.table["rows"]:
+            lines.append("| " + " | ".join(row) + " |")
+        lines.append("")
+    for sub in section.subsections:
+        _write_markdown_section(lines, sub, heading_level + 1)
 
 
 def write_markdown(doc: GeneratedDocument, path: Path) -> None:
-    """US16.2. Conventions EXACTEMENT celles de markdown_struct.py (pas une
-    syntaxe Markdown generique non verifiee) : titres '#'/'##' (_HEADING_RE),
-    tableaux '| a | b |' avec une ligne de separation faite uniquement de
-    pipes/tirets juste apres l'entete (_TABLE_SEP_RE), paragraphes separes
-    par une ligne vide."""
+    """US16.2/US16.6. Conventions EXACTEMENT celles de markdown_struct.py (pas
+    une syntaxe Markdown generique non verifiee) : titres '#'/'##'/'###'
+    (_HEADING_RE, niveau = nombre de '#', l'imbrication chapitre/sous-chapitre
+    du style "book" est geree par la pile de markdown_struct.parse a la
+    lecture - pas besoin de code special cote parseur), tableaux '| a | b |'
+    avec une ligne de separation faite uniquement de pipes/tirets juste apres
+    l'entete (_TABLE_SEP_RE), paragraphes separes par une ligne vide."""
     lines = [f"# {doc.title}", ""]
     for section in doc.sections:
-        lines.append(f"## {section.title}")
-        lines.append("")
-        for paragraph in section.paragraphs:
-            lines.append(paragraph)
-            lines.append("")
-        if section.table:
-            header = section.table["header"]
-            lines.append("| " + " | ".join(header) + " |")
-            lines.append("|" + "|".join("---" for _ in header) + "|")
-            for row in section.table["rows"]:
-                lines.append("| " + " | ".join(row) + " |")
-            lines.append("")
+        _write_markdown_section(lines, section, heading_level=2)
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _write_docx_section(docx_document, section: GeneratedSection, heading_level: int) -> None:
+    docx_document.add_heading(section.title, level=min(heading_level, 9))
+    for paragraph in section.paragraphs:
+        docx_document.add_paragraph(paragraph)
+    if section.table:
+        header = section.table["header"]
+        rows = section.table["rows"]
+        table = docx_document.add_table(rows=1 + len(rows), cols=len(header))
+        for col, label in enumerate(header):
+            table.cell(0, col).text = label
+        for r, row in enumerate(rows, start=1):
+            for col, value in enumerate(row):
+                table.cell(r, col).text = value
+    for sub in section.subsections:
+        _write_docx_section(docx_document, sub, heading_level + 1)
+
+
 def write_docx(doc: GeneratedDocument, path: Path) -> None:
-    """US16.3. Conventions EXACTEMENT celles de docx_struct.py (pas une mise
-    en page python-docx quelconque) : style 'Title' pour le titre du document
-    (docx_struct le traite comme niveau 1, meme famille que 'Heading N'),
-    style 'Heading 1' pour chaque section (structure PLATE, voir docstring du
-    module), paragraphes simples, tableau natif python-docx."""
+    """US16.3/US16.6. Conventions EXACTEMENT celles de docx_struct.py (pas une
+    mise en page python-docx quelconque) : style 'Title' pour le titre du
+    document (docx_struct le traite comme niveau 1, meme famille que
+    'Heading N'), style 'Heading N' pour chaque section - N=1 pour le style
+    "flat" ou pour Introduction/Chapitre/References du style "book", N=2 pour
+    un Sous-chapitre (l'imbrication est geree par la pile de
+    docx_struct.parse a la lecture, memes niveaux que pour un vrai .docx a
+    plusieurs niveaux de titres), paragraphes simples, tableau natif
+    python-docx."""
     from docx import Document as DocxDocument  # import local : seul ce writer en depend
 
     docx_document = DocxDocument()
     docx_document.core_properties.title = doc.title
     docx_document.add_heading(doc.title, level=0)
     for section in doc.sections:
-        docx_document.add_heading(section.title, level=1)
-        for paragraph in section.paragraphs:
-            docx_document.add_paragraph(paragraph)
-        if section.table:
-            header = section.table["header"]
-            rows = section.table["rows"]
-            table = docx_document.add_table(rows=1 + len(rows), cols=len(header))
-            for col, label in enumerate(header):
-                table.cell(0, col).text = label
-            for r, row in enumerate(rows, start=1):
-                for col, value in enumerate(row):
-                    table.cell(r, col).text = value
+        _write_docx_section(docx_document, section, heading_level=1)
     docx_document.save(str(path))
