@@ -1,0 +1,74 @@
+@prefix iafs: <urn:iaf:ns:structure#> .
+@prefix iaftex: <urn:iaf:ns:structure-latex#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontologie structurelle "LaTeX" - ajoutee le 2026-10-01, demande explicite :
+# "Pour un latex, abstract, introduction, conclusion, discussion, chapitres,
+# sous chapitres, formules." Meme principe de restrictions OWL2 a
+# cardinalite qualifiee, lues par app/structure_matcher.py. iaftex:Formula
+# correspond au type "Equation" deja produit par app/latex_struct.py (pas un
+# role trouve dans un libelle de section, mais un kind d'element a part -
+# voir son docstring : "environnements mathematiques -> nouveau type
+# 'Equation'").
+
+<urn:iaf:ns:structure-latex> a owl:Ontology ;
+    rdfs:label "Ontologie structurelle LaTeX IAFactory"@fr ;
+    rdfs:comment "Forme article/rapport academique attendue pour un document LaTeX : resume, introduction, chapitres/sous-chapitres, discussion, conclusion, formules."@fr ;
+    owl:imports <urn:iaf:ns:structure> ;
+    owl:versionInfo "1" ;
+    iafs:appliesToFormat "tex" .
+
+iaftex:Abstract a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Resume"@fr ;
+    skos:altLabel "Abstract"@en .
+
+iaftex:Introduction a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Introduction"@fr ;
+    skos:altLabel "Introduction"@en .
+
+iaftex:Chapter a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Chapitre"@fr ;
+    skos:altLabel "Chapter"@en .
+
+iaftex:SubChapter a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Sous-chapitre"@fr ;
+    skos:altLabel "Subsection"@en .
+
+iaftex:Discussion a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Discussion"@fr ;
+    skos:altLabel "Discussion"@en .
+
+iaftex:Conclusion a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Conclusion"@fr ;
+    skos:altLabel "Conclusion"@en .
+
+iaftex:Formula a owl:Class ;
+    rdfs:subClassOf iafs:Formula ;
+    rdfs:label "Formule"@fr ;
+    skos:altLabel "Formula"@en ;
+    rdfs:comment "Correspond au kind StructElement 'Equation' deja produit par latex_struct.py, pas a un libelle de section."@fr .
+
+# --- Axiomes de cardinalite --------------------------------------------
+# Resume et Discussion : optionnels (0 ou 1). Introduction et Conclusion :
+# exactement 1 chacune. Chapitre/Sous-chapitre/Formule : libres (0..n, un
+# article court peut n'avoir aucun chapitre explicite).
+
+iaftex:LatexForm a owl:Class ;
+    rdfs:subClassOf iafs:Document ;
+    rdfs:label "Forme LaTeX (article/rapport)"@fr ;
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iaftex:Abstract ;
+          owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iaftex:Introduction ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iaftex:Conclusion ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ] .

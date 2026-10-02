@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ name or "Corpus" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/corpus">Corpus</a> / {{ name or "introuvable" }}</div>
+  {% if not name %}
+  <p class="alert">Corpus introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>{{ name }}</h1>
+    <div class="actions">
+      <a class="btn" href="/creator/classes/{{ class_id }}">Ontologies et parametres de la classe</a>
+      <a class="btn" href="/creator/documents/new">Deposer un document</a>
+    </div>
+  </div>
+  <p><span class="badge">{{ status }}</span></p>
+
+  <div class="card">
+    <h2>Contenu du corpus</h2>
+    <p class="muted">Un corpus est une classe documentaire et les documents qui lui sont rattaches (US3.9) ;
+       cette page presente le CORPUS (documents, taille, taxonomies), l'ecran "Ontologies et parametres de la
+       classe" presente son ONTOLOGIE.</p>
+    <p>
+      <strong>{{ documents|length }}</strong> document(s) &middot;
+      <strong>{{ concept_count }}</strong> concept(s) dans l'ontologie semantique &middot;
+      <strong>{{ entity_count }}</strong> entite(s) &middot;
+      seuil de reconnaissance {{ "%.0f"|format(threshold * 100) }}%
+    </p>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Document</th><th>Statut</th><th>Score combine</th><th>Structurel</th><th>Semantique</th><th>Depose le</th></tr></thead>
+      <tbody>
+        {% for d in documents %}
+        {% set sc = scores.get(d.sha256) %}
+        <tr>
+          <td><a href="/creator/documents/{{ d.id }}">{{ d.filename }}</a></td>
+          <td><span class="badge">{{ d.status.value if d.status.value is defined else d.status }}</span></td>
+          <td>{% if sc and sc.score is not none %}{{ "%.0f"|format(sc.score * 100) }}%{% else %}-{% endif %}</td>
+          <td>{% if sc and sc.structural_score is not none %}{{ "%.0f"|format(sc.structural_score * 100) }}%{% else %}-{% endif %}</td>
+          <td>{% if sc and sc.semantic_score is not none %}{{ "%.0f"|format(sc.semantic_score * 100) }}%{% else %}-{% endif %}</td>
+          <td class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="table-empty">Aucun document rattache a ce corpus pour l'instant.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Taxonomies construites depuis ce corpus</h2>
+    {% if taxonomies %}
+    <ul>
+      {% for t in taxonomies %}
+      <li><a href="/creator/taxonomies/{{ t.id }}">{{ t.name }}</a> <span class="muted">({{ t.concept_count }} concepts)</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">Aucune taxonomie construite depuis ce corpus.</p>
+    {% endif %}
+    <form method="post" action="/creator/taxonomies/build" class="inline">
+      <input type="hidden" name="class_ids" value="{{ class_id }}">
+      <input type="hidden" name="name" value="Taxonomie {{ name }}">
+      <button type="submit" class="btn btn-primary">Construire une taxonomie de ce corpus</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

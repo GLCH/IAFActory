@@ -1,0 +1,36 @@
+# Classes de depart (seeds) du jeu d'essai : chaque classe = UNE ontologie
+# semantique (fichier RDF/OWL du depot) + 1..n ontologies structurelles
+# (ontologies/structure/iaf-structure-<cle>.ttl), toutes chargees dans Jena/Fuseki
+# par site/scripts/create_class.py, avec le miroir Neo4j necessaire a la
+# reconnaissance. `site/scripts/replay_learning.py --seed` les cree si absentes.
+#
+# Les classes APPRISES (astronomie, droit...) n'apparaissent PAS ici : ce sont
+# precisement celles que les scenarios font apprendre au pipeline (EPIC-IAF-E17).
+seeds:
+  - name: Vin
+    semantic: ontologies/semantic-examples/wine.rdf          # Wine Ontology du W3C OWL Guide (74 concepts, 161 individus)
+    format: xml
+    language: en
+    structures: [base, livre, word, pdf]                     # etat observe le 2026-10-02 (iafs:acceptsStructure)
+  - name: C2SIM
+    semantic: ontologies/semantic-examples/c2sim-aggregated.rdf   # SISO C2SIM + SMX + LOX agreges, TBox pur (172 classes, 0 individu)
+    format: xml
+    language: en
+    structures: [word]
+
+# Ontologie fournie mais SANS classe de depart : LegalRuleML (OASIS CSPRD02,
+# 12 fichiers RDFS agreges). Elle utilise rdfs:Class/rdf:Property et non
+# owl:Class ; ontology_import.py n'en extrait rien tel quel, donc create_class.py
+# ne peut pas la charger aujourd'hui. Conservee ici pour un chantier ulterieur.
+not_loadable:
+  - name: LegalRuleML
+    semantic: ontologies/semantic-examples/legalruleml-aggregated.rdf
+    sources: ontologies/semantic-examples/legalruleml/
+
+# Ontologies structurelles disponibles (cles utilisables dans `structures`).
+structures:
+  base: ontologies/structure/iaf-structure-base.ttl
+  livre: ontologies/structure/iaf-structure-livre.ttl
+  word: ontologies/structure/iaf-structure-word.ttl
+  pdf: ontologies/structure/iaf-structure-pdf.ttl
+  latex: ontologies/structure/iaf-structure-latex.ttl

@@ -1,0 +1,20 @@
+# Demo IAF-123/IAF-124 (US16.7/US16.8) : cas d'usage .docx + exposition .pdf,
+# generes a partir de la classe de test Wine reimportee le 2026-09-30
+# (ontologies/semantic-examples/wine.rdf).
+output_dir: ./data/generated
+seed: 42
+
+classes:
+  - class_id: "45cd4041-e32c-4dfa-8b1e-962c07fe1484"
+    count: 1
+    words: 1500
+    vocabulary_size: 100
+    formats: [docx]
+    structure: use_case
+
+  - class_id: "45cd4041-e32c-4dfa-8b1e-962c07fe1484"
+    count: 1
+    words: 500
+    vocabulary_size: 100
+    formats: [pdf]
+    structure: exposition

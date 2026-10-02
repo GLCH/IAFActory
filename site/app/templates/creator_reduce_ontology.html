@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Reduire l'ontologie - {{ name or "Classe" }} - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb">
+    <a href="/">IAFActory</a> / <a href="/creator/classes">Classes</a> /
+    <a href="/creator/classes/{{ class_id }}">{{ name or "introuvable" }}</a> / Reduire l'ontologie
+  </div>
+  {% if not name %}
+  <p class="alert">Classe introuvable.</p>
+  {% else %}
+  <div class="page-header">
+    <h1>Reduire l'ontologie - {{ name }}</h1>
+    <div class="actions"><a class="btn" href="/creator/classes/{{ class_id }}">Retour a la classe</a></div>
+  </div>
+
+  {% if applied is not none %}
+  <p class="alert" style="color: var(--color-primary);">Reduction appliquee : {{ applied }} concept(s) retire(s) (Neo4j et Fuseki).</p>
+  {% endif %}
+
+  <div class="card">
+    <p class="muted">
+      Elimine les concepts de l'ontologie <strong>specifiques a peu de documents</strong> (EPIC-IAF-E17 US17.5).
+      Le support d'un concept est le nombre de documents distincts qui le mentionnent. Un concept jamais mentionne par
+      un document (importe depuis une ontologie, ou saisi) est <strong>protege</strong> : il n'est jamais retire.
+      Cette classe compte <strong>{{ plan.documents }}</strong> document(s).
+    </p>
+    <form method="get" action="/creator/classes/{{ class_id }}/reduce-ontology" class="inline">
+      <label for="min_support">Retirer les concepts mentionnes par moins de</label>
+      <input type="number" id="min_support" name="min_support" min="1" value="{{ plan.min_support }}" style="width: 5em;">
+      <label for="min_support">document(s)</label>
+      <button type="submit" class="btn">Apercu</button>
+    </form>
+  </div>
+
+  {% if not plan.allowed %}
+  <p class="alert">Reduction indisponible : la classe a {{ plan.documents }} document(s), au moins
+     {{ plan.required_documents }} sont requis (avec moins, presque tous les concepts paraitraient rares).</p>
+  {% endif %}
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Concept retirable</th><th>Documents qui le mentionnent</th></tr></thead>
+      <tbody>
+        {% for c in plan.removable %}
+        <tr><td>{{ c.label }}</td><td>{{ c.support }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="table-empty">Aucun concept a retirer avec ce seuil.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted">{{ plan.kept|length }} concept(s) conserve(s) &middot; {{ plan.protected|length }} protege(s) (jamais mentionnes).</p>
+
+  {% if plan.allowed and plan.removable %}
+  <form method="post" action="/creator/classes/{{ class_id }}/reduce-ontology/apply"
+        onsubmit="return confirm('Retirer {{ plan.removable|length }} concept(s) de l\'ontologie ?');">
+    <input type="hidden" name="min_support" value="{{ plan.min_support }}">
+    <button type="submit" class="btn btn-danger">Appliquer la reduction ({{ plan.removable|length }} concept(s))</button>
+  </form>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

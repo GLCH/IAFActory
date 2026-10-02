@@ -8,10 +8,13 @@
 # iaf-structure-base.ttl), voir l'epic pour le detail.
 #
 # vocabulary_size doit etre l'une de ces 4 valeurs : 50, 100, 200, 500.
-# formats disponibles dans cette version : md, docx (voir US16.5 pour pptx/tex).
+# formats disponibles dans cette version : md, docx, pdf (voir US16.5 pour pptx/tex, non fait).
 # structure : "flat" (defaut, forme basee sur le profil structurel moyen reel
-# de la classe) ou "book" (Introduction/Chapitres+Sous-chapitres/References,
-# voir ontologies/structure/iaf-structure-livre.ttl, US16.6).
+# de la classe), "book" (Introduction/Chapitres+Sous-chapitres/References,
+# voir ontologies/structure/iaf-structure-livre.ttl, US16.6), "use_case"
+# (Contexte/Acteurs/Scenario/Resultat, US16.7, pense pour .docx) ou
+# "exposition" (tableaux Concepts/Entites/Relations/Attributs, US16.8, pense
+# pour .pdf).
 
 output_dir: ./data/generated
 seed: 42

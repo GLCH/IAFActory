@@ -23,9 +23,7 @@ suit le profil structurel MOYEN reellement observe sur les documents deja
 rattaches a la classe (Document.profile_section/paragraph/table, IAF-E7
 US7.4) - repli documente si la classe est encore vide de documents reels.
 
-Deux styles de structure (`structure=`, US16.6 ajoute le 2026-09-30, demande
-explicite : "génère moi une ontologie structurelle simple (introduction,
-chapitres, sous chapitre, références)") :
+Quatre styles de structure (`structure=`) :
 - `"flat"` (par defaut, US16.1-16.4) : une section = un seul niveau, forme
   dictee par le profil structurel MOYEN reellement observe sur la classe.
 - `"book"` (US16.6) : Introduction (fixe, premiere) puis Chapitres contenant
@@ -42,6 +40,11 @@ chapitres, sous chapitre, références)") :
   concepts reels non utilises comme titre de chapitre - jamais de fausse
   citation inventee (auteur/annee/revue fictifs), ce serait exactement le
   type de contenu fabrique que ce module s'interdit.
+- `"use_case"` (US16.7) : cadre structurel Contexte/Acteurs/Scenario/Resultat
+  applique au materiau reel - PAS une comprehension semantique du cas
+  d'usage (le pipeline ne distingue pas un role d'acteur, voir l'epic).
+- `"exposition"` (US16.8) : forme purement tabulaire (Concepts/Entites/
+  Relations/Attributs, un tableau reel par section), destinee au writer PDF.
 
 Limites assumees de cette premiere version (US16.1-16.4, voir US16.5 pour la
 suite non faite) :
@@ -67,7 +70,7 @@ from pathlib import Path
 ALLOWED_VOCABULARY_SIZES = (50, 100, 200, 500)
 DEFAULT_WORDS = 500
 DEFAULT_VOCABULARY_SIZE = 100
-STRUCTURE_STYLES = ("flat", "book")
+STRUCTURE_STYLES = ("flat", "book", "use_case", "exposition")
 
 # Non calibre (comme le reste du projet, US7.7) : approximation grossiere du
 # nombre de mots d'une phrase-gabarit, utilisee pour dimensionner le nombre
@@ -107,6 +110,27 @@ _TEMPLATES = {
         "subchapter_title_fallback": "Sous-partie {n}",
         "reference_entry": "{entity} - {details}.",
         "references_glossary_intro": "Termes references dans ce document : {terms}.",
+        # US16.7 (structure "use_case") : cadre structurel applique au
+        # materiau reel, jamais une comprehension semantique du cas d'usage
+        # (voir docstring du module et l'epic - le pipeline ne distingue pas
+        # un role d'acteur, seulement Entity.type, un libelle libre).
+        "context_title": "Contexte",
+        "actors_title": "Acteurs",
+        "scenario_title": "Scenario",
+        "result_title": "Resultat",
+        "scenario_step_sentence": "Etape {n} : {source} {relation} {target}.",
+        "actor_table_header": ["Entite", "Type"],
+        # US16.8 (structure "exposition") : tableaux d'elements d'ontologie.
+        "concepts_section_title": "Concepts",
+        "entities_section_title": "Entites",
+        "relations_section_title": "Relations",
+        "attributes_section_title": "Attributs",
+        "concepts_intro": "Concepts reels induits pour cette classe.",
+        "entities_intro": "Entites reelles echantillonnees pour cette classe.",
+        "relations_intro": "Relations reelles observees entre ces entites.",
+        "attributes_intro": "Attributs reels observes sur ces entites.",
+        "concept_table_header": ["Concept"],
+        "relation_table_header": ["Source", "Relation", "Cible"],
     },
     "en": {
         "concept_sentence": "This section addresses the concept of {topic}.",
@@ -122,6 +146,22 @@ _TEMPLATES = {
         "subchapter_title_fallback": "Subsection {n}",
         "reference_entry": "{entity} - {details}.",
         "references_glossary_intro": "Terms referenced in this document: {terms}.",
+        "context_title": "Context",
+        "actors_title": "Actors",
+        "scenario_title": "Scenario",
+        "result_title": "Result",
+        "scenario_step_sentence": "Step {n}: {source} {relation} {target}.",
+        "actor_table_header": ["Entity", "Type"],
+        "concepts_section_title": "Concepts",
+        "entities_section_title": "Entities",
+        "relations_section_title": "Relations",
+        "attributes_section_title": "Attributes",
+        "concepts_intro": "Real concepts induced for this class.",
+        "entities_intro": "Real entities sampled for this class.",
+        "relations_intro": "Real relations observed between these entities.",
+        "attributes_intro": "Real attributes observed on these entities.",
+        "concept_table_header": ["Concept"],
+        "relation_table_header": ["Source", "Relation", "Target"],
     },
 }
 
@@ -330,6 +370,10 @@ def generate_document(
 
     if structure == "book":
         sections, word_count, extra_warnings = _assemble_book(material, entities, concepts, relations, tpl, words, rng)
+    elif structure == "use_case":
+        sections, word_count, extra_warnings = _assemble_use_case(entities, concepts, relations, tpl, words)
+    elif structure == "exposition":
+        sections, word_count, extra_warnings = _assemble_exposition(entities, concepts, relations, tpl)
     else:
         sections, word_count, extra_warnings = _assemble_flat(material, entities, concepts, relations, tpl, words, rng)
     warnings.extend(extra_warnings)
@@ -538,6 +582,105 @@ def _assemble_book(
     return sections, word_count, warnings
 
 
+def _assemble_use_case(
+    entities: list[dict], concepts: list[str], relations: list[tuple[str, str, str, str, str]],
+    tpl: dict, words: int,
+) -> tuple[list[GeneratedSection], int, list[str]]:
+    """US16.7 : cadre structurel Contexte/Acteurs/Scenario/Resultat applique
+    au materiau reel de la classe - voir la decision de cadrage dans l'epic
+    (docs/epics/EPIC-IAF-E16...md#US16.7) : aucun role d'acteur ni causalite
+    de scenario n'est invente, le pipeline reel ne porte pas cette semantique
+    (Entity.type est un libelle libre, US3.4). Chaque section est absente si
+    son materiau reel est vide (meme degradation honnete que flat/book)."""
+    warnings: list[str] = []
+    word_count = 0
+    sections: list[GeneratedSection] = []
+
+    context_paragraphs: list[str] = []
+    for concept in concepts:
+        if word_count >= words:
+            break
+        sentence = tpl["concept_sentence"].format(topic=concept)
+        context_paragraphs.append(sentence)
+        word_count += len(sentence.split())
+    if context_paragraphs:
+        sections.append(GeneratedSection(title=tpl["context_title"], paragraphs=context_paragraphs))
+
+    if entities:
+        table = {"header": tpl["actor_table_header"], "rows": [[e["name"], e["type"]] for e in entities]}
+        sections.append(GeneratedSection(title=tpl["actors_title"], paragraphs=[], table=table))
+
+    if relations:
+        scenario_paragraphs: list[str] = []
+        for i, (s_name, _s_type, rel_type, t_name, _t_type) in enumerate(relations, start=1):
+            if word_count >= words:
+                break
+            sentence = tpl["scenario_step_sentence"].format(n=i, source=s_name, relation=rel_type, target=t_name)
+            scenario_paragraphs.append(sentence)
+            word_count += len(sentence.split())
+        if scenario_paragraphs:
+            sections.append(GeneratedSection(title=tpl["scenario_title"], paragraphs=scenario_paragraphs))
+    else:
+        warnings.append("aucune relation reelle disponible : pas de section Scenario (jamais d'etape inventee)")
+
+    attribute_facts = [(e["name"], k, str(v)) for e in entities for k, v in e["attrs"].items()]
+    if attribute_facts:
+        table = {"header": tpl["table_header"], "rows": [[name, key, value] for name, key, value in attribute_facts]}
+        sections.append(GeneratedSection(title=tpl["result_title"], paragraphs=[], table=table))
+
+    if not sections:
+        warnings.append("aucun fait reel disponible (entites/relations/attributs/concepts) : cas d'usage vide")
+
+    return sections, word_count, warnings
+
+
+def _assemble_exposition(
+    entities: list[dict], concepts: list[str], relations: list[tuple[str, str, str, str, str]], tpl: dict,
+) -> tuple[list[GeneratedSection], int, list[str]]:
+    """US16.8 : forme purement tabulaire - un court intro + UN tableau reel
+    par type d'element d'ontologie (concepts/entites/relations/attributs),
+    destinee au writer PDF (`write_pdf`, tables avec bordures reelles pour
+    etre detectees par pdfplumber au round-trip, voir l'epic). Les tableaux
+    ne comptent jamais dans word_count (convention deja existante du module
+    pour flat/book) : seules les phrases d'introduction y contribuent, le
+    parametre `words` ne borne donc pas la taille des tableaux (deja bornee
+    en amont par `vocabulary_size` via `_sample_material`)."""
+    warnings: list[str] = []
+    word_count = 0
+    sections: list[GeneratedSection] = []
+
+    if concepts:
+        intro = tpl["concepts_intro"]
+        word_count += len(intro.split())
+        table = {"header": tpl["concept_table_header"], "rows": [[c] for c in concepts]}
+        sections.append(GeneratedSection(title=tpl["concepts_section_title"], paragraphs=[intro], table=table))
+
+    if entities:
+        intro = tpl["entities_intro"]
+        word_count += len(intro.split())
+        table = {"header": tpl["actor_table_header"], "rows": [[e["name"], e["type"]] for e in entities]}
+        sections.append(GeneratedSection(title=tpl["entities_section_title"], paragraphs=[intro], table=table))
+
+    if relations:
+        intro = tpl["relations_intro"]
+        word_count += len(intro.split())
+        rows = [[s_name, rel_type, t_name] for s_name, _st, rel_type, t_name, _tt in relations]
+        table = {"header": tpl["relation_table_header"], "rows": rows}
+        sections.append(GeneratedSection(title=tpl["relations_section_title"], paragraphs=[intro], table=table))
+
+    attribute_facts = [(e["name"], k, str(v)) for e in entities for k, v in e["attrs"].items()]
+    if attribute_facts:
+        intro = tpl["attributes_intro"]
+        word_count += len(intro.split())
+        table = {"header": tpl["table_header"], "rows": [[name, key, value] for name, key, value in attribute_facts]}
+        sections.append(GeneratedSection(title=tpl["attributes_section_title"], paragraphs=[intro], table=table))
+
+    if not sections:
+        warnings.append("aucun element d'ontologie reel disponible : document d'exposition vide")
+
+    return sections, word_count, warnings
+
+
 def _write_markdown_section(lines: list[str], section: GeneratedSection, heading_level: int) -> None:
     marker = "#" * min(heading_level, 6)
     lines.append(f"{marker} {section.title}")
@@ -605,3 +748,59 @@ def write_docx(doc: GeneratedDocument, path: Path) -> None:
     for section in doc.sections:
         _write_docx_section(docx_document, section, heading_level=1)
     docx_document.save(str(path))
+
+
+def _write_pdf_section(story: list, styles, section: GeneratedSection, heading_style: str) -> None:
+    from xml.sax.saxutils import escape
+
+    from reportlab.lib import colors
+    from reportlab.lib.units import mm
+    from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
+
+    story.append(Paragraph(escape(section.title), styles[heading_style]))
+    story.append(Spacer(1, 3 * mm))
+    for paragraph in section.paragraphs:
+        story.append(Paragraph(escape(paragraph), styles["Normal"]))
+        story.append(Spacer(1, 1.5 * mm))
+    if section.table:
+        # US16.8 : GRID obligatoire, pas cosmetique - pdfplumber.extract_tables()
+        # (strategie par defaut) ne detecte un tableau qu'a partir de vrais
+        # traits dessines, verifie reellement par round-trip (voir tests).
+        # Les chaines de cellule ne passent PAS par Paragraph : Table ne les
+        # interprete pas comme le mini-XML de Paragraph, aucun escape requis.
+        data = [section.table["header"]] + section.table["rows"]
+        table = Table(data, repeatRows=1)
+        table.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ]))
+        story.append(table)
+        story.append(Spacer(1, 3 * mm))
+    next_style = "Heading3" if heading_style == "Heading2" else "Heading4"
+    for sub in section.subsections:
+        _write_pdf_section(story, styles, sub, next_style)
+
+
+def write_pdf(doc: GeneratedDocument, path: Path) -> None:
+    """US16.8. `pdf_struct.py` (lecture, deja existant) est BEAUCOUP plus
+    grossier que `docx_struct`/`markdown_struct` : une PAGE = une Section,
+    aucun titre/sous-titre detecte (voir son docstring) - les titres de
+    section ecrits ici restent donc de simples lignes de texte au
+    round-trip, limitation REELLE du parseur existant (pas un defaut de ce
+    writer). Seuls les tableaux (bordures GRID reelles, voir
+    `_write_pdf_section`) sont fiablement reconnus comme `Table` a la
+    lecture - coherent avec la forme "exposition" (US16.8), volontairement
+    tabulaire plutot que narrative."""
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.units import mm
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+    from xml.sax.saxutils import escape
+
+    styles = getSampleStyleSheet()
+    story = [Paragraph(escape(doc.title), styles["Title"]), Spacer(1, 5 * mm)]
+    for section in doc.sections:
+        _write_pdf_section(story, styles, section, "Heading2")
+    SimpleDocTemplate(str(path), pagesize=A4).build(story)

@@ -1,0 +1,10 @@
+name: reconnaissance-c2sim
+description: >
+  Classe C2SIM (vocabulaire militaire, ontologie semantique sans relation ni
+  attribut) : 2 documents Word generes a partir des vraies definitions
+  rdfs:comment de l'ontologie. Resultat jamais mesure en reconnaissance
+  (aucun depot reel de ces deux fichiers enregistre).
+seeds: [C2SIM]
+steps:
+  - document: documents/c2sim/c2sim-recits.docx
+  - document: documents/c2sim/c2sim-resume-operationnel.docx

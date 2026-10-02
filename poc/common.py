@@ -39,5 +39,8 @@ NEO4J_URI = f"bolt://127.0.0.1:{env('NEO4J_BOLT_PORT', '7687')}"
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = env("NEO4J_PASSWORD")
 
+FUSEKI_URL = f"http://127.0.0.1:{env('FUSEKI_PORT', '3030')}"
+FUSEKI_DATASET = "iaf"
+
 CHAT_MODEL = "ollama-local"
 EMBEDDING_MODEL = "iaf-embedding"

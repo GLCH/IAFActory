@@ -1,6 +1,6 @@
 # EPIC IAF-E16 : génération de documents d'exemple à partir d'une ontologie
 
-Jira : IAF-116, tâches IAF-117 à IAF-122. Statut : rédigé et implémenté le 2026-09-30.
+Jira : IAF-116, tâches IAF-117 à IAF-122, IAF-123 (US16.7), IAF-124 (US16.8). Statut : rédigé et implémenté le 2026-09-30.
 
 Objectif : produire par lot des documents d'exemple RECOMBINANT le contenu réel déjà présent dans l'ontologie structurelle et sémantique d'une classe documentaire existante (Fuseki/Neo4j) - pas du texte inventé ni généré par LLM. Sert deux usages : (1) fabriquer un corpus de test volumineux pour calibrer les seuils non calibrés du projet (`recognition_threshold`, `NORMALIZE_MATCH_THRESHOLD`, `CONCEPT_MATCH_THRESHOLD` - US7.7) ; (2) chaque document généré vient avec sa vérité terrain (quelles entités/relations/attributs ont réellement été utilisés), ce qui manque aujourd'hui à US7.7 ("jeu de documents annotés à la main (fournis par le creator)").
 
@@ -68,3 +68,41 @@ Demande explicite (2026-09-30) : "créé un nouveau bout de code (appel simple p
 - Prérequis : US16.1.
 - Acceptance criteria (à faire si le besoin se confirme) : mêmes conventions que `pptx_struct.py` (diapositives/titres de mise en page) et `latex_struct.py` (environnements, densité de citations, `_MATH_WORDS`).
 - Statut : hors scope de cette première version (décision ci-dessus), non implémenté.
+
+## US16.7 Structure "cas d'usage" (description d'un cas d'usage, .docx)
+- Ajoutée le 2026-09-30, demande explicite : "je voudrais un document word de description d'un cas d'usage relatif à l'ontologie sémantique en cours."
+- En tant que creator/développeur, je veux une troisième forme de document (`structure="use_case"`, en plus de `flat`/`book`), qui présente le matériau réel d'une classe sous la forme d'un cas d'usage (contexte, acteurs, scénario, résultat), pour produire un document plus proche d'un livrable métier qu'une prose générique.
+- Prérequis : US16.1 (échantillonnage honnête déjà partagé par `_sample_material`/`_build_fact_sentences`).
+- **Décision de cadrage (même principe que le repli bibliographique de US16.6 : jamais inventer un sens qui n'est pas dans l'ontologie)** : ce module ne connaît PAS sémantiquement ce qu'est un "acteur" ou une "étape" - il n'y a ni LLM ni annotation de rôle dans le pipeline réel (US3.4 ne distingue que `Entity.type`, un libellé libre). La forme "cas d'usage" est donc un CADRE structurel appliqué au matériau réel, pas une compréhension métier du cas d'usage :
+  - **Contexte** (fixe, première section) : mêmes phrases-gabarits de concept que `flat`/`book` (`concept_sentence`).
+  - **Acteurs** (fixe) : tableau des entités échantillonnées (Entité, Type) - littéralement la liste des entités réelles de la classe, présentées comme "acteurs potentiels" du cas d'usage, sans prétendre distinguer un acteur humain d'un objet.
+  - **Scénario** (fixe) : les relations réelles `(source)-[REL]->(cible)` recomposées en étapes numérotées dans leur ordre d'extraction (`Étape {n} : {source} {relation} {cible}.`) - aucune causalité ni chronologie inventée au-delà de l'ordre réel des relations retournées par Neo4j (`ORDER BY s.name, r.type, t.name`, déjà utilisé par `load_class_material`).
+  - **Résultat** (fixe, dernière section) : tableau des attributs réels observés (Entité, Attribut, Valeur), présenté comme les données produites/observées à l'issue du scénario.
+  - Section absente si son matériau réel est vide (pas de section "Scénario" sans relation réelle, etc.) - même principe de dégradation honnête que le reste du module.
+- Acceptance criteria : `_assemble_use_case()` dans `doc_generator.py`, nouveaux gabarits FR/EN (`context_title`/`actors_title`/`scenario_title`/`result_title`, `scenario_step_sentence`), `"use_case"` ajouté à `STRUCTURE_STYLES` ; réutilise `write_markdown`/`write_docx` existants (aucun nouveau writer nécessaire, la forme reste un arbre `GeneratedSection` standard) ; round-trip réel vérifié via `docx_struct.parse`.
+- Format demandé explicitement par l'utilisateur pour cette structure : `.docx`.
+
+## US16.8 Structure "exposition d'information" (tableaux + éléments d'ontologie) + nouveau format .pdf
+- Ajoutée le 2026-09-30, demande explicite : "Un document pdf d'exposition d'information avec des tableaux et des éléments de l'ontologie."
+- En tant que creator/développeur, je veux une quatrième forme de document (`structure="exposition"`), purement tabulaire, qui expose les concepts/entités/relations/attributs réels d'une classe sous forme de tableaux (pas de prose narrative), et un nouveau writer `.pdf` capable de produire ce document.
+- Prérequis : US16.1.
+- **Forme (`_assemble_exposition()`)** : jusqu'à 4 sections fixes, une par type d'élément d'ontologie, chacune un court paragraphe d'introduction + UN tableau (le modèle `GeneratedSection.table` existant ne porte qu'un tableau par section - pas de changement de modèle nécessaire) :
+  1. **Concepts** (tableau 1 colonne, un concept par ligne).
+  2. **Entités** (tableau Entité/Type, une ligne par entité échantillonnée).
+  3. **Relations** (tableau Source/Relation/Cible, une ligne par relation échantillonnée).
+  4. **Attributs** (tableau Entité/Attribut/Valeur, une ligne par attribut réel observé).
+  Section absente si son matériau réel est vide. Comme les tableaux ne comptent jamais dans `word_count` (convention déjà existante dans tout le module), le paramètre `words` ne borne ici que les phrases d'introduction, pas la taille des tableaux (bornée en amont par `vocabulary_size`, déjà échantillonné honnêtement par `_sample_material`).
+- **Nouveau writer `write_pdf()` (reportlab, `reportlab==5.0.1` - version réelle vérifiée via `pip index versions reportlab`, pas devinée)** : contrainte technique vérifiée en lisant `pdf_struct.py` (le parseur réel de lecture PDF, déjà existant pour l'ingestion) AVANT d'écrire le writer, pas supposée :
+  - `pdf_struct.parse()` est BEAUCOUP plus grossier que `docx_struct`/`markdown_struct` : **une PAGE = une Section, aucun titre/sous-titre détecté** (pas de notion de style de titre en PDF côté lecture) - les titres de section ("Concepts", "Entités"...) redeviennent donc de simples lignes de texte au round-trip, une limitation RÉELLE du parseur existant (déjà documentée dans son propre docstring "plus grossiere"), pas un défaut du writer à corriger ici.
+  - Les tableaux sont extraits via `pdfplumber.extract_tables()`, qui (stratégie par défaut) détecte des tableaux à partir de VRAIS TRAITS/BORDURES dessinés dans le PDF - un texte simplement aligné en colonnes sans bordure ne serait PAS reconnu comme tableau à la lecture. `write_pdf()` doit donc dessiner des tableaux avec bordures réelles (`reportlab.platypus.Table` + `TableStyle([('GRID', ...)])`), vérifié réellement par un test de round-trip (`pdfplumber.extract_tables()` sur un PDF généré par ce writer), pas supposé compatible.
+  - Chaque ligne de texte (intro de section) devient un `Paragraph` distinct au round-trip (pas de reconstruction multi-lignes côté lecture) - cohérent avec la forme "exposition" qui a très peu de prose de toute façon.
+- Acceptance criteria : `"exposition"` ajouté à `STRUCTURE_STYLES`, nouveaux gabarits FR/EN (titres de section + phrases d'introduction par tableau + `concept_table_header`/`entity_table_header`/`relation_table_header`), `write_pdf()` dans `doc_generator.py`, `"pdf"` ajouté à `WRITERS` dans `generate_documents.py`, `reportlab==5.0.1` ajouté explicitement à `pyproject.toml` (déjà présent transitivement) ; round-trip réel vérifié via `pdf_struct.parse()` (au moins un `Table` détecté par page, pas seulement du texte).
+- Format demandé explicitement par l'utilisateur pour cette structure : `.pdf`.
+
+**Mesure réelle (2026-09-30)** : 6 nouveaux tests (`test_doc_generator.py`, 20/20 au total avec les existants), dont le round-trip réel `write_pdf` -> `pdf_struct.parse` (au moins un `Table` détecté par `pdfplumber.extract_tables()`, contenu réel retrouvé). Suite complète du site 29/29 (pas de régression).
+
+Le service ayant été vidé juste avant cette demande (wipe admin confirmé par l'utilisateur), aucune classe réelle n'existait pour démontrer la génération. Ontologie Wine (fixture déjà utilisée pour US16.6, `ontologies/semantic-examples/wine.rdf`) réimportée dans une classe de démo (`import_semantic_ontology.py`, class_id `45cd4041-e32c-4dfa-8b1e-962c07fe1484`, 74 concepts/161 entités/246 relations/1 attribut). Génération réelle exécutée (`scripts/generate_documents.demo.yaml`) :
+- Cas d'usage `.docx` (1500 mots demandés, 1088 réels) : 4 sections Contexte/Acteurs/Scénario/Résultat confirmées par `docx_struct.parse` réel, 2 tableaux natifs détectés.
+- Exposition `.pdf` (500 mots demandés côté intros, 24 réels - normal, les tableaux n'y comptent pas) : `pdf_struct.parse` réel détecte 8 pages et 10 fragments de `Table` (les tableaux Concepts/Entités/Relations se répartissent sur plusieurs pages, chaque fragment redétecté séparément par `pdfplumber` - limitation déjà documentée du parseur page-par-page).
+
+**Limite honnête observée en générant** (pas en relisant le code) : la section Contexte (une phrase par concept réel, sans plafond dédié) peut à elle seule épuiser le budget de mots demandé quand une classe a beaucoup de concepts (74 ici) - les sections Scénario/Résultat disparaissent alors silencieusement (comportement "honnête" voulu : jamais de contenu inventé pour combler), mais au prix d'un document use_case parfois incomplet à budget de mots insuffisant. Pas corrigé ici (pas un bug du code, juste un compromis de dimensionnement non calibré comme le reste du projet, US7.7) - à garder en tête si le besoin se reproduit avec de grandes classes.

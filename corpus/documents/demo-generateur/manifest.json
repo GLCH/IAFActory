@@ -1,0 +1,2350 @@
+[
+  {
+    "class_id": "45cd4041-e32c-4dfa-8b1e-962c07fe1484",
+    "class_name": "Wine (demo generation documents)",
+    "index": 1,
+    "files": [
+      "data\\generated\\45cd4041-e32c-4dfa-8b1e-962c07fe1484\\45cd4041-e32c-4dfa-8b1e-962c07fe1484-001.docx"
+    ],
+    "requested_words": 1500,
+    "actual_words": 1088,
+    "warnings": [
+      "classe sans document reel : profil structurel de repli utilise (4 paragraphes/section)"
+    ],
+    "ground_truth": {
+      "class_id": "45cd4041-e32c-4dfa-8b1e-962c07fe1484",
+      "class_name": "Wine (demo generation documents)",
+      "language": "fr",
+      "structure": "use_case",
+      "entities": [
+        {
+          "name": "AlsaceRegion",
+          "type": "Region"
+        },
+        {
+          "name": "AustralianRegion",
+          "type": "Region"
+        },
+        {
+          "name": "BancroftChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "BordeauxRegion",
+          "type": "Region"
+        },
+        {
+          "name": "BourgogneRegion",
+          "type": "Region"
+        },
+        {
+          "name": "CabernetSauvignonGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "CaliforniaRegion",
+          "type": "Region"
+        },
+        {
+          "name": "ChardonnayGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "ChateauChevalBlancStEmilion",
+          "type": "StEmilion"
+        },
+        {
+          "name": "ChateauDYchemSauterne",
+          "type": "Sauternes"
+        },
+        {
+          "name": "ChateauDeMeursault",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauDeMeursaultMeursault",
+          "type": "Meursault"
+        },
+        {
+          "name": "ChateauLafiteRothschild",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauLafiteRothschildPauillac",
+          "type": "Pauillac"
+        },
+        {
+          "name": "ChateauMargauxWinery",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauMorgon",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauMorgonBeaujolais",
+          "type": "Beaujolais"
+        },
+        {
+          "name": "CheninBlancGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "ClosDeLaPoussie",
+          "type": "Winery"
+        },
+        {
+          "name": "ClosDeLaPoussieSancerre",
+          "type": "Sancerre"
+        },
+        {
+          "name": "ClosDeVougeotCotesDOr",
+          "type": "CotesDOr"
+        },
+        {
+          "name": "CongressSpringsSemillon",
+          "type": "Semillon"
+        },
+        {
+          "name": "CorbansPrivateBinSauvignonBlanc",
+          "type": "SauvignonBlanc"
+        },
+        {
+          "name": "CortonMontrachet",
+          "type": "Winery"
+        },
+        {
+          "name": "CotesDOrRegion",
+          "type": "Region"
+        },
+        {
+          "name": "Cotturi",
+          "type": "Winery"
+        },
+        {
+          "name": "DAnjou",
+          "type": "Winery"
+        },
+        {
+          "name": "Delicate",
+          "type": "WineFlavor"
+        },
+        {
+          "name": "Dry",
+          "type": "WineSugar"
+        },
+        {
+          "name": "EdnaValleyRegion",
+          "type": "Region"
+        },
+        {
+          "name": "Elyse",
+          "type": "Winery"
+        },
+        {
+          "name": "ElyseZinfandel",
+          "type": "Zinfandel"
+        },
+        {
+          "name": "FormanCabernetSauvignon",
+          "type": "CabernetSauvignon"
+        },
+        {
+          "name": "FormanChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "Foxen",
+          "type": "Winery"
+        },
+        {
+          "name": "FoxenCheninBlanc",
+          "type": "CheninBlanc"
+        },
+        {
+          "name": "GaryFarrell",
+          "type": "Winery"
+        },
+        {
+          "name": "GermanyRegion",
+          "type": "Region"
+        },
+        {
+          "name": "ItalianRegion",
+          "type": "Region"
+        },
+        {
+          "name": "KalinCellars",
+          "type": "Winery"
+        },
+        {
+          "name": "KalinCellarsSemillon",
+          "type": "Semillon"
+        },
+        {
+          "name": "Light",
+          "type": "WineBody"
+        },
+        {
+          "name": "Longridge",
+          "type": "Winery"
+        },
+        {
+          "name": "LongridgeMerlot",
+          "type": "Merlot"
+        },
+        {
+          "name": "MalbecGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "Marietta",
+          "type": "Winery"
+        },
+        {
+          "name": "MariettaCabernetSauvignon",
+          "type": "CabernetSauvignon"
+        },
+        {
+          "name": "MariettaOldVinesRed",
+          "type": "RedTableWine"
+        },
+        {
+          "name": "MariettaPetiteSyrah",
+          "type": "PetiteSyrah"
+        },
+        {
+          "name": "MariettaZinfandel",
+          "type": "Zinfandel"
+        },
+        {
+          "name": "McGuinnesso",
+          "type": "Winery"
+        },
+        {
+          "name": "MerlotGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "Moderate",
+          "type": "WineFlavor"
+        },
+        {
+          "name": "MountEdenVineyard",
+          "type": "Winery"
+        },
+        {
+          "name": "MountEdenVineyardEdnaValleyChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "Mountadam",
+          "type": "Winery"
+        },
+        {
+          "name": "MountadamPinotNoir",
+          "type": "PinotNoir"
+        },
+        {
+          "name": "MountadamRiesling",
+          "type": "DryRiesling"
+        },
+        {
+          "name": "MuscadetRegion",
+          "type": "Region"
+        },
+        {
+          "name": "NapaRegion",
+          "type": "Region"
+        },
+        {
+          "name": "NewZealandRegion",
+          "type": "Region"
+        },
+        {
+          "name": "OffDry",
+          "type": "WineSugar"
+        },
+        {
+          "name": "PageMillWinery",
+          "type": "Winery"
+        },
+        {
+          "name": "PeterMccoyChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "PetiteVerdotGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "PinotBlancGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "PinotNoirGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "PortugalRegion",
+          "type": "Region"
+        },
+        {
+          "name": "PulignyMontrachet",
+          "type": "Winery"
+        },
+        {
+          "name": "PulignyMontrachetWhiteBurgundy",
+          "type": "WhiteBurgundy"
+        },
+        {
+          "name": "Red",
+          "type": "WineColor"
+        },
+        {
+          "name": "RieslingGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "Rose",
+          "type": "WineColor"
+        },
+        {
+          "name": "RoseDAnjou",
+          "type": "Anjou"
+        },
+        {
+          "name": "SancerreRegion",
+          "type": "Region"
+        },
+        {
+          "name": "SangioveseGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "SantaCruzMountainVineyard",
+          "type": "Winery"
+        },
+        {
+          "name": "SantaCruzMountainsRegion",
+          "type": "Region"
+        },
+        {
+          "name": "SaucelitoCanyon",
+          "type": "Winery"
+        },
+        {
+          "name": "SaucelitoCanyonZinfandel1998",
+          "type": "Zinfandel"
+        },
+        {
+          "name": "SauterneRegion",
+          "type": "Region"
+        },
+        {
+          "name": "SchlossRothermel",
+          "type": "Winery"
+        },
+        {
+          "name": "SchlossRothermelTrochenbierenausleseRiesling",
+          "type": "SweetRiesling"
+        },
+        {
+          "name": "SchlossVolrad",
+          "type": "Winery"
+        },
+        {
+          "name": "Selaks",
+          "type": "Winery"
+        },
+        {
+          "name": "SelaksIceWine",
+          "type": "IceWine"
+        },
+        {
+          "name": "SevreEtMaine",
+          "type": "Winery"
+        },
+        {
+          "name": "SevreEtMaineMuscadet",
+          "type": "Muscadet"
+        },
+        {
+          "name": "SouthAustraliaRegion",
+          "type": "Region"
+        },
+        {
+          "name": "StEmilionRegion",
+          "type": "Region"
+        },
+        {
+          "name": "StGenevieveTexasWhite",
+          "type": "WhiteWine"
+        },
+        {
+          "name": "StonleighSauvignonBlanc",
+          "type": "SauvignonBlanc"
+        },
+        {
+          "name": "Strong",
+          "type": "WineFlavor"
+        },
+        {
+          "name": "TaylorPort",
+          "type": "Port"
+        },
+        {
+          "name": "ToursRegion",
+          "type": "Region"
+        },
+        {
+          "name": "USRegion",
+          "type": "Region"
+        },
+        {
+          "name": "VentanaCheninBlanc",
+          "type": "CheninBlanc"
+        },
+        {
+          "name": "WhitehallLane",
+          "type": "Winery"
+        },
+        {
+          "name": "WhitehallLaneCabernetFranc",
+          "type": "CabernetFranc"
+        },
+        {
+          "name": "Year1998",
+          "type": "VintageYear"
+        }
+      ],
+      "relations": [
+        {
+          "source": "BancroftChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "BancroftChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "BancroftChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "CaliforniaRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "USRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "ChateauDYchemSauterne",
+          "source_type": "Sauternes",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "ChateauDeMeursaultMeursault",
+          "source_type": "Meursault",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "ChateauDeMeursaultMeursault",
+          "source_type": "Meursault",
+          "relation": "hasMaker",
+          "target": "ChateauDeMeursault",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ChateauLafiteRothschildPauillac",
+          "source_type": "Pauillac",
+          "relation": "hasMaker",
+          "target": "ChateauLafiteRothschild",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ChateauMorgonBeaujolais",
+          "source_type": "Beaujolais",
+          "relation": "hasMaker",
+          "target": "ChateauMorgon",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ClosDeLaPoussieSancerre",
+          "source_type": "Sancerre",
+          "relation": "hasMaker",
+          "target": "ClosDeLaPoussie",
+          "target_type": "Winery"
+        },
+        {
+          "source": "CongressSpringsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "CongressSpringsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "CorbansPrivateBinSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "CorbansPrivateBinSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "CorbansPrivateBinSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "CotesDOrRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "BourgogneRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "EdnaValleyRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "CaliforniaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasMaker",
+          "target": "Elyse",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "FormanCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "FormanCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "FormanCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "FormanChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "FormanChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "FormanChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "FoxenCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "FoxenCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasMaker",
+          "target": "Foxen",
+          "target_type": "Winery"
+        },
+        {
+          "source": "FoxenCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "KalinCellarsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "KalinCellarsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasMaker",
+          "target": "KalinCellars",
+          "target_type": "Winery"
+        },
+        {
+          "source": "KalinCellarsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasBody",
+          "target": "Light",
+          "target_type": "WineBody"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasMaker",
+          "target": "Longridge",
+          "target_type": "Winery"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "MariettaCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MariettaOldVinesRed",
+          "source_type": "RedTableWine",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaOldVinesRed",
+          "source_type": "RedTableWine",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaOldVinesRed",
+          "source_type": "RedTableWine",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MariettaPetiteSyrah",
+          "source_type": "PetiteSyrah",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaPetiteSyrah",
+          "source_type": "PetiteSyrah",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaPetiteSyrah",
+          "source_type": "PetiteSyrah",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MariettaZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasMaker",
+          "target": "MountEdenVineyard",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "locatedIn",
+          "target": "EdnaValleyRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "hasMaker",
+          "target": "Mountadam",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "locatedIn",
+          "target": "SouthAustraliaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "hasFlavor",
+          "target": "Delicate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "hasMaker",
+          "target": "Mountadam",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "locatedIn",
+          "target": "SouthAustraliaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "NapaRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "CaliforniaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "PeterMccoyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "PeterMccoyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "PulignyMontrachetWhiteBurgundy",
+          "source_type": "WhiteBurgundy",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "PulignyMontrachetWhiteBurgundy",
+          "source_type": "WhiteBurgundy",
+          "relation": "hasMaker",
+          "target": "PulignyMontrachet",
+          "target_type": "Winery"
+        },
+        {
+          "source": "PulignyMontrachetWhiteBurgundy",
+          "source_type": "WhiteBurgundy",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "RoseDAnjou",
+          "source_type": "Anjou",
+          "relation": "hasMaker",
+          "target": "DAnjou",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SantaCruzMountainsRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "CaliforniaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasMaker",
+          "target": "SaucelitoCanyon",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasVintageYear",
+          "target": "Year1998",
+          "target_type": "VintageYear"
+        },
+        {
+          "source": "SauterneRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "BordeauxRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SchlossRothermelTrochenbierenausleseRiesling",
+          "source_type": "SweetRiesling",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "SchlossRothermelTrochenbierenausleseRiesling",
+          "source_type": "SweetRiesling",
+          "relation": "hasMaker",
+          "target": "SchlossRothermel",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SchlossRothermelTrochenbierenausleseRiesling",
+          "source_type": "SweetRiesling",
+          "relation": "locatedIn",
+          "target": "GermanyRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SelaksIceWine",
+          "source_type": "IceWine",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "SelaksIceWine",
+          "source_type": "IceWine",
+          "relation": "hasMaker",
+          "target": "Selaks",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SelaksIceWine",
+          "source_type": "IceWine",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SevreEtMaineMuscadet",
+          "source_type": "Muscadet",
+          "relation": "hasMaker",
+          "target": "SevreEtMaine",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SouthAustraliaRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "AustralianRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "StEmilionRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "BordeauxRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "StGenevieveTexasWhite",
+          "source_type": "WhiteWine",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "StGenevieveTexasWhite",
+          "source_type": "WhiteWine",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "StonleighSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasFlavor",
+          "target": "Delicate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "StonleighSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "StonleighSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "VentanaCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "VentanaCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasSugar",
+          "target": "OffDry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "hasMaker",
+          "target": "WhitehallLane",
+          "target_type": "Winery"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        }
+      ],
+      "attributes": [
+        {
+          "entity": "Year1998",
+          "key": "yearValue",
+          "value": "1998"
+        }
+      ],
+      "concepts": [
+        "AlsatianWine",
+        "AmericanWine",
+        "Anjou",
+        "Beaujolais",
+        "Bordeaux",
+        "Burgundy",
+        "CabernetFranc",
+        "CabernetSauvignon",
+        "CaliforniaWine",
+        "Chardonnay",
+        "CheninBlanc",
+        "Chianti",
+        "CotesDOr",
+        "DessertWine",
+        "DryRedWine",
+        "DryRiesling",
+        "DryWhiteWine",
+        "DryWine",
+        "EarlyHarvest",
+        "FrenchWine",
+        "FullBodiedWine",
+        "Gamay",
+        "GermanWine",
+        "IceWine",
+        "ItalianWine",
+        "LateHarvest",
+        "Loire",
+        "Margaux",
+        "Medoc",
+        "Meritage",
+        "Merlot",
+        "Meursault",
+        "Muscadet",
+        "Pauillac",
+        "PetiteSyrah",
+        "PinotBlanc",
+        "PinotNoir",
+        "Port",
+        "RedBordeaux",
+        "RedBurgundy",
+        "RedTableWine",
+        "RedWine",
+        "Region",
+        "Riesling",
+        "RoseWine",
+        "Sancerre",
+        "Sauternes",
+        "SauvignonBlanc",
+        "Semillon",
+        "SemillonOrSauvignonBlanc",
+        "StEmilion",
+        "SweetRiesling",
+        "SweetWine",
+        "TableWine",
+        "TexasWine",
+        "Tours",
+        "Vintage",
+        "VintageYear",
+        "WhiteBordeaux",
+        "WhiteBurgundy",
+        "WhiteLoire",
+        "WhiteNonSweetWine",
+        "WhiteTableWine",
+        "WhiteWine",
+        "Wine",
+        "WineBody",
+        "WineColor",
+        "WineDescriptor",
+        "WineFlavor",
+        "WineGrape",
+        "WineSugar",
+        "WineTaste",
+        "Winery",
+        "Zinfandel"
+      ],
+      "vocabulary_requested": 100,
+      "vocabulary_available": 161,
+      "vocabulary_used": 100
+    }
+  },
+  {
+    "class_id": "45cd4041-e32c-4dfa-8b1e-962c07fe1484",
+    "class_name": "Wine (demo generation documents)",
+    "index": 1,
+    "files": [
+      "data\\generated\\45cd4041-e32c-4dfa-8b1e-962c07fe1484\\45cd4041-e32c-4dfa-8b1e-962c07fe1484-001.pdf"
+    ],
+    "requested_words": 500,
+    "actual_words": 24,
+    "warnings": [
+      "classe sans document reel : profil structurel de repli utilise (4 paragraphes/section)"
+    ],
+    "ground_truth": {
+      "class_id": "45cd4041-e32c-4dfa-8b1e-962c07fe1484",
+      "class_name": "Wine (demo generation documents)",
+      "language": "fr",
+      "structure": "exposition",
+      "entities": [
+        {
+          "name": "AlsaceRegion",
+          "type": "Region"
+        },
+        {
+          "name": "AustralianRegion",
+          "type": "Region"
+        },
+        {
+          "name": "BancroftChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "BordeauxRegion",
+          "type": "Region"
+        },
+        {
+          "name": "BourgogneRegion",
+          "type": "Region"
+        },
+        {
+          "name": "CabernetSauvignonGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "CaliforniaRegion",
+          "type": "Region"
+        },
+        {
+          "name": "ChardonnayGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "ChateauChevalBlancStEmilion",
+          "type": "StEmilion"
+        },
+        {
+          "name": "ChateauDYchemSauterne",
+          "type": "Sauternes"
+        },
+        {
+          "name": "ChateauDeMeursault",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauDeMeursaultMeursault",
+          "type": "Meursault"
+        },
+        {
+          "name": "ChateauLafiteRothschild",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauLafiteRothschildPauillac",
+          "type": "Pauillac"
+        },
+        {
+          "name": "ChateauMargauxWinery",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauMorgon",
+          "type": "Winery"
+        },
+        {
+          "name": "ChateauMorgonBeaujolais",
+          "type": "Beaujolais"
+        },
+        {
+          "name": "CheninBlancGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "ClosDeLaPoussie",
+          "type": "Winery"
+        },
+        {
+          "name": "ClosDeLaPoussieSancerre",
+          "type": "Sancerre"
+        },
+        {
+          "name": "ClosDeVougeotCotesDOr",
+          "type": "CotesDOr"
+        },
+        {
+          "name": "CongressSpringsSemillon",
+          "type": "Semillon"
+        },
+        {
+          "name": "CorbansPrivateBinSauvignonBlanc",
+          "type": "SauvignonBlanc"
+        },
+        {
+          "name": "CortonMontrachet",
+          "type": "Winery"
+        },
+        {
+          "name": "CotesDOrRegion",
+          "type": "Region"
+        },
+        {
+          "name": "Cotturi",
+          "type": "Winery"
+        },
+        {
+          "name": "DAnjou",
+          "type": "Winery"
+        },
+        {
+          "name": "Delicate",
+          "type": "WineFlavor"
+        },
+        {
+          "name": "Dry",
+          "type": "WineSugar"
+        },
+        {
+          "name": "EdnaValleyRegion",
+          "type": "Region"
+        },
+        {
+          "name": "Elyse",
+          "type": "Winery"
+        },
+        {
+          "name": "ElyseZinfandel",
+          "type": "Zinfandel"
+        },
+        {
+          "name": "FormanCabernetSauvignon",
+          "type": "CabernetSauvignon"
+        },
+        {
+          "name": "FormanChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "Foxen",
+          "type": "Winery"
+        },
+        {
+          "name": "FoxenCheninBlanc",
+          "type": "CheninBlanc"
+        },
+        {
+          "name": "GaryFarrell",
+          "type": "Winery"
+        },
+        {
+          "name": "GermanyRegion",
+          "type": "Region"
+        },
+        {
+          "name": "ItalianRegion",
+          "type": "Region"
+        },
+        {
+          "name": "KalinCellars",
+          "type": "Winery"
+        },
+        {
+          "name": "KalinCellarsSemillon",
+          "type": "Semillon"
+        },
+        {
+          "name": "Light",
+          "type": "WineBody"
+        },
+        {
+          "name": "Longridge",
+          "type": "Winery"
+        },
+        {
+          "name": "LongridgeMerlot",
+          "type": "Merlot"
+        },
+        {
+          "name": "MalbecGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "Marietta",
+          "type": "Winery"
+        },
+        {
+          "name": "MariettaCabernetSauvignon",
+          "type": "CabernetSauvignon"
+        },
+        {
+          "name": "MariettaOldVinesRed",
+          "type": "RedTableWine"
+        },
+        {
+          "name": "MariettaPetiteSyrah",
+          "type": "PetiteSyrah"
+        },
+        {
+          "name": "MariettaZinfandel",
+          "type": "Zinfandel"
+        },
+        {
+          "name": "McGuinnesso",
+          "type": "Winery"
+        },
+        {
+          "name": "MerlotGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "Moderate",
+          "type": "WineFlavor"
+        },
+        {
+          "name": "MountEdenVineyard",
+          "type": "Winery"
+        },
+        {
+          "name": "MountEdenVineyardEdnaValleyChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "Mountadam",
+          "type": "Winery"
+        },
+        {
+          "name": "MountadamPinotNoir",
+          "type": "PinotNoir"
+        },
+        {
+          "name": "MountadamRiesling",
+          "type": "DryRiesling"
+        },
+        {
+          "name": "MuscadetRegion",
+          "type": "Region"
+        },
+        {
+          "name": "NapaRegion",
+          "type": "Region"
+        },
+        {
+          "name": "NewZealandRegion",
+          "type": "Region"
+        },
+        {
+          "name": "OffDry",
+          "type": "WineSugar"
+        },
+        {
+          "name": "PageMillWinery",
+          "type": "Winery"
+        },
+        {
+          "name": "PeterMccoyChardonnay",
+          "type": "Chardonnay"
+        },
+        {
+          "name": "PetiteVerdotGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "PinotBlancGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "PinotNoirGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "PortugalRegion",
+          "type": "Region"
+        },
+        {
+          "name": "PulignyMontrachet",
+          "type": "Winery"
+        },
+        {
+          "name": "PulignyMontrachetWhiteBurgundy",
+          "type": "WhiteBurgundy"
+        },
+        {
+          "name": "Red",
+          "type": "WineColor"
+        },
+        {
+          "name": "RieslingGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "Rose",
+          "type": "WineColor"
+        },
+        {
+          "name": "RoseDAnjou",
+          "type": "Anjou"
+        },
+        {
+          "name": "SancerreRegion",
+          "type": "Region"
+        },
+        {
+          "name": "SangioveseGrape",
+          "type": "WineGrape"
+        },
+        {
+          "name": "SantaCruzMountainVineyard",
+          "type": "Winery"
+        },
+        {
+          "name": "SantaCruzMountainsRegion",
+          "type": "Region"
+        },
+        {
+          "name": "SaucelitoCanyon",
+          "type": "Winery"
+        },
+        {
+          "name": "SaucelitoCanyonZinfandel1998",
+          "type": "Zinfandel"
+        },
+        {
+          "name": "SauterneRegion",
+          "type": "Region"
+        },
+        {
+          "name": "SchlossRothermel",
+          "type": "Winery"
+        },
+        {
+          "name": "SchlossRothermelTrochenbierenausleseRiesling",
+          "type": "SweetRiesling"
+        },
+        {
+          "name": "SchlossVolrad",
+          "type": "Winery"
+        },
+        {
+          "name": "Selaks",
+          "type": "Winery"
+        },
+        {
+          "name": "SelaksIceWine",
+          "type": "IceWine"
+        },
+        {
+          "name": "SevreEtMaine",
+          "type": "Winery"
+        },
+        {
+          "name": "SevreEtMaineMuscadet",
+          "type": "Muscadet"
+        },
+        {
+          "name": "SouthAustraliaRegion",
+          "type": "Region"
+        },
+        {
+          "name": "StEmilionRegion",
+          "type": "Region"
+        },
+        {
+          "name": "StGenevieveTexasWhite",
+          "type": "WhiteWine"
+        },
+        {
+          "name": "StonleighSauvignonBlanc",
+          "type": "SauvignonBlanc"
+        },
+        {
+          "name": "Strong",
+          "type": "WineFlavor"
+        },
+        {
+          "name": "TaylorPort",
+          "type": "Port"
+        },
+        {
+          "name": "ToursRegion",
+          "type": "Region"
+        },
+        {
+          "name": "USRegion",
+          "type": "Region"
+        },
+        {
+          "name": "VentanaCheninBlanc",
+          "type": "CheninBlanc"
+        },
+        {
+          "name": "WhitehallLane",
+          "type": "Winery"
+        },
+        {
+          "name": "WhitehallLaneCabernetFranc",
+          "type": "CabernetFranc"
+        },
+        {
+          "name": "Year1998",
+          "type": "VintageYear"
+        }
+      ],
+      "relations": [
+        {
+          "source": "BancroftChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "BancroftChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "BancroftChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "CaliforniaRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "USRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "ChateauDYchemSauterne",
+          "source_type": "Sauternes",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "ChateauDeMeursaultMeursault",
+          "source_type": "Meursault",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "ChateauDeMeursaultMeursault",
+          "source_type": "Meursault",
+          "relation": "hasMaker",
+          "target": "ChateauDeMeursault",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ChateauLafiteRothschildPauillac",
+          "source_type": "Pauillac",
+          "relation": "hasMaker",
+          "target": "ChateauLafiteRothschild",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ChateauMorgonBeaujolais",
+          "source_type": "Beaujolais",
+          "relation": "hasMaker",
+          "target": "ChateauMorgon",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ClosDeLaPoussieSancerre",
+          "source_type": "Sancerre",
+          "relation": "hasMaker",
+          "target": "ClosDeLaPoussie",
+          "target_type": "Winery"
+        },
+        {
+          "source": "CongressSpringsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "CongressSpringsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "CorbansPrivateBinSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "CorbansPrivateBinSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "CorbansPrivateBinSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "CotesDOrRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "BourgogneRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "EdnaValleyRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "CaliforniaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasMaker",
+          "target": "Elyse",
+          "target_type": "Winery"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "ElyseZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "FormanCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "FormanCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "FormanCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "FormanChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "FormanChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "FormanChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "FoxenCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "FoxenCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasMaker",
+          "target": "Foxen",
+          "target_type": "Winery"
+        },
+        {
+          "source": "FoxenCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "KalinCellarsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "KalinCellarsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasMaker",
+          "target": "KalinCellars",
+          "target_type": "Winery"
+        },
+        {
+          "source": "KalinCellarsSemillon",
+          "source_type": "Semillon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasBody",
+          "target": "Light",
+          "target_type": "WineBody"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasMaker",
+          "target": "Longridge",
+          "target_type": "Winery"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "LongridgeMerlot",
+          "source_type": "Merlot",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "MariettaCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaCabernetSauvignon",
+          "source_type": "CabernetSauvignon",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MariettaOldVinesRed",
+          "source_type": "RedTableWine",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaOldVinesRed",
+          "source_type": "RedTableWine",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaOldVinesRed",
+          "source_type": "RedTableWine",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MariettaPetiteSyrah",
+          "source_type": "PetiteSyrah",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaPetiteSyrah",
+          "source_type": "PetiteSyrah",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaPetiteSyrah",
+          "source_type": "PetiteSyrah",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MariettaZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MariettaZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasMaker",
+          "target": "Marietta",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MariettaZinfandel",
+          "source_type": "Zinfandel",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasMaker",
+          "target": "MountEdenVineyard",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountEdenVineyardEdnaValleyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "locatedIn",
+          "target": "EdnaValleyRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "hasMaker",
+          "target": "Mountadam",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountadamPinotNoir",
+          "source_type": "PinotNoir",
+          "relation": "locatedIn",
+          "target": "SouthAustraliaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "hasFlavor",
+          "target": "Delicate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "hasMaker",
+          "target": "Mountadam",
+          "target_type": "Winery"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "MountadamRiesling",
+          "source_type": "DryRiesling",
+          "relation": "locatedIn",
+          "target": "SouthAustraliaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "NapaRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "CaliforniaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "PeterMccoyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "PeterMccoyChardonnay",
+          "source_type": "Chardonnay",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "PulignyMontrachetWhiteBurgundy",
+          "source_type": "WhiteBurgundy",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "PulignyMontrachetWhiteBurgundy",
+          "source_type": "WhiteBurgundy",
+          "relation": "hasMaker",
+          "target": "PulignyMontrachet",
+          "target_type": "Winery"
+        },
+        {
+          "source": "PulignyMontrachetWhiteBurgundy",
+          "source_type": "WhiteBurgundy",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "RoseDAnjou",
+          "source_type": "Anjou",
+          "relation": "hasMaker",
+          "target": "DAnjou",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SantaCruzMountainsRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "CaliforniaRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasMaker",
+          "target": "SaucelitoCanyon",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "SaucelitoCanyonZinfandel1998",
+          "source_type": "Zinfandel",
+          "relation": "hasVintageYear",
+          "target": "Year1998",
+          "target_type": "VintageYear"
+        },
+        {
+          "source": "SauterneRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "BordeauxRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SchlossRothermelTrochenbierenausleseRiesling",
+          "source_type": "SweetRiesling",
+          "relation": "hasFlavor",
+          "target": "Strong",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "SchlossRothermelTrochenbierenausleseRiesling",
+          "source_type": "SweetRiesling",
+          "relation": "hasMaker",
+          "target": "SchlossRothermel",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SchlossRothermelTrochenbierenausleseRiesling",
+          "source_type": "SweetRiesling",
+          "relation": "locatedIn",
+          "target": "GermanyRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SelaksIceWine",
+          "source_type": "IceWine",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "SelaksIceWine",
+          "source_type": "IceWine",
+          "relation": "hasMaker",
+          "target": "Selaks",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SelaksIceWine",
+          "source_type": "IceWine",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "SevreEtMaineMuscadet",
+          "source_type": "Muscadet",
+          "relation": "hasMaker",
+          "target": "SevreEtMaine",
+          "target_type": "Winery"
+        },
+        {
+          "source": "SouthAustraliaRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "AustralianRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "StEmilionRegion",
+          "source_type": "Region",
+          "relation": "locatedIn",
+          "target": "BordeauxRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "StGenevieveTexasWhite",
+          "source_type": "WhiteWine",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "StGenevieveTexasWhite",
+          "source_type": "WhiteWine",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "StonleighSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasFlavor",
+          "target": "Delicate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "StonleighSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "StonleighSauvignonBlanc",
+          "source_type": "SauvignonBlanc",
+          "relation": "locatedIn",
+          "target": "NewZealandRegion",
+          "target_type": "Region"
+        },
+        {
+          "source": "VentanaCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "VentanaCheninBlanc",
+          "source_type": "CheninBlanc",
+          "relation": "hasSugar",
+          "target": "OffDry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "hasFlavor",
+          "target": "Moderate",
+          "target_type": "WineFlavor"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "hasMaker",
+          "target": "WhitehallLane",
+          "target_type": "Winery"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "hasSugar",
+          "target": "Dry",
+          "target_type": "WineSugar"
+        },
+        {
+          "source": "WhitehallLaneCabernetFranc",
+          "source_type": "CabernetFranc",
+          "relation": "locatedIn",
+          "target": "NapaRegion",
+          "target_type": "Region"
+        }
+      ],
+      "attributes": [
+        {
+          "entity": "Year1998",
+          "key": "yearValue",
+          "value": "1998"
+        }
+      ],
+      "concepts": [
+        "AlsatianWine",
+        "AmericanWine",
+        "Anjou",
+        "Beaujolais",
+        "Bordeaux",
+        "Burgundy",
+        "CabernetFranc",
+        "CabernetSauvignon",
+        "CaliforniaWine",
+        "Chardonnay",
+        "CheninBlanc",
+        "Chianti",
+        "CotesDOr",
+        "DessertWine",
+        "DryRedWine",
+        "DryRiesling",
+        "DryWhiteWine",
+        "DryWine",
+        "EarlyHarvest",
+        "FrenchWine",
+        "FullBodiedWine",
+        "Gamay",
+        "GermanWine",
+        "IceWine",
+        "ItalianWine",
+        "LateHarvest",
+        "Loire",
+        "Margaux",
+        "Medoc",
+        "Meritage",
+        "Merlot",
+        "Meursault",
+        "Muscadet",
+        "Pauillac",
+        "PetiteSyrah",
+        "PinotBlanc",
+        "PinotNoir",
+        "Port",
+        "RedBordeaux",
+        "RedBurgundy",
+        "RedTableWine",
+        "RedWine",
+        "Region",
+        "Riesling",
+        "RoseWine",
+        "Sancerre",
+        "Sauternes",
+        "SauvignonBlanc",
+        "Semillon",
+        "SemillonOrSauvignonBlanc",
+        "StEmilion",
+        "SweetRiesling",
+        "SweetWine",
+        "TableWine",
+        "TexasWine",
+        "Tours",
+        "Vintage",
+        "VintageYear",
+        "WhiteBordeaux",
+        "WhiteBurgundy",
+        "WhiteLoire",
+        "WhiteNonSweetWine",
+        "WhiteTableWine",
+        "WhiteWine",
+        "Wine",
+        "WineBody",
+        "WineColor",
+        "WineDescriptor",
+        "WineFlavor",
+        "WineGrape",
+        "WineSugar",
+        "WineTaste",
+        "Winery",
+        "Zinfandel"
+      ],
+      "vocabulary_requested": 100,
+      "vocabulary_available": 161,
+      "vocabulary_used": 100
+    }
+  }
+]

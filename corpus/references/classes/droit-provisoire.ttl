@@ -1,0 +1,1065 @@
+PREFIX iafl:   <urn:iaf:ns:structure-livre#>
+PREFIX iafp:   <urn:iaf:ns:structure-pdf#>
+PREFIX iafs:   <urn:iaf:ns:structure#>
+PREFIX iaftex: <urn:iaf:ns:structure-latex#>
+PREFIX iafw:   <urn:iaf:ns:structure-word#>
+PREFIX owl:    <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:   <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+<http://iafactory.local/ontology/properties#faconnent>
+        a           owl:ObjectProperty;
+        rdfs:label  "façonnent"@fr .
+
+<http://iafactory.local/ontology/properties#necessaires-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "nécessaires à"@fr .
+
+<http://iafactory.local/ontology/properties#essentiels-a-la-formation-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "essentiels à la formation de"@fr .
+
+<http://iafactory.local/ontology/properties#illustre>
+        a           owl:ObjectProperty;
+        rdfs:label  "illustre"@fr .
+
+<http://iafactory.local/ontology/properties#a>
+        a           owl:ObjectProperty;
+        rdfs:label  "à"@fr .
+
+<http://iafactory.local/ontology/properties#peuvent-s-effondrer-en>
+        a           owl:ObjectProperty;
+        rdfs:label  "peuvent s'effondrer en"@fr .
+
+<http://iafactory.local/ontology/properties#entraine-la-formation-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "entraîne la formation de"@fr .
+
+<http://iafactory.local/ontology/properties#inferieure-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "inférieure à"@fr .
+
+<http://iafactory.local/ontology/properties#evolution>
+        a           owl:DatatypeProperty;
+        rdfs:label  "évolution"@fr .
+
+<http://iafactory.local/ontology/properties#provoquee-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "provoquée par"@fr .
+
+<http://iafactory.local/ontology/properties#formee-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "formée par"@fr .
+
+<http://iafactory.local/ontology/properties#entre-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "entre dans"@fr .
+
+<http://iafactory.local/ontology/properties#forme>
+        a           owl:ObjectProperty;
+        rdfs:label  "forme"@fr .
+
+<http://iafactory.local/ontology/properties#commence-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "commence dans"@fr .
+
+<http://iafactory.local/ontology/properties#principalement>
+        a           owl:DatatypeProperty;
+        rdfs:label  "principalement"@fr .
+
+<http://iafactory.local/ontology/properties#determine>
+        a           owl:ObjectProperty;
+        rdfs:label  "détermine"@fr .
+
+<http://iafactory.local/ontology/properties#est-regi-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "est régi par"@fr .
+
+<http://iafactory.local/ontology/properties#se-termine-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "se termine par"@fr .
+
+<http://iafactory.local/ontology/properties#mesure>
+        a           owl:ObjectProperty;
+        rdfs:label  "mesure"@fr .
+
+<http://iafactory.local/ontology/properties#decompose-la-lumiere-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "décompose la lumière de"@fr .
+
+<http://iafactory.local/ontology/properties#est-au-c-ur-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est au cœur de"@fr .
+
+<http://iafactory.local/ontology/properties#fournit>
+        a           owl:DatatypeProperty;
+        rdfs:label  "fournit"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-mesure-de>
+        a           owl:DatatypeProperty;
+        rdfs:label  "est une mesure de"@fr .
+
+<http://iafactory.local/ontology/properties#permet>
+        a           owl:DatatypeProperty;
+        rdfs:label  "permet"@fr .
+
+<http://iafactory.local/ontology/properties#etudie>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "étudie"@fr .
+
+<http://iafactory.local/ontology/properties#offrent>
+        a           owl:DatatypeProperty;
+        rdfs:label  "offrent"@fr .
+
+<http://iafactory.local/ontology/properties#consiste-a>
+        a           owl:DatatypeProperty;
+        rdfs:label  "consiste à"@fr .
+
+<http://iafactory.local/ontology/properties#ont-revolutionne>
+        a           owl:ObjectProperty;
+        rdfs:label  "ont révolutionné"@fr .
+
+<http://iafactory.local/ontology/properties#emis-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "émis par"@fr .
+
+<http://iafactory.local/ontology/properties#permettent-d-analyser>
+        a           owl:ObjectProperty;
+        rdfs:label  "permettent d'analyser"@fr .
+
+<http://iafactory.local/ontology/properties#permettent-de-capter>
+        a           owl:ObjectProperty;
+        rdfs:label  "permettent de capter"@fr .
+
+<http://iafactory.local/ontology/properties#depuis>
+        a           owl:ObjectProperty;
+        rdfs:label  "depuis"@fr .
+
+<http://iafactory.local/ontology/properties#promettent-d-affiner-notre-comprehension-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "promettent d'affiner notre compréhension de"@fr .
+
+<http://iafactory.local/ontology/properties#promettent-de-lever-le-voile-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "promettent de lever le voile sur"@fr .
+
+<http://iafactory.local/ontology/properties#est-essentielle-pour-expliquer>
+        a           owl:ObjectProperty;
+        rdfs:label  "est essentielle pour expliquer"@fr .
+
+<http://iafactory.local/ontology/properties#a-confirme-les-predictions-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "a confirmé les prédictions de"@fr .
+
+<http://iafactory.local/ontology/properties#attestee-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "attestée par"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-preuve-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une preuve de"@fr .
+
+<http://iafactory.local/ontology/properties#decouverte-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "découverte par"@fr .
+
+<http://iafactory.local/ontology/properties#repose-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "repose sur"@fr .
+
+<http://iafactory.local/ontology/properties#pourcentage-de-densite-energetique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "pourcentage de densité énergétique"@fr .
+
+<http://iafactory.local/ontology/properties#age>
+        a           owl:DatatypeProperty;
+        rdfs:label  "âge"@fr .
+
+<http://iafactory.local/ontology/properties#abrite>
+        a           owl:ObjectProperty;
+        rdfs:label  "abrite"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-exemple-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un exemple de"@fr .
+
+<http://iafactory.local/ontology/properties#permet-de-comprendre>
+        a           owl:ObjectProperty;
+        rdfs:label  "permet de comprendre"@fr .
+
+<http://iafactory.local/ontology/properties#compose-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "composé de"@fr .
+
+<http://iafactory.local/ontology/properties#nombre-d-etoiles>
+        a           owl:DatatypeProperty;
+        rdfs:label  "nombre d'étoiles"@fr .
+
+<http://iafactory.local/ontology/properties#est-indispensable-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "est indispensable pour"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-pilier-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un pilier de"@fr .
+
+<http://iafactory.local/ontology/properties#sauf>
+        a           owl:ObjectProperty;
+        rdfs:label  "sauf"@fr .
+
+<http://iafactory.local/ontology/properties#determine-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "déterminé par"@fr .
+
+<http://iafactory.local/ontology/properties#pour-connaitre-des>
+        a           owl:ObjectProperty;
+        rdfs:label  "pour connaître des"@fr .
+
+<http://iafactory.local/ontology/properties#en-cas-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "en cas de"@fr .
+
+<http://iafactory.local/ontology/properties#subi-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "subi par"@fr .
+
+<http://iafactory.local/ontology/properties#pour-reparer>
+        a           owl:ObjectProperty;
+        rdfs:label  "pour réparer"@fr .
+
+<http://iafactory.local/ontology/properties#engagee-en-cas-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "engagée en cas de"@fr .
+
+<http://iafactory.local/ontology/properties#effet>
+        a           owl:DatatypeProperty;
+        rdfs:label  "effet"@fr .
+
+<http://iafactory.local/ontology/properties#au-detriment-du>
+        a           owl:ObjectProperty;
+        rdfs:label  "au détriment du"@fr .
+
+<http://iafactory.local/ontology/properties#creent>
+        a           owl:ObjectProperty;
+        rdfs:label  "créent"@fr .
+
+<http://iafactory.local/ontology/properties#peuvent-etre-invalidees-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "peuvent être invalidées par"@fr .
+
+<http://iafactory.local/ontology/properties#detaillent>
+        a           owl:ObjectProperty;
+        rdfs:label  "détaillent"@fr .
+
+<http://iafactory.local/ontology/properties#doit-etre-exempt-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "doit être exempt de"@fr .
+
+<http://iafactory.local/ontology/properties#manifestent>
+        a           owl:ObjectProperty;
+        rdfs:label  "manifestent"@fr .
+
+<http://iafactory.local/ontology/properties#requiert>
+        a           owl:ObjectProperty;
+        rdfs:label  "requiert"@fr .
+
+<http://iafactory.local/ontology/properties#assure>
+        a           owl:ObjectProperty;
+        rdfs:label  "assure"@fr .
+
+<http://iafactory.local/ontology/properties#regit>
+        a           owl:ObjectProperty;
+        rdfs:label  "régit"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-branche-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une branche de"@fr .
+
+<http://iafactory.local/ontology/properties#joue-un-role-crucial-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "joue un rôle crucial dans"@fr .
+
+<http://iafactory.local/ontology/properties#est-fondamentale-pour-apprehender>
+        a           owl:ObjectProperty;
+        rdfs:label  "est fondamentale pour appréhender"@fr .
+
+<http://iafactory.local/ontology/properties#fait-partie-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "fait partie de"@fr .
+
+<http://iafactory.local/ontology/properties#situee-au-dela-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "située au-delà de"@fr .
+
+<http://iafactory.local/ontology/properties#vestiges-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "vestiges de"@fr .
+
+<http://iafactory.local/ontology/properties#situee-entre>
+        a           owl:ObjectProperty;
+        rdfs:label  "située entre"@fr .
+
+<http://iafactory.local/ontology/properties#satellite-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "satellite de"@fr .
+
+<http://iafactory.local/ontology/properties#population>
+        a           owl:DatatypeProperty;
+        rdfs:label  "population"@fr .
+
+<http://iafactory.local/ontology/properties#nombre-de-satellites-naturels>
+        a           owl:DatatypeProperty;
+        rdfs:label  "nombre de satellites naturels"@fr .
+
+<http://iafactory.local/ontology/properties#regie-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "régie par"@fr .
+
+<http://iafactory.local/ontology/properties#suit-orbite-autour-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "suit orbite autour de"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-ensemble-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un ensemble de"@fr .
+
+<http://iafactory.local/ontology/properties#gravitant-autour-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "gravitant autour de"@fr .
+
+<http://iafactory.local/ontology/properties#recouvre>
+        a           owl:ObjectProperty;
+        rdfs:label  "recouvre"@fr .
+
+<http://iafactory.local/ontology/properties#dispose-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "disposé sur"@fr .
+
+<http://iafactory.local/ontology/properties#mouilles-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "mouillés avec"@fr .
+
+<http://iafactory.local/ontology/properties#deglace-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "déglacé avec"@fr .
+
+<http://iafactory.local/ontology/properties#cuisson-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "cuisson avec"@fr .
+
+<http://iafactory.local/ontology/properties#temps-de-mijotage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "temps de mijotage"@fr .
+
+<http://iafactory.local/ontology/properties#temps-de-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "temps de cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#incarne-l-essence-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "incarne l'essence de"@fr .
+
+<http://iafactory.local/ontology/properties#temperature-de-service>
+        a           owl:DatatypeProperty;
+        rdfs:label  "température de service"@fr .
+
+<http://iafactory.local/ontology/properties#reside-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "réside dans"@fr .
+
+<http://iafactory.local/ontology/properties#assaisonner-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "assaisonner de"@fr .
+
+<http://iafactory.local/ontology/properties#sont-ajoutees-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont ajoutées avec"@fr .
+
+<http://iafactory.local/ontology/properties#incorporer-apres>
+        a           owl:ObjectProperty;
+        rdfs:label  "incorporer après"@fr .
+
+<http://iafactory.local/ontology/properties#ajouter-apres>
+        a           owl:ObjectProperty;
+        rdfs:label  "ajouter après"@fr .
+
+<http://iafactory.local/ontology/properties#faire-revenir-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "faire revenir dans"@fr .
+
+<http://iafactory.local/ontology/properties#debute-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "débute par"@fr .
+
+<http://iafactory.local/ontology/properties#action-pendant-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "action pendant cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#met-en-valeur>
+        a           owl:ObjectProperty;
+        rdfs:label  "met en valeur"@fr .
+
+<http://iafactory.local/ontology/properties#repousse-les-limites-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "repousse les limites de"@fr .
+
+<http://iafactory.local/ontology/properties#fascine>
+        a           owl:ObjectProperty;
+        rdfs:label  "fascine"@fr .
+
+<http://iafactory.local/ontology/properties#implications>
+        a           owl:DatatypeProperty;
+        rdfs:label  "implications"@fr .
+
+<http://iafactory.local/ontology/properties#proprietes>
+        a           owl:DatatypeProperty;
+        rdfs:label  "propriétés"@fr .
+
+<http://iafactory.local/ontology/properties#du-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "dû à"@fr .
+
+<http://iafactory.local/ontology/properties#sont-des-perturbations-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont des perturbations de"@fr .
+
+<http://iafactory.local/ontology/properties#associee-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "associée à"@fr .
+
+<http://iafactory.local/ontology/properties#predites-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "prédites par"@fr .
+
+<http://iafactory.local/ontology/properties#generent>
+        a           owl:ObjectProperty;
+        rdfs:label  "génèrent"@fr .
+
+<http://iafactory.local/ontology/properties#se-forment-suite-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "se forment suite à"@fr .
+
+<http://iafactory.local/ontology/properties#defini-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "défini par"@fr .
+
+<http://iafactory.local/ontology/properties#vitesse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "vitesse"@fr .
+
+<http://iafactory.local/ontology/properties#sont-associes-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont associés à"@fr .
+
+<http://iafactory.local/ontology/properties#explore>
+        a           owl:ObjectProperty;
+        rdfs:label  "explore"@fr .
+
+<http://iafactory.local/ontology/properties#est-cruciale-pour-comprendre>
+        a           owl:ObjectProperty;
+        rdfs:label  "est cruciale pour comprendre"@fr .
+
+<http://iafactory.local/ontology/properties#empeche-l-echappement-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "empêche l'échappement de"@fr .
+
+<http://iafactory.local/ontology/properties#gravite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "gravité"@fr .
+
+<http://iafactory.local/ontology/properties#densite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "densité"@fr .
+
+<http://iafactory.local/ontology/properties#cle-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "clé de"@fr .
+
+<http://iafactory.local/ontology/properties#garantit>
+        a           owl:ObjectProperty;
+        rdfs:label  "garantit"@fr .
+
+<http://iafactory.local/ontology/properties#precuire-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "précuire avec"@fr .
+
+<http://iafactory.local/ontology/properties#duree-de-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "durée de cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#methode-de-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "méthode de cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#ajouter-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "ajouter à"@fr .
+
+<http://iafactory.local/ontology/properties#utiliser-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "utiliser pour"@fr .
+
+<http://iafactory.local/ontology/properties#etat>
+        a           owl:DatatypeProperty;
+        rdfs:label  "état"@fr .
+
+<http://iafactory.local/ontology/properties#cible>
+        a           owl:ObjectProperty;
+        rdfs:label  "cible"@fr .
+
+<http://iafactory.local/ontology/properties#etape>
+        a           owl:DatatypeProperty;
+        rdfs:label  "étape"@fr .
+
+<http://iafactory.local/ontology/properties#variete>
+        a           owl:ObjectProperty;
+        rdfs:label  "variété"@fr .
+
+<http://iafactory.local/ontology/properties#permet-de-realiser>
+        a           owl:ObjectProperty;
+        rdfs:label  "permet de réaliser"@fr .
+
+<http://iafactory.local/ontology/properties#gout>
+        a           owl:DatatypeProperty;
+        rdfs:label  "goût"@fr .
+
+<http://iafactory.local/ontology/properties#thermostat>
+        a           owl:DatatypeProperty;
+        rdfs:label  "thermostat"@fr .
+
+<http://iafactory.local/ontology/properties#temperature>
+        a           owl:DatatypeProperty;
+        rdfs:label  "temperature"@fr .
+
+<http://iafactory.local/ontology/properties#verser-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "verser sur"@fr .
+
+<http://iafactory.local/ontology/properties#disposer-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "disposer dans"@fr .
+
+<http://iafactory.local/ontology/properties#prepare-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "préparé avec"@fr .
+
+<http://iafactory.local/ontology/properties#applique-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "appliqué sur"@fr .
+
+<http://iafactory.local/ontology/properties#outil>
+        a           owl:ObjectProperty;
+        rdfs:label  "outil"@fr .
+
+<http://iafactory.local/ontology/properties#prepare-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "préparé par"@fr .
+
+<http://iafactory.local/ontology/properties#epaisseur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "épaisseur"@fr .
+
+<http://iafactory.local/ontology/properties#type-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "type de"@fr .
+
+<http://iafactory.local/ontology/properties#utilisation>
+        a           owl:DatatypeProperty;
+        rdfs:label  "utilisation"@fr .
+
+<http://iafactory.local/ontology/properties#matiere-grasse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "matière grasse"@fr .
+
+<http://iafactory.local/ontology/properties#quantite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "quantité"@fr .
+
+<http://iafactory.local/ontology/properties#parfumee-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "parfumée à"@fr .
+
+<http://iafactory.local/ontology/properties#resulte-de-la-cuisson-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "résulte de la cuisson de"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-plat-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un plat de"@fr .
+
+<http://iafactory.local/ontology/properties#ideales-pour-accompagner>
+        a           owl:ObjectProperty;
+        rdfs:label  "idéales pour accompagner"@fr .
+
+<http://iafactory.local/ontology/properties#affinage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "affinage"@fr .
+
+<http://iafactory.local/ontology/properties#sublime>
+        a           owl:ObjectProperty;
+        rdfs:label  "sublime"@fr .
+
+<http://iafactory.local/ontology/properties#accompagnee-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "accompagnée de"@fr .
+
+<http://iafactory.local/ontology/properties#preparation>
+        a           owl:DatatypeProperty;
+        rdfs:label  "préparation"@fr .
+
+<http://iafactory.local/ontology/properties#sublimer>
+        a           owl:ObjectProperty;
+        rdfs:label  "sublimer"@fr .
+
+<http://iafactory.local/ontology/properties#sec>
+        a           owl:DatatypeProperty;
+        rdfs:label  "sec"@fr .
+
+<http://iafactory.local/ontology/properties#revele>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "révèle"@fr .
+
+<http://iafactory.local/ontology/properties#a-pour-intensite>
+        a           owl:ObjectProperty;
+        rdfs:label  "a pour intensité"@fr .
+
+<http://iafactory.local/ontology/properties#duree>
+        a           owl:DatatypeProperty;
+        rdfs:label  "durée"@fr .
+
+<http://iafactory.local/ontology/properties#unite-d-expression>
+        a           owl:DatatypeProperty;
+        rdfs:label  "unité d'expression"@fr .
+
+<http://iafactory.local/ontology/properties#en>
+        a           owl:ObjectProperty;
+        rdfs:label  "en"@fr .
+
+<http://iafactory.local/ontology/properties#origine>
+        a           owl:DatatypeProperty;
+        rdfs:label  "origine"@fr .
+
+<http://iafactory.local/ontology/properties#type-de-vin>
+        a           owl:DatatypeProperty;
+        rdfs:label  "type de vin"@fr .
+
+<http://iafactory.local/ontology/properties#richesse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Richesse"@fr .
+
+<http://iafactory.local/ontology/properties#unit>
+        a           owl:DatatypeProperty;
+        rdfs:label  "unit"@fr .
+
+<http://iafactory.local/ontology/properties#type-d-illustration>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Type d'illustration"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-sous-region-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une sous-région de"@fr .
+
+<http://iafactory.local/ontology/properties#about>
+        a           owl:ObjectProperty;
+        rdfs:label  "about"@fr .
+
+<http://iafactory.local/ontology/properties#producteur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Producteur"@fr .
+
+<http://iafactory.local/ontology/properties#fera-echo-aux>
+        a           owl:ObjectProperty;
+        rdfs:label  "fera écho aux"@fr .
+
+<http://iafactory.local/ontology/properties#en-quete-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "en quête de"@fr .
+
+<http://iafactory.local/ontology/properties#situe-en>
+        a           owl:ObjectProperty;
+        rdfs:label  "situé en"@fr .
+
+<http://iafactory.local/ontology/properties#cepage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "cépage"@fr .
+
+<http://iafactory.local/ontology/properties#originaire-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "originaire de"@fr .
+
+<http://iafactory.local/ontology/properties#apportera>
+        a           owl:ObjectProperty;
+        rdfs:label  "apportera"@fr .
+
+<http://iafactory.local/ontology/properties#ne-dominera-pas>
+        a           owl:ObjectProperty;
+        rdfs:label  "ne dominera pas"@fr .
+
+<http://iafactory.local/ontology/properties#mis-en-valeur-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "mis en valeur par"@fr .
+
+<http://iafactory.local/ontology/properties#intensite-aromatique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "intensité aromatique"@fr .
+
+<http://iafactory.local/ontology/properties#fait-echo-aux-saveurs-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "fait écho aux saveurs de"@fr .
+
+<http://iafactory.local/ontology/properties#se-marie-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "se marie avec"@fr .
+
+<http://iafactory.local/ontology/properties#accompagnement>
+        a           owl:ObjectProperty;
+        rdfs:label  "accompagnement"@fr .
+
+<http://iafactory.local/ontology/properties#texture>
+        a           owl:DatatypeProperty;
+        rdfs:label  "texture"@fr .
+
+<http://iafactory.local/ontology/properties#tanins>
+        a           owl:DatatypeProperty;
+        rdfs:label  "tanins"@fr .
+
+<http://iafactory.local/ontology/properties#s-accorde-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "s'accorde avec"@fr .
+
+<http://iafactory.local/ontology/properties#produit-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "produit par"@fr .
+
+<http://iafactory.local/ontology/properties#saveurs>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Saveurs"@fr .
+
+<http://iafactory.local/ontology/properties#notes>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Notes"@fr .
+
+<http://iafactory.local/ontology/properties#est-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "est_dans"@fr .
+
+<http://iafactory.local/ontology/properties#temoin-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "témoin de"@fr .
+
+<http://iafactory.local/ontology/properties#produit>
+        a           owl:ObjectProperty;
+        rdfs:label  "produit"@fr .
+
+<http://iafactory.local/ontology/properties#jusqu-a>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Jusqu'à"@fr .
+
+<http://iafactory.local/ontology/properties#aucune>
+        a           owl:ObjectProperty;
+        rdfs:label  "aucune"@fr .
+
+<http://iafactory.local/ontology/properties#inventees-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "INVENTEES pour"@fr .
+
+<http://iafactory.local/ontology/properties#illustration>
+        a           owl:DatatypeProperty;
+        rdfs:label  "illustration"@fr .
+
+<http://iafactory.local/ontology/properties#de-la>
+        a           owl:ObjectProperty;
+        rdfs:label  "de la"@fr .
+
+<http://iafactory.local/ontology/properties#issues-directement-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "issues directement de"@fr .
+
+<http://iafactory.local/ontology/properties#expression-du>
+        a           owl:ObjectProperty;
+        rdfs:label  "expression du"@fr .
+
+<http://iafactory.local/ontology/properties#qualite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "qualité"@fr .
+
+<http://iafactory.local/ontology/properties#intensite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "intensité"@fr .
+
+<http://iafactory.local/ontology/properties#est-issu-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est issu de"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-fleuron-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un fleuron de"@fr .
+
+<http://iafactory.local/ontology/properties#se-rencontrent-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "se rencontrent avec"@fr .
+
+<http://iafactory.local/ontology/properties#finale>
+        a           owl:DatatypeProperty;
+        rdfs:label  "finale"@fr .
+
+<http://iafactory.local/ontology/properties#equilibre>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "équilibre"@fr .
+
+<http://iafactory.local/ontology/properties#bouche>
+        a           owl:DatatypeProperty;
+        rdfs:label  "bouche"@fr .
+
+<http://iafactory.local/ontology/properties#appellation>
+        a           owl:DatatypeProperty;
+        rdfs:label  "appellation"@fr .
+
+<http://iafactory.local/ontology/properties#couleur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "couleur"@fr .
+
+<http://iafactory.local/ontology/properties#situe-sur-la-rive-droite-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "situé sur la rive droite de"@fr .
+
+<http://iafactory.local/ontology/properties#situe-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "situé dans"@fr .
+
+<http://iafactory.local/ontology/properties#tisse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "tisse"@fr .
+
+<http://iafactory.local/ontology/properties#confere>
+        a           owl:DatatypeProperty;
+        rdfs:label  "confère"@fr .
+
+<http://iafactory.local/ontology/properties#apporte>
+        a           owl:DatatypeProperty;
+        rdfs:label  "apporte"@fr .
+
+<http://iafactory.local/ontology/properties#assemblage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "assemblage"@fr .
+
+<http://iafactory.local/ontology/properties#terroir>
+        a           owl:DatatypeProperty;
+        rdfs:label  "terroir"@fr .
+
+<http://iafactory.local/ontology/properties#prestigieuse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "prestigieuse"@fr .
+
+<http://iafactory.local/ontology/properties#millesime>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Millesime"@fr .
+
+<http://iafactory.local/ontology/properties#arome>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Arome"@fr .
+
+<http://iafactory.local/ontology/properties#region>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Region"@fr .
+
+<http://iafactory.local/ontology/properties#domaine>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Domaine"@fr .
+
+<http://iafactory.local/ontology/properties#cepage-style>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Cepage/style"@fr .
+
+<http://iafactory.local/ontology/properties#est-une>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une"@fr .
+
+<http://iafactory.local/ontology/properties#compagnon-ideal-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "compagnon idéal pour"@fr .
+
+<http://iafactory.local/ontology/properties#revele-des-notes-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "révèle des notes de"@fr .
+
+<http://iafactory.local/ontology/properties#incarne>
+        a           owl:ObjectProperty;
+        rdfs:label  "incarne"@fr .
+
+<http://iafactory.local/ontology/properties#signe>
+        a           owl:ObjectProperty;
+        rdfs:label  "signe"@fr .
+
+<http://iafactory.local/ontology/properties#sols>
+        a           owl:DatatypeProperty;
+        rdfs:label  "sols"@fr .
+
+<http://iafactory.local/ontology/properties#sucrosite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "sucrosité"@fr .
+
+<http://iafactory.local/ontology/properties#mineralite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "minéralité"@fr .
+
+<http://iafactory.local/ontology/properties#profil-aromatique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "profil aromatique"@fr .
+
+<http://iafactory.local/ontology/properties#fraicheur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "fraîcheur"@fr .
+
+<http://iafactory.local/ontology/properties#corps>
+        a           owl:DatatypeProperty;
+        rdfs:label  "corps"@fr .
+
+<http://iafactory.local/ontology/properties#robe>
+        a           owl:DatatypeProperty;
+        rdfs:label  "robe"@fr .
+
+<http://iafactory.local/ontology/properties#et>
+        a           owl:ObjectProperty;
+        rdfs:label  "et"@fr .
+
+<http://iafactory.local/ontology/properties#est-cultive-en>
+        a           owl:ObjectProperty;
+        rdfs:label  "est cultivé en"@fr .
+
+<http://iafactory.local/ontology/properties#sont>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont"@fr .
+
+<http://iafactory.local/ontology/properties#avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "avec"@fr .
+
+<http://iafactory.local/ontology/properties#inclut>
+        a           owl:ObjectProperty;
+        rdfs:label  "inclut"@fr .
+
+<http://iafactory.local/ontology/properties#possede>
+        a           owl:ObjectProperty;
+        rdfs:label  "possède"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-type-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un type de"@fr .
+
+<http://iafactory.local/ontology/properties#unite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "unite"@fr .
+
+<http://iafactory.local/ontology/properties#entraine>
+        a           owl:ObjectProperty;
+        rdfs:label  "entraîne"@fr .
+
+<http://iafactory.local/ontology/properties#composition>
+        a           owl:DatatypeProperty;
+        rdfs:label  "composition"@fr .
+
+<http://iafactory.local/ontology/properties#classification>
+        a           owl:DatatypeProperty;
+        rdfs:label  "classification"@fr .
+
+<http://iafactory.local/ontology/properties#de>
+        a           owl:ObjectProperty;
+        rdfs:label  "de"@fr .
+
+<http://iafactory.local/ontology/properties#sont-des>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont des"@fr .
+
+<http://iafactory.local/ontology/properties#annee>
+        a           owl:DatatypeProperty;
+        rdfs:label  "année"@fr .
+
+<http://iafactory.local/ontology/properties#role>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "rôle"@fr .
+
+<http://iafactory.local/ontology/properties#sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "sur"@fr .
+
+<http://iafactory.local/ontology/properties#contient>
+        a           owl:ObjectProperty;
+        rdfs:label  "contient"@fr .
+
+<http://iafactory.local/ontology/properties#caracteristique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "caractéristique"@fr .
+
+<http://iafactory.local/ontology/properties#est>
+        a           owl:ObjectProperty;
+        rdfs:label  "est"@fr .
+
+<http://iafactory.local/ontology/properties#utilise>
+        a           owl:ObjectProperty;
+        rdfs:label  "utilise"@fr .
+
+<http://iafactory.local/ontology/properties#definit>
+        a           owl:ObjectProperty;
+        rdfs:label  "définit"@fr .
+
+<http://iafactory.local/ontology/properties#concerne>
+        a           owl:ObjectProperty;
+        rdfs:label  "concerne"@fr .
+
+<http://iafactory.local/ontology/properties#valeur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "valeur"@fr .
+
+<http://iafactory.local/ontology/properties#part-of>
+        a           owl:ObjectProperty;
+        rdfs:label  "part of"@fr .
+
+<http://iafactory.local/ontology/properties#duration>
+        a           owl:DatatypeProperty;
+        rdfs:label  "duration"@fr .
+
+<http://iafactory.local/ontology/properties#type>
+        a           owl:DatatypeProperty;
+        rdfs:label  "type"@fr .
+
+<http://iafactory.local/ontology/properties#year>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Year"@fr .
+
+<http://iafactory.local/ontology/properties#state>
+        a           owl:DatatypeProperty;
+        rdfs:label  "state"@fr .
+
+<http://iafactory.local/ontology/properties#value>
+        a           owl:DatatypeProperty;
+        rdfs:label  "value"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#partie>
+        a           owl:Class;
+        rdfs:label  "Partie"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#justice>
+        a           owl:Class;
+        rdfs:label  "Justice"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#commerce>
+        a           owl:Class;
+        rdfs:label  "Commerce"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#societe>
+        a           owl:Class;
+        rdfs:label  "Société"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#economie>
+        a           owl:Class;
+        rdfs:label  "Économie"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#contrat>
+        a           owl:Class;
+        rdfs:label  "Contrat"@fr .
+
+<http://iafactory.local/classes/c620a456-1516-4414-a980-90e46e1c9ef6#droit>
+        a           owl:Class;
+        rdfs:label  "Droit"@fr .

@@ -24,8 +24,16 @@ runtime n'est PAS une preuve de qualite : le banc de mesure hors echantillon
 docs/epics/EPIC-IAF-E7-classification-documents.md.
 
 Simplifications restantes, non cachees :
-- pas de MinHash/LSH ni de pre-filtrage par domaines (US7.2) : chaque
-  document candidat est compare a TOUTES les classes existantes ;
+- pas de MinHash/LSH ni de pre-filtrage SEMANTIQUE par domaines (US7.2
+  original) : si le pre-filtrage STRUCTUREL ci-dessous ne restreint rien, le
+  document candidat est compare a TOUTES les classes existantes, comme avant ;
+- **Mise a jour 2026-10-01 (IAF-125) : pre-filtrage STRUCTUREL branche** -
+  `_structural_prefilter()` (app/structure_matcher.py, axiomes de cardinalite
+  OWL2 lus dans Fuseki, contraints par format de fichier) restreint
+  `_find_best_class` aux classes dont l'ontologie structurelle correspond
+  reellement a la forme du document (score >= `STRUCTURAL_PREFILTER_THRESHOLD`,
+  0.75, NON calibre). Degradation TOUJOURS gracieuse vers "toutes les
+  classes" sinon - jamais une exception qui ferait echouer l'ingestion ;
 - pas d'arbitrage LLM sur les correspondances ambigues (US7.3) ;
 - analyse structurelle tres inegale entre .docx/.pptx (reelle) et .pdf
   (grossiere, page = section, ligne = paragraphe - pdf_struct.py) ;
@@ -64,7 +72,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import docx_struct, latex_struct, markdown_struct, ontology, pdf_struct, pptx_struct
+from . import docx_struct, latex_struct, markdown_struct, ontology, pdf_struct, pptx_struct, structure_matcher
 from .config import settings
 from .graph import chat_json, cosine_similarity, embed, get_driver
 from .models import DocumentStatus
@@ -79,6 +87,12 @@ PARSERS = {
 }
 
 STRUCT_KINDS = ("Section", "Paragraph", "Table", "Equation")
+
+# EPIC-IAF-E17 US17.1 (2026-10-02) : la reconnaissance (US7.4) ne compare un
+# document qu'aux classes OFFICIELLES - ni provisoires (leur sort se decide par
+# fusion, voir class_lifecycle.py) ni deja fusionnees dans une autre. Une classe
+# importee (`exemple-importe`) ou promue (`officielle`) est officielle.
+OFFICIAL_CLASS_FILTER = "NOT coalesce(c.status, '') = 'provisoire' AND NOT coalesce(c.status, '') STARTS WITH 'fusionnee'"
 
 # Seuil de similarite cosinus au-dela duquel deux libelles de type (entite,
 # relation, attribut ou concept) sont consideres comme le MEME type - ajoute
@@ -198,12 +212,18 @@ class _TypeNormalizer:
     au lieu de creer un synonyme ; sinon l'ajoute a son propre cache pour que
     les occurrences suivantes DANS LE MEME document s'y comparent aussi."""
 
-    def __init__(self, known_labels: list[str]):
+    def __init__(self, known_labels: list[str], seeded: list[tuple[str, list[float]]] | None = None):
         self._labels: list[str] = []
         self._vectors: list[list[float]] = []
         for label in known_labels:
             if label:
                 self._add(label)
+        # EPIC-IAF-E17 US17.1 : vocabulaire d'un corpus officiel proche, AVEC ses
+        # embeddings deja stockes (aucun recalcul).
+        for label, vector in seeded or []:
+            if label and label not in self._labels:
+                self._labels.append(label)
+                self._vectors.append(vector)
 
     def _add(self, label: str) -> None:
         self._labels.append(label)
@@ -298,6 +318,7 @@ def _ensure_vector_index(session, dimensions: int) -> None:
 
 def _find_best_class(
     session, struct_profile: dict[str, float], concept_vectors: list[tuple[str, list[float]]],
+    candidate_class_ids: list[str] | None = None, structural_prefilter_score: float | None = None,
 ) -> tuple[str | None, str | None, float, float, float]:
     """IAF-E7 US7.4 : score combine (structurel + semantique) contre chaque
     classe existante. Une classe sans document membre (profil structurel
@@ -309,18 +330,57 @@ def _find_best_class(
     remplace le 2026-09-29 le `set[str]` de libelles normalises (voir
     _concept_set_similarity : le score semantique restait quasiment toujours
     a 0%, mesure reellement, car deux documents proches n'inventent jamais le
-    MEME libelle mot pour mot)."""
-    rows = list(session.run(
-        "MATCH (c:DocumentClass) "
-        "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
-        "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
-        "RETURN c.id AS id, c.name AS name, "
-        "       collect(DISTINCT {section: d.profile_section, paragraph: d.profile_paragraph, "
-        "                         table: d.profile_table, equation: d.profile_equation, "
-        "                         citation: d.profile_citation_density}) AS profiles, "
-        "       collect(DISTINCT CASE WHEN concept.embedding IS NOT NULL "
-        "                             THEN {label: concept.label, embedding: concept.embedding} END) AS concepts"
-    ))
+    MEME libelle mot pour mot).
+
+    `candidate_class_ids` (US7.2-structurel, IAF-125, 2026-10-01) :
+    pre-filtrage par ontologie structurelle (app/structure_matcher.py) - quand
+    fourni ET non vide, ne compare le document qu'a CES classes (la reponse
+    de _structural_prefilter ci-dessous) au lieu de TOUTES. `None` ou liste
+    vide = comportement INCHANGE (toutes les classes) - degradation
+    gracieuse si aucune ontologie structurelle ne s'applique au format, si
+    aucune classe ne l'accepte encore, ou si Fuseki est indisponible.
+
+    `structural_prefilter_score` (bug reel trouve le 2026-10-01, pas suppose :
+    l'utilisateur a depose un PDF reel sur une classe fraichement creee par
+    import RDF - "il a trouve l'ontologie structurelle candidate (c'est bien)
+    [...] score_combine_insuffisant" - score structurel ET semantique EXACTEMENT
+    a 0.0) : une classe SANS AUCUN document membre encore (import RDF via
+    create_class.py, jamais une vraie ingestion) a toujours `profiles` vide,
+    donc structural_score=0.0 QUEL QUE SOIT le document - meme un document qui
+    satisfait PARFAITEMENT ses axiomes structurels (le pre-filtre l'a deja
+    confirme en l'incluant dans candidate_class_ids) ne peut jamais etre
+    reconnu, cercle vicieux (il faudrait deja un document reconnu pour que le
+    suivant puisse l'etre). Pour une classe SANS profil reel ET presente dans
+    `candidate_class_ids` (donc deja validee par les axiomes de cardinalite),
+    utilise le score du pre-filtre structurel comme repli au lieu de 0.0 - un
+    score structurel EXPLICITEMENT ancre sur l'ontologie plutot que sur une
+    moyenne de documents qui n'existe pas encore. Les classes AVEC des
+    documents membres continuent d'utiliser leur profil moyen reel, inchange."""
+    if candidate_class_ids:
+        rows = list(session.run(
+            "MATCH (c:DocumentClass) WHERE c.id IN $ids AND " + OFFICIAL_CLASS_FILTER + " "
+            "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
+            "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
+            "RETURN c.id AS id, c.name AS name, "
+            "       collect(DISTINCT {section: d.profile_section, paragraph: d.profile_paragraph, "
+            "                         table: d.profile_table, equation: d.profile_equation, "
+            "                         citation: d.profile_citation_density}) AS profiles, "
+            "       collect(DISTINCT CASE WHEN concept.embedding IS NOT NULL "
+            "                             THEN {label: concept.label, embedding: concept.embedding} END) AS concepts",
+            ids=candidate_class_ids,
+        ))
+    else:
+        rows = list(session.run(
+            "MATCH (c:DocumentClass) WHERE " + OFFICIAL_CLASS_FILTER + " "
+            "OPTIONAL MATCH (c)<-[:IN_CLASS]-(d:Document) "
+            "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
+            "RETURN c.id AS id, c.name AS name, "
+            "       collect(DISTINCT {section: d.profile_section, paragraph: d.profile_paragraph, "
+            "                         table: d.profile_table, equation: d.profile_equation, "
+            "                         citation: d.profile_citation_density}) AS profiles, "
+            "       collect(DISTINCT CASE WHEN concept.embedding IS NOT NULL "
+            "                             THEN {label: concept.label, embedding: concept.embedding} END) AS concepts"
+        ))
     best = (None, None, 0.0, 0.0, 0.0)
     best_combined = 0.0
     for row in rows:
@@ -334,6 +394,10 @@ def _find_best_class(
             }
             avg_profile["citation_density"] = sum(p.get("citation") or 0.0 for p in profiles) / len(profiles)
             structural_score = _profile_similarity(struct_profile, avg_profile)
+        elif candidate_class_ids and row["id"] in candidate_class_ids and structural_prefilter_score is not None:
+            # Repli IAF-125 : pas de profil reel (classe sans document membre),
+            # mais deja validee par les axiomes structurels du pre-filtre.
+            structural_score = structural_prefilter_score
         else:
             structural_score = 0.0
 
@@ -345,6 +409,74 @@ def _find_best_class(
             best_combined = combined
             best = (row["id"], row["name"], structural_score, semantic_score, combined)
     return best
+
+
+def _search_known_corpora(
+    session, concept_vectors: list[tuple[str, list[float]]], limit: int = 3,
+) -> list[dict]:
+    """EPIC-IAF-E17 US17.1 : etape "recherche de corpus matchant le document"
+    pour un document NON reconnu. Classe les corpus OFFICIELS par similarite
+    SEMANTIQUE (meme mesure que le score de reconnaissance, `_concept_set_
+    similarity`, sur les embeddings de concepts deja stockes) et renvoie les
+    `limit` plus proches avec leur vocabulaire - sert a rattacher des liens
+    NEAR_CORPUS et a amorcer le normaliseur de concepts de la classe
+    provisoire (l'ontologie agnostique reprend les libelles deja connus)."""
+    rows = list(session.run(
+        "MATCH (c:DocumentClass) WHERE " + OFFICIAL_CLASS_FILTER + " "
+        "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) WHERE concept.embedding IS NOT NULL "
+        "RETURN c.id AS id, c.name AS name, collect({label: concept.label, embedding: concept.embedding}) AS concepts"
+    ))
+    ranked = []
+    for row in rows:
+        concepts = [(c["label"], c["embedding"]) for c in row["concepts"] if c["label"]]
+        score = _concept_set_similarity(concepts, concept_vectors)
+        ranked.append({"id": row["id"], "name": row["name"], "semantic_score": score, "concepts": concepts})
+    ranked.sort(key=lambda r: r["semantic_score"], reverse=True)
+    return [r for r in ranked[:limit] if r["semantic_score"] > 0]
+
+
+# US7.2-structurel (IAF-125, 2026-10-01) : score minimal (fraction d'axiomes
+# de cardinalite satisfaits, app/structure_matcher.py) pour qu'un match
+# structurel restreigne la recherche de classe - NON calibre (comme le reste
+# du projet, US7.7), choisi pour exiger que la PLUPART des axiomes d'une
+# forme soient respectes (ex. 3 sur 4 pour la forme Word) avant de l'utiliser
+# comme filtre, jamais sur un match faible/ambigu.
+STRUCTURAL_PREFILTER_THRESHOLD = 0.75
+
+
+def _structural_prefilter(
+    root_children: list[StructElement], suffix: str,
+) -> tuple[list[str] | None, float | None, str | None]:
+    """IAF-125 : restreint `_find_best_class` aux classes dont une ontologie
+    structurelle ACCEPTEE correspond bien a la forme reelle du document
+    (demande explicite : "utiliser les ontologies structurelles [...] pour
+    pre filtrer la classe des documents"). Degradation TOUJOURS gracieuse
+    (jamais une exception qui ferait echouer l'ingestion, meme principe que
+    le reste de ce module) : renvoie (None, None) (= pas de restriction,
+    comportement identique a avant le 2026-10-01) si le format n'a pas
+    d'ontologie structurelle applicable, si aucun match n'atteint le seuil,
+    si aucune classe n'accepte encore l'ontologie la mieux matchee, ou si
+    Fuseki est indisponible.
+
+    Renvoie aussi le SCORE du meilleur match (2026-10-01, bug reel trouve en
+    testant - voir le docstring de _find_best_class) : sert de repli pour
+    structural_score quand la classe candidate n'a encore aucun document
+    membre pour calculer un profil reel."""
+    doc_format = suffix.lstrip(".").lower()
+    try:
+        matches = structure_matcher.match_structural_ontologies(root_children, doc_format)
+    except Exception:
+        return None, None, None
+    if not matches or matches[0].score < STRUCTURAL_PREFILTER_THRESHOLD:
+        return None, None, None
+    # EPIC-IAF-E17 US17.3 : l'URI du meilleur match sert aussi a lier une classe
+    # PROVISOIRE a son ontologie structurelle (meme quand aucune classe ne
+    # l'accepte encore, `candidate_ids` est alors None).
+    try:
+        candidate_ids = ontology.classes_accepting_structure(matches[0].ontology_uri)
+    except Exception:
+        return None, None, matches[0].ontology_uri
+    return (candidate_ids or None), matches[0].score, matches[0].ontology_uri
 
 
 def _write_concepts(
@@ -434,6 +566,18 @@ def ingest_document(
     # (organisation du contenu LaTeX - citations, cf. module docstring) ; 0
     # par defaut pour les formats qui ne le renseignent pas.
     struct_profile = _structural_profile(elements, metadata.get("citation_count", 0))
+
+    # US7.2-structurel (IAF-125) : pre-filtre les classes candidates par
+    # ontologie structurelle AVANT le score combine (_find_best_class) -
+    # None si aucune restriction ne s'applique (voir _structural_prefilter).
+    candidate_class_ids, structural_prefilter_score, structural_ontology_uri = _structural_prefilter(
+        root.children, suffix,
+    )
+    step(
+        "Ingestion", "Pre-filtrage structurel",
+        f"{len(candidate_class_ids)} classe(s) candidate(s) (score {structural_prefilter_score:.0%})"
+        if candidate_class_ids else "aucune restriction",
+    )
 
     driver = get_driver()
     warnings: list[str] = []
@@ -539,7 +683,7 @@ def ingest_document(
             concept_vectors.append((v["concept"], embed(v["concept"])))
 
         recognized_id, recognized_name, structural_score, semantic_score, combined = _find_best_class(
-            session, struct_profile, concept_vectors,
+            session, struct_profile, concept_vectors, candidate_class_ids, structural_prefilter_score,
         )
 
         if recognized_id is not None and combined >= settings.recognition_threshold:
@@ -566,11 +710,39 @@ def ingest_document(
                 sha256=sha256, cid=class_id, name=class_name, score=combined,
                 struct_score=structural_score, sem_score=semantic_score, method=method,
             )
+            # US17.3 : une classe provisoire est liee a l'ontologie structurelle
+            # du meilleur match de son document (aucune classe ne l'acceptait
+            # peut-etre encore) - la fusion de classes reunira ces liens.
+            if structural_ontology_uri:
+                try:
+                    ontology.ensure_class_accepts_structure(class_id, structural_ontology_uri)
+                except Exception:
+                    pass  # Fuseki indisponible : la classe reste sans ontologie structurelle liee, pas bloquant
         step(
             "Ingestion", "Reconnaissance de classe (US7.4)",
             f"{method} -> {class_name} ({combined:.0%})",
         )
         session.run("MATCH (d:Document {sha256: $sha256}) SET d.language = $language", sha256=sha256, language=language)
+
+        # US17.1 : document NON reconnu -> recherche de corpus officiels proches
+        # (liens NEAR_CORPUS) et amorcage du vocabulaire de l'ontologie agnostique.
+        seed_pairs: list[tuple[str, list[float]]] = []
+        if status == DocumentStatus.provisional:
+            near = _search_known_corpora(session, concept_vectors)
+            for item in near:
+                session.run(
+                    "MATCH (p:DocumentClass {id: $pid}), (o:DocumentClass {id: $oid}) "
+                    "MERGE (p)-[r:NEAR_CORPUS]->(o) SET r.semantic_score = $score",
+                    pid=class_id, oid=item["id"], score=item["semantic_score"],
+                )
+            if near and near[0]["semantic_score"] >= settings.corpus_seed_min_similarity:
+                seed_pairs = near[0]["concepts"]
+            step(
+                "Ingestion", "Recherche de corpus proches (US17.1)",
+                ", ".join(f"{i['name']} ({i['semantic_score']:.0%})" for i in near) + (
+                    f" - vocabulaire de '{near[0]['name']}' repris ({len(seed_pairs)} concepts)" if seed_pairs else ""
+                ) if near else "aucun corpus officiel proche",
+            )
 
         # Normalisation des concepts/types/attributs/relations (2026-09-29,
         # demande explicite : "reduire le nombre d'ontologies" en comparant
@@ -584,7 +756,7 @@ def ingest_document(
                 cid=class_id,
             ) if r["label"]
         ]
-        concept_normalizer = _TypeNormalizer(known_class_concepts)
+        concept_normalizer = _TypeNormalizer(known_class_concepts, seeded=seed_pairs)
         known_entity_types = [
             r["type"] for r in session.run(
                 "MATCH (e:Entity {class_id: $cid}) RETURN DISTINCT e.type AS type", cid=class_id,

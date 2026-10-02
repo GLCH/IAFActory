@@ -1,0 +1,64 @@
+@prefix iafs: <urn:iaf:ns:structure#> .
+@prefix iafp: <urn:iaf:ns:structure-pdf#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontologie structurelle "PDF" - ajoutee le 2026-10-01, demande explicite :
+# "Pour un pdf, en tete, tables, sections, sous sections." Meme principe de
+# restrictions OWL2 a cardinalite qualifiee que iaf-structure-word.ttl, lues
+# par app/structure_matcher.py.
+#
+# LIMITE HONNETE (verifiee en lisant app/pdf_struct.py AVANT d'ecrire ce
+# fichier, pas supposee) : le parseur PDF reel est BEAUCOUP plus grossier que
+# docx_struct.py - une PAGE entiere devient une Section, AUCUN titre/sous-
+# titre n'est detecte (voir le docstring de pdf_struct.py : "pas de sous-
+# titres detectes"). iafp:Section/iafp:SubSection ne peuvent donc PAS etre
+# distinguees l'une de l'autre par le texte reel a la lecture d'un PDF
+# quelconque ; iafp:Header (en-tete de page) n'est pas non plus extrait par
+# ce parseur (aucune notion de zone d'en-tete). Seul iafp:TableElement (via
+# pdfplumber.extract_tables(), deja utilise par pdf_struct.py) est
+# fiablement verifiable. Ontologie et axiomes definis comme demande ;
+# structure_matcher.py applique cette limite honnetement (score partiel,
+# jamais une fausse certitude) plutot que de la cacher.
+
+<urn:iaf:ns:structure-pdf> a owl:Ontology ;
+    rdfs:label "Ontologie structurelle PDF IAFactory"@fr ;
+    rdfs:comment "Forme attendue pour un document PDF : en-tete, sections, sous-sections, tables."@fr ;
+    owl:imports <urn:iaf:ns:structure> ;
+    owl:versionInfo "1" ;
+    iafs:appliesToFormat "pdf" .
+
+iafp:Header a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "En-tete"@fr ;
+    skos:altLabel "Header"@en .
+
+iafp:PdfSection a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Section"@fr ;
+    skos:altLabel "Section"@en .
+
+iafp:PdfSubSection a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Sous-section"@fr ;
+    skos:altLabel "Subsection"@en .
+
+iafp:TableElement a owl:Class ;
+    rdfs:subClassOf iafs:Table ;
+    rdfs:label "Tableau"@fr ;
+    skos:altLabel "Table"@en .
+
+# --- Axiomes de cardinalite --------------------------------------------
+# En-tete : 0 ou 1 (optionnel, pas toujours present). Section : au moins 1.
+# Sous-section et Tableau : libres (0..n).
+
+iafp:PdfForm a owl:Class ;
+    rdfs:subClassOf iafs:Document ;
+    rdfs:label "Forme PDF"@fr ;
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iafp:Header ;
+          owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iafp:PdfSection ;
+          owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ] .

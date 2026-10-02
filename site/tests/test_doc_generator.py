@@ -11,9 +11,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app import docx_struct, markdown_struct  # noqa: E402
+from app import docx_struct, markdown_struct, pdf_struct  # noqa: E402
 from app.doc_generator import (  # noqa: E402
-    ClassOntologyMaterial, generate_document, write_docx, write_markdown,
+    ClassOntologyMaterial, generate_document, write_docx, write_markdown, write_pdf,
 )
 
 
@@ -221,3 +221,91 @@ def test_write_docx_roundtrips_through_the_real_parser(tmp_path):
     all_elems = _flatten(root)
     assert any(e.kind == "Section" for e in all_elems)
     assert any(e.kind == "Paragraph" for e in all_elems)
+
+
+# US16.7 : structure "use_case" (Contexte/Acteurs/Scenario/Resultat).
+
+def test_use_case_structure_has_context_actors_scenario_result():
+    material = _material()  # a des concepts, entites, relations et attributs reels
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=4, structure="use_case")
+    titles = [s.title for s in doc.sections]
+    assert titles == ["Contexte", "Acteurs", "Scenario", "Resultat"]
+    actors = doc.sections[1]
+    assert actors.table is not None
+    assert actors.table["header"] == ["Entite", "Type"]
+    real_names = {e["name"] for e in material.entities}
+    assert {row[0] for row in actors.table["rows"]} <= real_names
+
+
+def test_use_case_scenario_steps_are_numbered_and_use_real_relation():
+    material = _material()  # relation reelle : Alpha -utilise-> Beta
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=4, structure="use_case")
+    scenario = next(s for s in doc.sections if s.title == "Scenario")
+    assert scenario.paragraphs
+    assert scenario.paragraphs[0].startswith("Etape 1 : ")
+    assert "Alpha" in scenario.paragraphs[0] and "Beta" in scenario.paragraphs[0]
+
+
+def test_use_case_skips_scenario_section_without_real_relations():
+    material = _material(relations=[])
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=4, structure="use_case")
+    titles = [s.title for s in doc.sections]
+    assert "Scenario" not in titles
+    assert any("Scenario" in w for w in doc.warnings)
+
+
+def test_write_docx_use_case_roundtrips_through_the_real_parser(tmp_path):
+    material = _material()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=4, structure="use_case")
+    path = tmp_path / "cas_usage.docx"
+    write_docx(doc, path)
+
+    metadata, root = docx_struct.parse(str(path))
+    all_elems = _flatten(root)
+    sections_by_label = {e.label: e for e in all_elems if e.kind == "Section"}
+    assert {"Contexte", "Acteurs", "Scenario", "Resultat"} <= set(sections_by_label)
+    assert any(e.kind == "Table" for e in all_elems)
+
+
+# US16.8 : structure "exposition" (tableaux Concepts/Entites/Relations/Attributs) + writer PDF.
+
+def test_exposition_structure_has_one_table_per_section_with_real_material():
+    material = _material()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=6, structure="exposition")
+    titles = [s.title for s in doc.sections]
+    assert titles == ["Concepts", "Entites", "Relations", "Attributs"]
+    for section in doc.sections:
+        assert section.table is not None
+        assert section.table["rows"]
+    concepts_section = doc.sections[0]
+    assert concepts_section.table["header"] == ["Concept"]
+    relations_section = doc.sections[2]
+    assert relations_section.table["header"] == ["Source", "Relation", "Cible"]
+    assert relations_section.table["rows"] == [["Alpha", "utilise", "Beta"]]
+
+
+def test_exposition_omits_sections_without_real_material():
+    material = _material(concepts=[], relations=[])
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=6, structure="exposition")
+    titles = [s.title for s in doc.sections]
+    assert titles == ["Entites", "Attributs"]
+
+
+def test_write_pdf_roundtrips_through_the_real_parser(tmp_path):
+    # US16.8 : verifie REELLEMENT (pas suppose) que les tableaux avec
+    # bordures GRID sont bien reconnus par pdfplumber.extract_tables() a la
+    # lecture, comme documente dans l'epic.
+    material = _material()
+    doc = generate_document(material, words=300, vocabulary_size=50, seed=6, structure="exposition")
+    path = tmp_path / "exposition.pdf"
+    write_pdf(doc, path)
+    assert path.exists() and path.stat().st_size > 0
+
+    metadata, root = pdf_struct.parse(str(path))
+    all_elems = _flatten(root)
+    assert any(e.kind == "Section" for e in all_elems)  # une page = une Section
+    assert any(e.kind == "Paragraph" for e in all_elems)
+    tables = [e for e in all_elems if e.kind == "Table"]
+    assert tables, "au moins un tableau doit etre detecte par le vrai parseur PDF (pdfplumber)"
+    # Le tableau des relations (3 colonnes, 1 ligne reelle) doit etre repere.
+    assert any("Alpha" in t.text and "utilise" in t.text and "Beta" in t.text for t in tables)

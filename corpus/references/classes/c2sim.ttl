@@ -1,0 +1,2068 @@
+PREFIX iafl:   <urn:iaf:ns:structure-livre#>
+PREFIX iafp:   <urn:iaf:ns:structure-pdf#>
+PREFIX iafs:   <urn:iaf:ns:structure#>
+PREFIX iaftex: <urn:iaf:ns:structure-latex#>
+PREFIX iafw:   <urn:iaf:ns:structure-word#>
+PREFIX owl:    <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:   <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+<http://iafactory.local/ontology/properties#faconnent>
+        a           owl:ObjectProperty;
+        rdfs:label  "façonnent"@fr .
+
+<http://iafactory.local/ontology/properties#necessaires-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "nécessaires à"@fr .
+
+<http://iafactory.local/ontology/properties#essentiels-a-la-formation-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "essentiels à la formation de"@fr .
+
+<http://iafactory.local/ontology/properties#illustre>
+        a           owl:ObjectProperty;
+        rdfs:label  "illustre"@fr .
+
+<http://iafactory.local/ontology/properties#a>
+        a           owl:ObjectProperty;
+        rdfs:label  "à"@fr .
+
+<http://iafactory.local/ontology/properties#peuvent-s-effondrer-en>
+        a           owl:ObjectProperty;
+        rdfs:label  "peuvent s'effondrer en"@fr .
+
+<http://iafactory.local/ontology/properties#entraine-la-formation-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "entraîne la formation de"@fr .
+
+<http://iafactory.local/ontology/properties#inferieure-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "inférieure à"@fr .
+
+<http://iafactory.local/ontology/properties#evolution>
+        a           owl:DatatypeProperty;
+        rdfs:label  "évolution"@fr .
+
+<http://iafactory.local/ontology/properties#provoquee-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "provoquée par"@fr .
+
+<http://iafactory.local/ontology/properties#formee-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "formée par"@fr .
+
+<http://iafactory.local/ontology/properties#entre-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "entre dans"@fr .
+
+<http://iafactory.local/ontology/properties#forme>
+        a           owl:ObjectProperty;
+        rdfs:label  "forme"@fr .
+
+<http://iafactory.local/ontology/properties#commence-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "commence dans"@fr .
+
+<http://iafactory.local/ontology/properties#principalement>
+        a           owl:DatatypeProperty;
+        rdfs:label  "principalement"@fr .
+
+<http://iafactory.local/ontology/properties#determine>
+        a           owl:ObjectProperty;
+        rdfs:label  "détermine"@fr .
+
+<http://iafactory.local/ontology/properties#est-regi-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "est régi par"@fr .
+
+<http://iafactory.local/ontology/properties#se-termine-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "se termine par"@fr .
+
+<http://iafactory.local/ontology/properties#mesure>
+        a           owl:ObjectProperty;
+        rdfs:label  "mesure"@fr .
+
+<http://iafactory.local/ontology/properties#decompose-la-lumiere-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "décompose la lumière de"@fr .
+
+<http://iafactory.local/ontology/properties#est-au-c-ur-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est au cœur de"@fr .
+
+<http://iafactory.local/ontology/properties#fournit>
+        a           owl:DatatypeProperty;
+        rdfs:label  "fournit"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-mesure-de>
+        a           owl:DatatypeProperty;
+        rdfs:label  "est une mesure de"@fr .
+
+<http://iafactory.local/ontology/properties#permet>
+        a           owl:DatatypeProperty;
+        rdfs:label  "permet"@fr .
+
+<http://iafactory.local/ontology/properties#etudie>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "étudie"@fr .
+
+<http://iafactory.local/ontology/properties#offrent>
+        a           owl:DatatypeProperty;
+        rdfs:label  "offrent"@fr .
+
+<http://iafactory.local/ontology/properties#consiste-a>
+        a           owl:DatatypeProperty;
+        rdfs:label  "consiste à"@fr .
+
+<http://iafactory.local/ontology/properties#ont-revolutionne>
+        a           owl:ObjectProperty;
+        rdfs:label  "ont révolutionné"@fr .
+
+<http://iafactory.local/ontology/properties#emis-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "émis par"@fr .
+
+<http://iafactory.local/ontology/properties#permettent-d-analyser>
+        a           owl:ObjectProperty;
+        rdfs:label  "permettent d'analyser"@fr .
+
+<http://iafactory.local/ontology/properties#permettent-de-capter>
+        a           owl:ObjectProperty;
+        rdfs:label  "permettent de capter"@fr .
+
+<http://iafactory.local/ontology/properties#depuis>
+        a           owl:ObjectProperty;
+        rdfs:label  "depuis"@fr .
+
+<http://iafactory.local/ontology/properties#promettent-d-affiner-notre-comprehension-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "promettent d'affiner notre compréhension de"@fr .
+
+<http://iafactory.local/ontology/properties#promettent-de-lever-le-voile-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "promettent de lever le voile sur"@fr .
+
+<http://iafactory.local/ontology/properties#est-essentielle-pour-expliquer>
+        a           owl:ObjectProperty;
+        rdfs:label  "est essentielle pour expliquer"@fr .
+
+<http://iafactory.local/ontology/properties#a-confirme-les-predictions-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "a confirmé les prédictions de"@fr .
+
+<http://iafactory.local/ontology/properties#attestee-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "attestée par"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-preuve-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une preuve de"@fr .
+
+<http://iafactory.local/ontology/properties#decouverte-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "découverte par"@fr .
+
+<http://iafactory.local/ontology/properties#repose-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "repose sur"@fr .
+
+<http://iafactory.local/ontology/properties#pourcentage-de-densite-energetique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "pourcentage de densité énergétique"@fr .
+
+<http://iafactory.local/ontology/properties#age>
+        a           owl:DatatypeProperty;
+        rdfs:label  "âge"@fr .
+
+<http://iafactory.local/ontology/properties#abrite>
+        a           owl:ObjectProperty;
+        rdfs:label  "abrite"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-exemple-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un exemple de"@fr .
+
+<http://iafactory.local/ontology/properties#permet-de-comprendre>
+        a           owl:ObjectProperty;
+        rdfs:label  "permet de comprendre"@fr .
+
+<http://iafactory.local/ontology/properties#compose-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "composé de"@fr .
+
+<http://iafactory.local/ontology/properties#nombre-d-etoiles>
+        a           owl:DatatypeProperty;
+        rdfs:label  "nombre d'étoiles"@fr .
+
+<http://iafactory.local/ontology/properties#est-indispensable-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "est indispensable pour"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-pilier-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un pilier de"@fr .
+
+<http://iafactory.local/ontology/properties#sauf>
+        a           owl:ObjectProperty;
+        rdfs:label  "sauf"@fr .
+
+<http://iafactory.local/ontology/properties#determine-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "déterminé par"@fr .
+
+<http://iafactory.local/ontology/properties#pour-connaitre-des>
+        a           owl:ObjectProperty;
+        rdfs:label  "pour connaître des"@fr .
+
+<http://iafactory.local/ontology/properties#en-cas-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "en cas de"@fr .
+
+<http://iafactory.local/ontology/properties#subi-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "subi par"@fr .
+
+<http://iafactory.local/ontology/properties#pour-reparer>
+        a           owl:ObjectProperty;
+        rdfs:label  "pour réparer"@fr .
+
+<http://iafactory.local/ontology/properties#engagee-en-cas-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "engagée en cas de"@fr .
+
+<http://iafactory.local/ontology/properties#effet>
+        a           owl:DatatypeProperty;
+        rdfs:label  "effet"@fr .
+
+<http://iafactory.local/ontology/properties#au-detriment-du>
+        a           owl:ObjectProperty;
+        rdfs:label  "au détriment du"@fr .
+
+<http://iafactory.local/ontology/properties#creent>
+        a           owl:ObjectProperty;
+        rdfs:label  "créent"@fr .
+
+<http://iafactory.local/ontology/properties#peuvent-etre-invalidees-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "peuvent être invalidées par"@fr .
+
+<http://iafactory.local/ontology/properties#detaillent>
+        a           owl:ObjectProperty;
+        rdfs:label  "détaillent"@fr .
+
+<http://iafactory.local/ontology/properties#doit-etre-exempt-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "doit être exempt de"@fr .
+
+<http://iafactory.local/ontology/properties#manifestent>
+        a           owl:ObjectProperty;
+        rdfs:label  "manifestent"@fr .
+
+<http://iafactory.local/ontology/properties#requiert>
+        a           owl:ObjectProperty;
+        rdfs:label  "requiert"@fr .
+
+<http://iafactory.local/ontology/properties#assure>
+        a           owl:ObjectProperty;
+        rdfs:label  "assure"@fr .
+
+<http://iafactory.local/ontology/properties#regit>
+        a           owl:ObjectProperty;
+        rdfs:label  "régit"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-branche-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une branche de"@fr .
+
+<http://iafactory.local/ontology/properties#joue-un-role-crucial-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "joue un rôle crucial dans"@fr .
+
+<http://iafactory.local/ontology/properties#est-fondamentale-pour-apprehender>
+        a           owl:ObjectProperty;
+        rdfs:label  "est fondamentale pour appréhender"@fr .
+
+<http://iafactory.local/ontology/properties#fait-partie-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "fait partie de"@fr .
+
+<http://iafactory.local/ontology/properties#situee-au-dela-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "située au-delà de"@fr .
+
+<http://iafactory.local/ontology/properties#vestiges-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "vestiges de"@fr .
+
+<http://iafactory.local/ontology/properties#situee-entre>
+        a           owl:ObjectProperty;
+        rdfs:label  "située entre"@fr .
+
+<http://iafactory.local/ontology/properties#satellite-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "satellite de"@fr .
+
+<http://iafactory.local/ontology/properties#population>
+        a           owl:DatatypeProperty;
+        rdfs:label  "population"@fr .
+
+<http://iafactory.local/ontology/properties#nombre-de-satellites-naturels>
+        a           owl:DatatypeProperty;
+        rdfs:label  "nombre de satellites naturels"@fr .
+
+<http://iafactory.local/ontology/properties#regie-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "régie par"@fr .
+
+<http://iafactory.local/ontology/properties#suit-orbite-autour-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "suit orbite autour de"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-ensemble-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un ensemble de"@fr .
+
+<http://iafactory.local/ontology/properties#gravitant-autour-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "gravitant autour de"@fr .
+
+<http://iafactory.local/ontology/properties#recouvre>
+        a           owl:ObjectProperty;
+        rdfs:label  "recouvre"@fr .
+
+<http://iafactory.local/ontology/properties#dispose-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "disposé sur"@fr .
+
+<http://iafactory.local/ontology/properties#mouilles-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "mouillés avec"@fr .
+
+<http://iafactory.local/ontology/properties#deglace-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "déglacé avec"@fr .
+
+<http://iafactory.local/ontology/properties#cuisson-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "cuisson avec"@fr .
+
+<http://iafactory.local/ontology/properties#temps-de-mijotage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "temps de mijotage"@fr .
+
+<http://iafactory.local/ontology/properties#temps-de-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "temps de cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#incarne-l-essence-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "incarne l'essence de"@fr .
+
+<http://iafactory.local/ontology/properties#temperature-de-service>
+        a           owl:DatatypeProperty;
+        rdfs:label  "température de service"@fr .
+
+<http://iafactory.local/ontology/properties#reside-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "réside dans"@fr .
+
+<http://iafactory.local/ontology/properties#assaisonner-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "assaisonner de"@fr .
+
+<http://iafactory.local/ontology/properties#sont-ajoutees-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont ajoutées avec"@fr .
+
+<http://iafactory.local/ontology/properties#incorporer-apres>
+        a           owl:ObjectProperty;
+        rdfs:label  "incorporer après"@fr .
+
+<http://iafactory.local/ontology/properties#ajouter-apres>
+        a           owl:ObjectProperty;
+        rdfs:label  "ajouter après"@fr .
+
+<http://iafactory.local/ontology/properties#faire-revenir-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "faire revenir dans"@fr .
+
+<http://iafactory.local/ontology/properties#debute-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "débute par"@fr .
+
+<http://iafactory.local/ontology/properties#action-pendant-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "action pendant cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#met-en-valeur>
+        a           owl:ObjectProperty;
+        rdfs:label  "met en valeur"@fr .
+
+<http://iafactory.local/ontology/properties#repousse-les-limites-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "repousse les limites de"@fr .
+
+<http://iafactory.local/ontology/properties#fascine>
+        a           owl:ObjectProperty;
+        rdfs:label  "fascine"@fr .
+
+<http://iafactory.local/ontology/properties#implications>
+        a           owl:DatatypeProperty;
+        rdfs:label  "implications"@fr .
+
+<http://iafactory.local/ontology/properties#proprietes>
+        a           owl:DatatypeProperty;
+        rdfs:label  "propriétés"@fr .
+
+<http://iafactory.local/ontology/properties#du-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "dû à"@fr .
+
+<http://iafactory.local/ontology/properties#sont-des-perturbations-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont des perturbations de"@fr .
+
+<http://iafactory.local/ontology/properties#associee-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "associée à"@fr .
+
+<http://iafactory.local/ontology/properties#predites-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "prédites par"@fr .
+
+<http://iafactory.local/ontology/properties#generent>
+        a           owl:ObjectProperty;
+        rdfs:label  "génèrent"@fr .
+
+<http://iafactory.local/ontology/properties#se-forment-suite-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "se forment suite à"@fr .
+
+<http://iafactory.local/ontology/properties#defini-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "défini par"@fr .
+
+<http://iafactory.local/ontology/properties#vitesse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "vitesse"@fr .
+
+<http://iafactory.local/ontology/properties#sont-associes-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont associés à"@fr .
+
+<http://iafactory.local/ontology/properties#explore>
+        a           owl:ObjectProperty;
+        rdfs:label  "explore"@fr .
+
+<http://iafactory.local/ontology/properties#est-cruciale-pour-comprendre>
+        a           owl:ObjectProperty;
+        rdfs:label  "est cruciale pour comprendre"@fr .
+
+<http://iafactory.local/ontology/properties#empeche-l-echappement-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "empêche l'échappement de"@fr .
+
+<http://iafactory.local/ontology/properties#gravite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "gravité"@fr .
+
+<http://iafactory.local/ontology/properties#densite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "densité"@fr .
+
+<http://iafactory.local/ontology/properties#cle-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "clé de"@fr .
+
+<http://iafactory.local/ontology/properties#garantit>
+        a           owl:ObjectProperty;
+        rdfs:label  "garantit"@fr .
+
+<http://iafactory.local/ontology/properties#precuire-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "précuire avec"@fr .
+
+<http://iafactory.local/ontology/properties#duree-de-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "durée de cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#methode-de-cuisson>
+        a           owl:DatatypeProperty;
+        rdfs:label  "méthode de cuisson"@fr .
+
+<http://iafactory.local/ontology/properties#ajouter-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "ajouter à"@fr .
+
+<http://iafactory.local/ontology/properties#utiliser-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "utiliser pour"@fr .
+
+<http://iafactory.local/ontology/properties#etat>
+        a           owl:DatatypeProperty;
+        rdfs:label  "état"@fr .
+
+<http://iafactory.local/ontology/properties#cible>
+        a           owl:ObjectProperty;
+        rdfs:label  "cible"@fr .
+
+<http://iafactory.local/ontology/properties#etape>
+        a           owl:DatatypeProperty;
+        rdfs:label  "étape"@fr .
+
+<http://iafactory.local/ontology/properties#variete>
+        a           owl:ObjectProperty;
+        rdfs:label  "variété"@fr .
+
+<http://iafactory.local/ontology/properties#permet-de-realiser>
+        a           owl:ObjectProperty;
+        rdfs:label  "permet de réaliser"@fr .
+
+<http://iafactory.local/ontology/properties#gout>
+        a           owl:DatatypeProperty;
+        rdfs:label  "goût"@fr .
+
+<http://iafactory.local/ontology/properties#thermostat>
+        a           owl:DatatypeProperty;
+        rdfs:label  "thermostat"@fr .
+
+<http://iafactory.local/ontology/properties#temperature>
+        a           owl:DatatypeProperty;
+        rdfs:label  "temperature"@fr .
+
+<http://iafactory.local/ontology/properties#verser-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "verser sur"@fr .
+
+<http://iafactory.local/ontology/properties#disposer-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "disposer dans"@fr .
+
+<http://iafactory.local/ontology/properties#prepare-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "préparé avec"@fr .
+
+<http://iafactory.local/ontology/properties#applique-sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "appliqué sur"@fr .
+
+<http://iafactory.local/ontology/properties#outil>
+        a           owl:ObjectProperty;
+        rdfs:label  "outil"@fr .
+
+<http://iafactory.local/ontology/properties#prepare-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "préparé par"@fr .
+
+<http://iafactory.local/ontology/properties#epaisseur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "épaisseur"@fr .
+
+<http://iafactory.local/ontology/properties#type-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "type de"@fr .
+
+<http://iafactory.local/ontology/properties#utilisation>
+        a           owl:DatatypeProperty;
+        rdfs:label  "utilisation"@fr .
+
+<http://iafactory.local/ontology/properties#matiere-grasse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "matière grasse"@fr .
+
+<http://iafactory.local/ontology/properties#quantite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "quantité"@fr .
+
+<http://iafactory.local/ontology/properties#parfumee-a>
+        a           owl:ObjectProperty;
+        rdfs:label  "parfumée à"@fr .
+
+<http://iafactory.local/ontology/properties#resulte-de-la-cuisson-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "résulte de la cuisson de"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-plat-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un plat de"@fr .
+
+<http://iafactory.local/ontology/properties#ideales-pour-accompagner>
+        a           owl:ObjectProperty;
+        rdfs:label  "idéales pour accompagner"@fr .
+
+<http://iafactory.local/ontology/properties#affinage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "affinage"@fr .
+
+<http://iafactory.local/ontology/properties#sublime>
+        a           owl:ObjectProperty;
+        rdfs:label  "sublime"@fr .
+
+<http://iafactory.local/ontology/properties#accompagnee-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "accompagnée de"@fr .
+
+<http://iafactory.local/ontology/properties#preparation>
+        a           owl:DatatypeProperty;
+        rdfs:label  "préparation"@fr .
+
+<http://iafactory.local/ontology/properties#sublimer>
+        a           owl:ObjectProperty;
+        rdfs:label  "sublimer"@fr .
+
+<http://iafactory.local/ontology/properties#sec>
+        a           owl:DatatypeProperty;
+        rdfs:label  "sec"@fr .
+
+<http://iafactory.local/ontology/properties#revele>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "révèle"@fr .
+
+<http://iafactory.local/ontology/properties#a-pour-intensite>
+        a           owl:ObjectProperty;
+        rdfs:label  "a pour intensité"@fr .
+
+<http://iafactory.local/ontology/properties#duree>
+        a           owl:DatatypeProperty;
+        rdfs:label  "durée"@fr .
+
+<http://iafactory.local/ontology/properties#unite-d-expression>
+        a           owl:DatatypeProperty;
+        rdfs:label  "unité d'expression"@fr .
+
+<http://iafactory.local/ontology/properties#en>
+        a           owl:ObjectProperty;
+        rdfs:label  "en"@fr .
+
+<http://iafactory.local/ontology/properties#origine>
+        a           owl:DatatypeProperty;
+        rdfs:label  "origine"@fr .
+
+<http://iafactory.local/ontology/properties#type-de-vin>
+        a           owl:DatatypeProperty;
+        rdfs:label  "type de vin"@fr .
+
+<http://iafactory.local/ontology/properties#richesse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Richesse"@fr .
+
+<http://iafactory.local/ontology/properties#unit>
+        a           owl:DatatypeProperty;
+        rdfs:label  "unit"@fr .
+
+<http://iafactory.local/ontology/properties#type-d-illustration>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Type d'illustration"@fr .
+
+<http://iafactory.local/ontology/properties#est-une-sous-region-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une sous-région de"@fr .
+
+<http://iafactory.local/ontology/properties#about>
+        a           owl:ObjectProperty;
+        rdfs:label  "about"@fr .
+
+<http://iafactory.local/ontology/properties#producteur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Producteur"@fr .
+
+<http://iafactory.local/ontology/properties#fera-echo-aux>
+        a           owl:ObjectProperty;
+        rdfs:label  "fera écho aux"@fr .
+
+<http://iafactory.local/ontology/properties#en-quete-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "en quête de"@fr .
+
+<http://iafactory.local/ontology/properties#situe-en>
+        a           owl:ObjectProperty;
+        rdfs:label  "situé en"@fr .
+
+<http://iafactory.local/ontology/properties#cepage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "cépage"@fr .
+
+<http://iafactory.local/ontology/properties#originaire-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "originaire de"@fr .
+
+<http://iafactory.local/ontology/properties#apportera>
+        a           owl:ObjectProperty;
+        rdfs:label  "apportera"@fr .
+
+<http://iafactory.local/ontology/properties#ne-dominera-pas>
+        a           owl:ObjectProperty;
+        rdfs:label  "ne dominera pas"@fr .
+
+<http://iafactory.local/ontology/properties#mis-en-valeur-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "mis en valeur par"@fr .
+
+<http://iafactory.local/ontology/properties#intensite-aromatique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "intensité aromatique"@fr .
+
+<http://iafactory.local/ontology/properties#fait-echo-aux-saveurs-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "fait écho aux saveurs de"@fr .
+
+<http://iafactory.local/ontology/properties#se-marie-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "se marie avec"@fr .
+
+<http://iafactory.local/ontology/properties#accompagnement>
+        a           owl:ObjectProperty;
+        rdfs:label  "accompagnement"@fr .
+
+<http://iafactory.local/ontology/properties#texture>
+        a           owl:DatatypeProperty;
+        rdfs:label  "texture"@fr .
+
+<http://iafactory.local/ontology/properties#tanins>
+        a           owl:DatatypeProperty;
+        rdfs:label  "tanins"@fr .
+
+<http://iafactory.local/ontology/properties#s-accorde-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "s'accorde avec"@fr .
+
+<http://iafactory.local/ontology/properties#produit-par>
+        a           owl:ObjectProperty;
+        rdfs:label  "produit par"@fr .
+
+<http://iafactory.local/ontology/properties#saveurs>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Saveurs"@fr .
+
+<http://iafactory.local/ontology/properties#notes>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Notes"@fr .
+
+<http://iafactory.local/ontology/properties#est-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "est_dans"@fr .
+
+<http://iafactory.local/ontology/properties#temoin-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "témoin de"@fr .
+
+<http://iafactory.local/ontology/properties#produit>
+        a           owl:ObjectProperty;
+        rdfs:label  "produit"@fr .
+
+<http://iafactory.local/ontology/properties#jusqu-a>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Jusqu'à"@fr .
+
+<http://iafactory.local/ontology/properties#aucune>
+        a           owl:ObjectProperty;
+        rdfs:label  "aucune"@fr .
+
+<http://iafactory.local/ontology/properties#inventees-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "INVENTEES pour"@fr .
+
+<http://iafactory.local/ontology/properties#illustration>
+        a           owl:DatatypeProperty;
+        rdfs:label  "illustration"@fr .
+
+<http://iafactory.local/ontology/properties#de-la>
+        a           owl:ObjectProperty;
+        rdfs:label  "de la"@fr .
+
+<http://iafactory.local/ontology/properties#issues-directement-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "issues directement de"@fr .
+
+<http://iafactory.local/ontology/properties#expression-du>
+        a           owl:ObjectProperty;
+        rdfs:label  "expression du"@fr .
+
+<http://iafactory.local/ontology/properties#qualite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "qualité"@fr .
+
+<http://iafactory.local/ontology/properties#intensite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "intensité"@fr .
+
+<http://iafactory.local/ontology/properties#est-issu-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est issu de"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-fleuron-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un fleuron de"@fr .
+
+<http://iafactory.local/ontology/properties#se-rencontrent-avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "se rencontrent avec"@fr .
+
+<http://iafactory.local/ontology/properties#finale>
+        a           owl:DatatypeProperty;
+        rdfs:label  "finale"@fr .
+
+<http://iafactory.local/ontology/properties#equilibre>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "équilibre"@fr .
+
+<http://iafactory.local/ontology/properties#bouche>
+        a           owl:DatatypeProperty;
+        rdfs:label  "bouche"@fr .
+
+<http://iafactory.local/ontology/properties#appellation>
+        a           owl:DatatypeProperty;
+        rdfs:label  "appellation"@fr .
+
+<http://iafactory.local/ontology/properties#couleur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "couleur"@fr .
+
+<http://iafactory.local/ontology/properties#situe-sur-la-rive-droite-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "situé sur la rive droite de"@fr .
+
+<http://iafactory.local/ontology/properties#situe-dans>
+        a           owl:ObjectProperty;
+        rdfs:label  "situé dans"@fr .
+
+<http://iafactory.local/ontology/properties#tisse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "tisse"@fr .
+
+<http://iafactory.local/ontology/properties#confere>
+        a           owl:DatatypeProperty;
+        rdfs:label  "confère"@fr .
+
+<http://iafactory.local/ontology/properties#apporte>
+        a           owl:DatatypeProperty;
+        rdfs:label  "apporte"@fr .
+
+<http://iafactory.local/ontology/properties#assemblage>
+        a           owl:DatatypeProperty;
+        rdfs:label  "assemblage"@fr .
+
+<http://iafactory.local/ontology/properties#terroir>
+        a           owl:DatatypeProperty;
+        rdfs:label  "terroir"@fr .
+
+<http://iafactory.local/ontology/properties#prestigieuse>
+        a           owl:DatatypeProperty;
+        rdfs:label  "prestigieuse"@fr .
+
+<http://iafactory.local/ontology/properties#millesime>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Millesime"@fr .
+
+<http://iafactory.local/ontology/properties#arome>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Arome"@fr .
+
+<http://iafactory.local/ontology/properties#region>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Region"@fr .
+
+<http://iafactory.local/ontology/properties#domaine>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Domaine"@fr .
+
+<http://iafactory.local/ontology/properties#cepage-style>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Cepage/style"@fr .
+
+<http://iafactory.local/ontology/properties#est-une>
+        a           owl:ObjectProperty;
+        rdfs:label  "est une"@fr .
+
+<http://iafactory.local/ontology/properties#compagnon-ideal-pour>
+        a           owl:ObjectProperty;
+        rdfs:label  "compagnon idéal pour"@fr .
+
+<http://iafactory.local/ontology/properties#revele-des-notes-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "révèle des notes de"@fr .
+
+<http://iafactory.local/ontology/properties#incarne>
+        a           owl:ObjectProperty;
+        rdfs:label  "incarne"@fr .
+
+<http://iafactory.local/ontology/properties#signe>
+        a           owl:ObjectProperty;
+        rdfs:label  "signe"@fr .
+
+<http://iafactory.local/ontology/properties#sols>
+        a           owl:DatatypeProperty;
+        rdfs:label  "sols"@fr .
+
+<http://iafactory.local/ontology/properties#sucrosite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "sucrosité"@fr .
+
+<http://iafactory.local/ontology/properties#mineralite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "minéralité"@fr .
+
+<http://iafactory.local/ontology/properties#profil-aromatique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "profil aromatique"@fr .
+
+<http://iafactory.local/ontology/properties#fraicheur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "fraîcheur"@fr .
+
+<http://iafactory.local/ontology/properties#corps>
+        a           owl:DatatypeProperty;
+        rdfs:label  "corps"@fr .
+
+<http://iafactory.local/ontology/properties#robe>
+        a           owl:DatatypeProperty;
+        rdfs:label  "robe"@fr .
+
+<http://iafactory.local/ontology/properties#et>
+        a           owl:ObjectProperty;
+        rdfs:label  "et"@fr .
+
+<http://iafactory.local/ontology/properties#est-cultive-en>
+        a           owl:ObjectProperty;
+        rdfs:label  "est cultivé en"@fr .
+
+<http://iafactory.local/ontology/properties#sont>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont"@fr .
+
+<http://iafactory.local/ontology/properties#avec>
+        a           owl:ObjectProperty;
+        rdfs:label  "avec"@fr .
+
+<http://iafactory.local/ontology/properties#inclut>
+        a           owl:ObjectProperty;
+        rdfs:label  "inclut"@fr .
+
+<http://iafactory.local/ontology/properties#possede>
+        a           owl:ObjectProperty;
+        rdfs:label  "possède"@fr .
+
+<http://iafactory.local/ontology/properties#est-un-type-de>
+        a           owl:ObjectProperty;
+        rdfs:label  "est un type de"@fr .
+
+<http://iafactory.local/ontology/properties#unite>
+        a           owl:DatatypeProperty;
+        rdfs:label  "unite"@fr .
+
+<http://iafactory.local/ontology/properties#entraine>
+        a           owl:ObjectProperty;
+        rdfs:label  "entraîne"@fr .
+
+<http://iafactory.local/ontology/properties#composition>
+        a           owl:DatatypeProperty;
+        rdfs:label  "composition"@fr .
+
+<http://iafactory.local/ontology/properties#classification>
+        a           owl:DatatypeProperty;
+        rdfs:label  "classification"@fr .
+
+<http://iafactory.local/ontology/properties#de>
+        a           owl:ObjectProperty;
+        rdfs:label  "de"@fr .
+
+<http://iafactory.local/ontology/properties#sont-des>
+        a           owl:ObjectProperty;
+        rdfs:label  "sont des"@fr .
+
+<http://iafactory.local/ontology/properties#annee>
+        a           owl:DatatypeProperty;
+        rdfs:label  "année"@fr .
+
+<http://iafactory.local/ontology/properties#role>
+        a           owl:DatatypeProperty , owl:ObjectProperty;
+        rdfs:label  "rôle"@fr .
+
+<http://iafactory.local/ontology/properties#sur>
+        a           owl:ObjectProperty;
+        rdfs:label  "sur"@fr .
+
+<http://iafactory.local/ontology/properties#contient>
+        a           owl:ObjectProperty;
+        rdfs:label  "contient"@fr .
+
+<http://iafactory.local/ontology/properties#caracteristique>
+        a           owl:DatatypeProperty;
+        rdfs:label  "caractéristique"@fr .
+
+<http://iafactory.local/ontology/properties#est>
+        a           owl:ObjectProperty;
+        rdfs:label  "est"@fr .
+
+<http://iafactory.local/ontology/properties#utilise>
+        a           owl:ObjectProperty;
+        rdfs:label  "utilise"@fr .
+
+<http://iafactory.local/ontology/properties#definit>
+        a           owl:ObjectProperty;
+        rdfs:label  "définit"@fr .
+
+<http://iafactory.local/ontology/properties#concerne>
+        a           owl:ObjectProperty;
+        rdfs:label  "concerne"@fr .
+
+<http://iafactory.local/ontology/properties#valeur>
+        a           owl:DatatypeProperty;
+        rdfs:label  "valeur"@fr .
+
+<http://iafactory.local/ontology/properties#part-of>
+        a           owl:ObjectProperty;
+        rdfs:label  "part of"@fr .
+
+<http://iafactory.local/ontology/properties#duration>
+        a           owl:DatatypeProperty;
+        rdfs:label  "duration"@fr .
+
+<http://iafactory.local/ontology/properties#type>
+        a           owl:DatatypeProperty;
+        rdfs:label  "type"@fr .
+
+<http://iafactory.local/ontology/properties#year>
+        a           owl:DatatypeProperty;
+        rdfs:label  "Year"@fr .
+
+<http://iafactory.local/ontology/properties#state>
+        a           owl:DatatypeProperty;
+        rdfs:label  "state"@fr .
+
+<http://iafactory.local/ontology/properties#value>
+        a           owl:DatatypeProperty;
+        rdfs:label  "value"@fr .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#weaponruleofengagementcode>
+        a                owl:Class;
+        rdfs:comment     "A code (enumerated value) describing a standard condition for using weapons to engage another force."@en;
+        rdfs:label       "WeaponRuleOfEngagementCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#vehicle>
+        a                owl:Class;
+        rdfs:comment     "Vehicle assembled for military use; most often applies to ground vehicle"@en;
+        rdfs:label       "Vehicle"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#platform> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#unitsymbol>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a military unit, equipment, or installation."@en;
+        rdfs:label       "UnitSymbol"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#mapgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#unitoperationalstatuscode>
+        a                owl:Class;
+        rdfs:comment     "Code indicating capability of unit to perform its mission, over a range of values."@en;
+        rdfs:label       "UnitOperationalStatusCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#operationalstatuscode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#unit>
+        a                owl:Class;
+        rdfs:comment     "An echelon of platforms, individuals, or other units."@en;
+        rdfs:label       "Unit"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#militaryorganization> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#timereferencecode>
+        a                owl:Class;
+        rdfs:comment     "Indicates whether a relative time is referenced to the start or the end of an interval time."@en;
+        rdfs:label       "TimeReferenceCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#timeinstant>
+        a                owl:Class;
+        rdfs:comment     "A specific time expressed in seconds, i.e. with no date. The generator and user of this time must understand a common reference point, for example the start of the scenario."@en;
+        rdfs:label       "TimeInstant"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#temporalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#temporalconcept>
+        a                owl:Class;
+        rdfs:comment     "Time concepts include instants in time, durations of time, and intervals between two times."@en;
+        rdfs:label       "TemporalConcept"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskstatuscode>
+        a                owl:Class;
+        rdfs:comment     "An enumeration of possible status values for a task."@en;
+        rdfs:label       "TaskStatusCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskstatus>
+        a                owl:Class;
+        rdfs:comment     "The status of a task, provided before, during or after a task is executed."@en;
+        rdfs:label       "TaskStatus"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#reportcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskrequestcontent>
+        a                owl:Class;
+        rdfs:comment     "A request for an Actor to perform a Task. The Actor to perform the Task is identified by the hasPerformingEntity property of the Task."@en;
+        rdfs:label       "TaskRequestContent"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskgraphic>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a Task."@en;
+        rdfs:label       "TaskGraphic"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskfunctionalrelation>
+        a                owl:Class;
+        rdfs:comment     "A functional relationship between maneuver warfare tasks."@en;
+        rdfs:label       "TaskFunctionalRelation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relationship> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskfunctionalassociationcode>
+        a                owl:Class;
+        rdfs:comment     "Instances of this code will be taken from JC3IEDM 3.1.4, action-functional-association-category-code"@en;
+        rdfs:label       "TaskFunctionalAssociationCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#taskactioncode>
+        a                owl:Class;
+        rdfs:comment     "The activity to be performed in the task, e.g. Move, Observe, Assist."@en;
+        rdfs:label       "TaskActionCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actioncode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#task>
+        a                owl:Class;
+        rdfs:comment     "A request for an actor in the domain to perform a Task. The actor to perform the Task is indicated by the hasPerformingEntity property of the Task."@en;
+        rdfs:label       "Task"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#action> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalgraphic>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol."@en;
+        rdfs:label       "TacticalGraphic"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#mapgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalarea>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for an area location."@en;
+        rdfs:label       "TacticalArea"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody>
+        a                owl:Class;
+        rdfs:comment     "The body of a message that is used to send coalition-level commands, requests, and reports between systems participating in the C2SIM coalition."@en;
+        rdfs:label       "SystemMessageBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systementitylist>
+        a                owl:Class;
+        rdfs:comment     "This is a listing of entities that reside within a system. The list defines what system a message should be sent to in order to get it to a given actor. Each entity can reside on only one system. This list does not define necessarily define the complete list of entities on the given system. Systems can build a map from this and other lists to get the system from a given entity."@en;
+        rdfs:label       "SystemEntityList"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemacknowledgementbody>
+        a                owl:Class;
+        rdfs:comment     "An acknowledgement from one C2SIM system to another that a message was received."@en;
+        rdfs:label       "SystemAcknowledgementBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#surfacevessel>
+        a                owl:Class;
+        rdfs:comment     "Water surface vehicle assembled for military use"@en;
+        rdfs:label       "SurfaceVessel"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#platform> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#subsurfacevessel>
+        a                owl:Class;
+        rdfs:comment     "Underwater vehicle assembled for military use"@en;
+        rdfs:label       "SubsurfaceVessel"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#platform> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#submitinitialization>
+        a                owl:Class;
+        rdfs:comment     "Sent by a C2SIM controller. When C2SIM systems receive this C2SIM message, they should submit Object Initialization messages for object definitions they are configured to simulate. This message contains no data; it serves as a command and is not required if a preconfigured master initialization file is used."@en;
+        rdfs:label       "SubmitInitialization"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#subjecttypeobservation>
+        a                owl:Class;
+        rdfs:comment     "Describes the type of the subject of an observation."@en;
+        rdfs:label       "SubjectTypeObservation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#strength>
+        a                owl:Class;
+        rdfs:comment     "Representation of the strength of an entity expressed as a percentage of some starting value."@en;
+        rdfs:label       "Strength"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entityhealthstatus> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#stopscenario>
+        a                owl:Class;
+        rdfs:comment     "This C2SIM message is sent to all subscribed systems indicating that the simulation should be stopped and won’t be restarted. All initialization data should be discarded, and all systems should prepare to reinitialize."@en;
+        rdfs:label       "StopScenario"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#stoprecording>
+        a                owl:Class;
+        rdfs:comment     "System command used to terminate (no resumption allowed) the recording of C2SIM messages in a C2SIM coalition of systems. The name of the recording is not needed here since there can be only one recording in progress at a time."@en;
+        rdfs:label       "StopRecording"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#stopplayback>
+        a                owl:Class;
+        rdfs:comment     "System command used to terminate (no resumption allowed) the playback of recorded C2SIM messages in a C2SIM coalition of systems. The name of the recording being played back is not needed here since there can be only one playback in progress at a time."@en;
+        rdfs:label       "StopPlayback"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#startscenario>
+        a                owl:Class;
+        rdfs:comment     "This C2SIM message is sent to all subscribed systems indicating that the simulation scenario is to begin."@en;
+        rdfs:label       "StartScenario"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#startrecording>
+        a                owl:Class;
+        rdfs:comment     "System command for ordering initiation of the recording of C2SIM messages in a C2SIM coalition of systems. The recording is given a name in order to distinguish this recording from others that may have been created and stored for later use. Note that there can be only one recording in progress at a time in the C2SIM coalition of systems. Recording is executed by the C2SIM server recording C2SIM messages that are exchanged across systems in a C2SIM coalition."@en;
+        rdfs:label       "StartRecording"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#startplayback>
+        a                owl:Class;
+        rdfs:comment     "System command ordering the initiation of playback of recorded C2SIM messages in a C2SIM coalition of systems. The name refers to the name given to a recording that was previously created for later playback. The start time refers to the position in the recording where the playback is to begin. Playback is controlled by the C2SIM server sending out C2SIM messages that were previously recorded."@en;
+        rdfs:label       "StartPlayback"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#spatialoffset>
+        a                owl:Class;
+        rdfs:comment     "Used in a relative location specification."@en;
+        rdfs:label       "SpatialOffset"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#simulationtime>
+        a                owl:Class;
+        rdfs:comment     "A time measured as a time duration since the time instant of the scenario start."@en;
+        rdfs:label       "SimulationTime"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#timeinstant> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#simulationrealtimemultiplereport>
+        a                owl:Class;
+        rdfs:comment     "System command for reporting the current setting of the simuationRealtimeMultiple value indicating the multiple of simulation time to realtime currently set for the simulation systems in the C2SIM coalition of systems."@en;
+        rdfs:label       "SimulationRealtimeMultipleReport"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#sharescenario>
+        a                owl:Class;
+        rdfs:comment     "Sent by a C2SIM controller to a marshalling server. When this C2SIM message is received, the marshalling server sends to all subscribed systems the C2SIM initialization message."@en;
+        rdfs:label       "ShareScenario"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#setsimulationrealtimemultiple>
+        a                owl:Class;
+        rdfs:comment     "System command for setting the simuationRealtimeMultiple value indicating the multiple of simulation time to realtime for the simulation systems in the C2SIM coalition of systems.The SetSimulationRealtimeMultiple enables a user in a C2SIM coalition to direct participating simulations to execute at a rate faster or slower than realtime. For example, a simulationRealtimeMultiple value of 2.0 directs participating simulations to operate at 2:1 simulation time to realtime (i.e., faster than realtime); a value of 0.5 directs participating simulations to operate at half realtime (i.e., slower than realtime)."@en;
+        rdfs:label       "SetSimulationRealtimeMultiple"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#setplaybackrealtimemultiple>
+        a                owl:Class;
+        rdfs:comment     "System command for setting the playbackRealtimeMultiple value indicating the multiple of simulation time to realtime for playback of recorded messages in the C2SIM coalition of systems.The SetPlaybackRealtimeMultiple enables a user in a C2SIM coalition to direct playback of recorded messages at a rate faster or slower than realtime. For example, a playbackRealtimeMultiple value of 2.0 directs recording playback at 2:1 simulation time to realtime (i.e., faster than realtime); a value of 0.5 directs recording playback at half realtime (i.e., slower than realtime)."@en;
+        rdfs:label       "SetPlaybackRealtimeMultiple"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#securityclassificationcode>
+        a                owl:Class;
+        rdfs:comment     "Alphabetic text descriptions used by the USA-Department of Defense to identify the level of sensitivity of information"@en;
+        rdfs:label       "SecurityClassificationCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#scenariosetting>
+        a                owl:Class;
+        rdfs:comment     "Information describing the setting of the scenario, including the date, time, physical extent of the terrain, and a version string."@en;
+        rdfs:label       "ScenarioSetting"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#sisoentitytype>
+        a                owl:Class;
+        rdfs:comment     "Simulation Entity Type as specified by SISO-REF-010-2016, Reference for Enumerations for Simulation Interoperability, version 27 (2019). Used to define the type of an Entity for its representation and modeling in simulations."@en;
+        rdfs:label       "SISOEntityType"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#ruleofengagement>
+        a                owl:Class;
+        rdfs:comment     "A rule that describes the conditions under which weapons can be used to engage other forces. This class is a collection class; different types of ROEs will be subclasses of this class."@en;
+        rdfs:label       "RuleOfEngagement"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#route>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a route line."@en;
+        rdfs:label       "Route"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#line> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resumescenario>
+        a                owl:Class;
+        rdfs:comment     "A system command to resume the paused execution of a scenario across a C2SIM coalition of systems."@en;
+        rdfs:label       "ResumeScenario"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resumerecording>
+        a                owl:Class;
+        rdfs:comment     "System command for ordering resumption of recording of C2SIM messages in a C2SIM coalition of systems. The name of the recording in progress is not needed here since there can be only one recording in progress at a time."@en;
+        rdfs:label       "ResumeRecording"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resumeplayback>
+        a                owl:Class;
+        rdfs:comment     "System command for ordering resumption of the current playback of C2SIM messages in a C2SIM coalition of systems. The name of the recording being played back is not needed here since there can be only one playback in progress at a time."@en;
+        rdfs:label       "ResumePlayback"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resources>
+        a                owl:Class;
+        rdfs:comment     "A level of personnel, equipment, ammunition, fuel, etc. The user must compare this to the full strength of the unit."@en;
+        rdfs:label       "Resources"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entityhealthstatus> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resourceobservation>
+        a                owl:Class;
+        rdfs:comment     "Observations on resource availability, e.g. fuel, ammunition"@en;
+        rdfs:label       "ResourceObservation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resource>
+        a                owl:Class;
+        rdfs:comment     "This is a resource that can be part of, transferred to, or removed from an object (Entity), but is not an entity itself; therefore it does not have a location, extent, or other physical attributes. Resource can be used to manage (a) consumable material (such as ammunition and fuel); (b) equipment (such as weapons, vehicles, and communication devices); and (c) personnel. A resource is defined by the SISO entity type of the resource, the operational quantity of the resource (available for operations), and optionnaly with required and \"on hand\" quantities."@en;
+        rdfs:label       "Resource"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#resetscenario>
+        a                owl:Class;
+        rdfs:label       "ResetScenario"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestsimulationrealtimemultiple>
+        a                owl:Class;
+        rdfs:comment     "System command for requesting the current setting of the simuationRealtimeMultiple value indicating the multiple of simulation time to realtime currently set for the simulation systems in the C2SIM coalition of systems."@en;
+        rdfs:label       "RequestSimulationRealtimeMultiple"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestrecordingstatus>
+        a                owl:Class;
+        rdfs:comment     "System command for requesting information about the current recording of C2SIM messages in a C2SIM coalition of systems."@en;
+        rdfs:label       "RequestRecordingStatus"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestplaybackstatus>
+        a                owl:Class;
+        rdfs:comment     "System command for requesting information about the current playback of recorded C2SIM messages in a C2SIM coalition of systems."@en;
+        rdfs:label       "RequestPlaybackStatus"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestplaybackrealtimemultiple>
+        a                owl:Class;
+        rdfs:comment     "System command for requesting the current setting of the playbackRealtimeMultiple value indicating the multiple of simulation time to realtime currently set for recording playback in the C2SIM coalition of systems."@en;
+        rdfs:label       "RequestPlaybackRealtimeMultiple"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestcontent>
+        a                owl:Class;
+        rdfs:comment     "The content of a request message in the domain. This is a parent class that has subclasses for different types of requests."@en;
+        rdfs:label       "RequestContent"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestbody>
+        a                owl:Class;
+        rdfs:comment     "The body of a message from an actor in the domain to another actor in the domain that requests something. A request is fulfilled at the discretion of the entity to which it is directed."@en;
+        rdfs:label       "RequestBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#domainmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#reportcontent>
+        a                owl:Class;
+        rdfs:comment     "This is a collection class that may be used for different types of messages reporting information to other systems."@en;
+        rdfs:label       "ReportContent"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#reportbody>
+        a                owl:Class;
+        rdfs:comment     "The structure for sending report messages."@en;
+        rdfs:label       "ReportBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#domainmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#religioncode>
+        a                owl:Class;
+        rdfs:comment     "Alphabetic code, up to six letters, representing a religion, obtained from JC3IEDM-3.0.2 AffiliationReligionCode"@en;
+        rdfs:label       "ReligionCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#organizationcode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relativetime>
+        a                owl:Class;
+        rdfs:comment     "Specifies an absolute time relative to the start or end time of an event."@en;
+        rdfs:label       "RelativeTime"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#timeinstant> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relativelocation>
+        a                owl:Class;
+        rdfs:comment     "A location defined by an offset to some reference location."@en;
+        rdfs:label       "RelativeLocation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#location> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relationship>
+        a                owl:Class;
+        rdfs:comment     "This class describes a relationship to some entity. The type of relationship is defined by a subclass, which has a code property that specifies what the relationship is."@en;
+        rdfs:label       "Relationship"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#reinforcedreducedtype>
+        a                owl:Class;
+        rdfs:comment     "Enumerations of possible reinforcement relationships in a military situation. Dervived from JC3IEDM-v3.0.1.OrganisationStatusReinforcementCode"@en;
+        rdfs:label       "ReinforcedReducedType"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#refreshinitselection>
+        a                owl:Class;
+        rdfs:comment     "Enumeration of initialization request options for a late joiner to a C2SIM coalition of systems."@en;
+        rdfs:label       "RefreshInitSelection"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#refreshinit>
+        a                owl:Class;
+        rdfs:comment     "This system command supports late joiners to the C2SIM coalition of systems. It causes a fresh copy of the C2SIMInitialization message to be sent to the requesting system. Command parameters indicate that either a copy of the startup initialization (INITIALIZATION_ORIGINAL) or an updated version with latest reported positions of each ActorEntity (INITIALIZATION_LATEST_POSITIONS) be sent to the requesting system."@en;
+        rdfs:label       "RefreshInit"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#recordingstatusreport>
+        a                owl:Class;
+        rdfs:comment     "System command for reporting the status of the recording of C2SIM messages in a C2SIM coalition of systems. The name refers to the name given to this recording. The file size is the size of the recording file in bytes (could be a \"current\" file size if a recording is in progress at the time of this report)."@en;
+        rdfs:label       "RecordingStatusReport"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#recordingstatuscode>
+        a                owl:Class;
+        rdfs:comment     "Enumeration of states of the recording of messages sent during execution of a C2SIM coalition of systems."@en;
+        rdfs:label       "RecordingStatusCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#priorphasecompletiontrigger>
+        a                owl:Class;
+        rdfs:comment     "A plan phase trigger that is based on the completion of another plan phase (typically, the phase immediately before this one in a plan)."@en;
+        rdfs:label       "PriorPhaseCompletionTrigger"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planphasetrigger> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#positionreportcontent>
+        a                owl:Class;
+        rdfs:comment     "The content of a report that is used primarily to convey the position of an entity."@en;
+        rdfs:label       "PositionReportContent"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#reportcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#point>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a point location."@en;
+        rdfs:label       "Point"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#playbackstatusreport>
+        a                owl:Class;
+        rdfs:comment     "System command for reporting the status of the playback of recorded C2SIM messages in a C2SIM coalition of systems. The name refers to the name of the recording being played back at the time of this report. Playback position may be something like sequence number in the recording file. The format and the meaning of the string value is out of the scope of the C2SIM standard, and should be defined at the Federation level (interoperability across different Federations is not guaranteed). The time since playback start gives the time duration (isoTimeDurationBase) since the start time of the current playback (i.e., the message timestamp that the playback has reached). The playbackRealtimeMultiple is the current setting of the rate at which recorded messages are being played back."@en;
+        rdfs:label       "PlaybackStatusReport"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#playbackstatuscode>
+        a                owl:Class;
+        rdfs:comment     "Enumeration of states of the playback of recorded messages."@en;
+        rdfs:label       "PlaybackStatusCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#playbackrealtimemultiplereport>
+        a                owl:Class;
+        rdfs:comment     "System command for reporting the current setting of the playbackRealtimeMultiple value indicating the multiple of simulation time to realtime currently set for the playback of recorded messages in the C2SIM coalition of systems."@en;
+        rdfs:label       "PlaybackRealtimeMultipleReport"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#platform>
+        a                owl:Class;
+        rdfs:comment     "An Entity that consists of an identifiable type physical equipment and/or software."@en;
+        rdfs:label       "Platform"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actorentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planphasetrigger>
+        a                owl:Class;
+        rdfs:comment     "This is a condition that causes the start of execution of a PlanPhase."@en;
+        rdfs:label       "PlanPhaseTrigger"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planphasecompletioncondition>
+        a                owl:Class;
+        rdfs:comment     "A code defining the condition to be used to test the tasks of a plan phase to determine whether the phase is considered to be complete."@en;
+        rdfs:label       "PlanPhaseCompletionCondition"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planphase>
+        a                owl:Class;
+        rdfs:comment     "A plan for a unit. A PlanPhase may a single task for a unit, or tasks for multiple units (one each), or (recursively) multiple subphases. Phases have completion conditions that indicate when they are complete, as well as Boolean flags that indicate whether the phase is active and whether it is complete. Phases have trigger conditions that indicate when they start. Phases may start on the completion of another phase--thus forming a task sequence--on receipt of an order, or at the time of an Event. A sequence of tasks for one unit is normally represented as a sequence of subphases in order to express the triggering conditions for each task; however a set of tasks for a unit may be included in a phase and executed with some implicit sequencing such as task time."@en;
+        rdfs:label       "PlanPhase"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planbody>
+        a                owl:Class;
+        rdfs:comment     "This message orders the recipient unit to begin execution of the indicated plan."@en;
+        rdfs:label       "PlanBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#domainmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalstate>
+        a                owl:Class;
+        rdfs:comment     "Description of the physical state of an entity, including location, orientation, health, speed, etc. Note that an EnvironmentalState class should be a subclass of PhysicalState. The EnvironmentalState could be the state of, for example, a smoke plume, which would have a location and could have direction, orientation, and speed."@en;
+        rdfs:label       "PhysicalState"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entitystate> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalentity>
+        a                owl:Class;
+        rdfs:comment     "An Entity that has physical/kinematic properties."@en;
+        rdfs:label       "PhysicalEntity"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalconcept>
+        a                owl:Class;
+        rdfs:comment     "Concepts relating to the physical characteristics of an entity (e.g., location, health, orientation, size, etc.). The subclasses of this class have complex or alternative representations, and so are classes. Other physical properties such as mass that are simple scalars can be data type properties of (ConcreteEntity) objects."@en;
+        rdfs:label       "PhysicalConcept"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#person>
+        a                owl:Class;
+        rdfs:comment     "An Entity that is an individual human being"@en;
+        rdfs:label       "Person"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actorentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#pausescenario>
+        a                owl:Class;
+        rdfs:comment     "A system command to pause the execution of a scenario across a C2SIM coalition of systems."@en;
+        rdfs:label       "PauseScenario"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#pauserecording>
+        a                owl:Class;
+        rdfs:comment     "System command for pausing the recording of C2SIM messages in a C2SIM coalition of systems. The name of the recording in progress is not needed here since there can be only one recording in progress at a time."@en;
+        rdfs:label       "PauseRecording"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#pauseplayback>
+        a                owl:Class;
+        rdfs:comment     "System command for pausing the playback of recorded C2SIM messages in a C2SIM coalition of systems. The name of the recording being played back is not needed here since there can be only one playback in progress at a time."@en;
+        rdfs:label       "PausePlayback"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#overlay>
+        a                owl:Class;
+        rdfs:comment     "A logical grouping of Entities (units, graphics, etc.) for purposes of conveniently referring to them."@en;
+        rdfs:label       "Overlay"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#abstractobject> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#orientation>
+        a                owl:Class;
+        rdfs:comment     "Represents the direction in which an entity is oriented; typically the direction it is facing. Where this class is used, C2SIM Coalitions must state whether they require values for both EulerAngles, Heading, or both. In the absence of specification both are required."@en;
+        rdfs:label       "Orientation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#organizationtypecode>
+        a                owl:Class;
+        rdfs:comment     "Alphabetic code up to six letters describing the type of an organization, obtained from JC3IEDM-3.0.2 GroupOrganisationTypeCategoryCode"@en;
+        rdfs:label       "OrganizationTypeCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#organizationcode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#organizationcode>
+        a                owl:Class;
+        rdfs:comment     "These provide enumerations of alphabetic text codes identifying characteristics of organizations."@en;
+        rdfs:label       "OrganizationCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#orderbody>
+        a                owl:Class;
+        rdfs:comment     "The structure for sending order messages. This message may define tasks, or it may refer to tasks defined elsewhere (such as in an initialization message). An order generally comes from an entity with command authority and thus is expected to be obeyed if it is physically possible to do so."@en;
+        rdfs:label       "OrderBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#domainmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#operationalstatuscode>
+        a                owl:Class;
+        rdfs:comment     "An enumeration indicating the general level of capability of an entity relative to its greatest expected capability."@en;
+        rdfs:label       "OperationalStatusCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#operationalstatus>
+        a                owl:Class;
+        rdfs:comment     "An enumeration indicating degree of partial capability."@en;
+        rdfs:label       "OperationalStatus"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entityhealthstatus> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#onordertrigger>
+        a                owl:Class;
+        rdfs:comment     "A trigger for the execution of a plan phase that is based on the start time of a task. Typically this task will be defined in an order and will have a TaskActionCode of ExecutePlanPhase."@en;
+        rdfs:label       "OnOrderTrigger"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planphasetrigger> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observationreportcontent>
+        a                owl:Class;
+        rdfs:comment     "This report contains an observation of some aspect of a subject--not necessarily including the location, health, or other facts that are in a position report. Multiple observations all refer to the same observed actor."@en;
+        rdfs:label       "ObservationReportContent"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#reportcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation>
+        a                owl:Class;
+        rdfs:comment     "This is an observation of the state of something in the world; generally an actor, but possibly anything that is an entity. Subclasses define specific observations that can be made. The subclasses defined here are sufficient to create a report with Size, Activity, Location, Unit Identification, Time, and Equipment, or some subset of that."@en;
+        rdfs:label       "Observation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#objectinitializationbody>
+        a                owl:Class;
+        rdfs:comment     "This message is sent by each system to a marshalling server upon receipt of a SubmitInitialization message."@en;
+        rdfs:label       "ObjectInitializationBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#objectdefinitions>
+        a                owl:Class;
+        rdfs:comment     "Information characterizing an object"@en;
+        rdfs:label       "ObjectDefinitions"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#nonmilitaryorganization>
+        a                owl:Class;
+        rdfs:comment     "An organization operating external to military authority (e.g., law enforcement, non-governmental organizations)."@en;
+        rdfs:label       "NonMilitaryOrganization"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#collectiveentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#namedentitytype>
+        a                owl:Class;
+        rdfs:comment     "The definition of an entity type with a unique identifier defined with a pair: namespace, name. The namespace and the name are free strings, and must be agreed in advance in the federation agreement template among the systems. For example the namespace could reference a standard, a format, or a simulation involved in the federation: openflight, app6d-sidc, sword, etc."@en;
+        rdfs:label       "NamedEntityType"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#nameobservation>
+        a                owl:Class;
+        rdfs:comment     "An observation of the unit name, a vehicle marking, a force side, and/or a hostility status of the observed entity."@en;
+        rdfs:label       "NameObservation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#nbc-event>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a Nuclear/Biological/Chemical event."@en;
+        rdfs:label       "NBC_Event"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#mipweaponuseroe>
+        a                owl:Class;
+        rdfs:comment     "A RuleofEngagement that is based on a standard code describing engagement conditions."@en;
+        rdfs:label       "MipWeaponUseROE"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#ruleofengagement> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#militaryorganization>
+        a                owl:Class;
+        rdfs:comment     "A collective entity that is a military organization (i.e., a unit)."@en;
+        rdfs:label       "MilitaryOrganization"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#collectiveentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept>
+        a             owl:Class;
+        rdfs:comment  "This parent class collects together classes that define the basic structure of messages used in C2SIM."@en;
+        rdfs:label    "MessageConcept"@en .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode>
+        a                owl:Class;
+        rdfs:comment     "Enumerations used in messages."@en;
+        rdfs:label       "MessageCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagebody>
+        a                owl:Class;
+        rdfs:comment     "The structure for sending domain messages: orders, reports, and acknowledgements."@en;
+        rdfs:label       "MessageBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#message>
+        a                owl:Class;
+        rdfs:comment     "Any C2SIM message that is sent between host systems."@en;
+        rdfs:label       "Message"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#mapgraphic>
+        a                owl:Class;
+        rdfs:comment     "Graphics on a map that define locations, lines, areas, actions, etc. The location of the graphic is the location in the real world represented on the map. The extent is the set of handle points or vertices that define its shape and size. This class includes task graphics, METOC graphics, and MOOTW graphics."@en;
+        rdfs:label       "MapGraphic"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#maneuverwarfaretask>
+        a                owl:Class;
+        rdfs:comment     "A task with additional properties for a Maneuver Warfare Task, including a definition of rules of engagement, and a relationship to another task. Note that the enumerated individuals in TaskActionCode have been expanded to include tasks defined by the Joint Consultation Command Control Information Exchange Data Model (JC3IEDM) developed by the Multilateral Interoperability Programme (MIP)."@en;
+        rdfs:label       "ManeuverWarfareTask"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#task> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#magicmove>
+        a                owl:Class;
+        rdfs:comment     "System command used as an exercise control capabiliity to immediately reposition some entity (i.e., without going through a simulated movement). The hasEntityReference property provides the UUID of the entity being repositioned. The hasTasker property provides the UUID of the entity ordering the repositioning. The hasTaskID property gives the reference to a Task that the repositioning may be associated with."@en;
+        rdfs:label       "MagicMove"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#miprequestcontent>
+        a                owl:Class;
+        rdfs:comment     "A request whose category is defined by the JC3IEDM request category code."@en;
+        rdfs:label       "MIPRequestContent"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#requestcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#miprequestcategorycode>
+        a                owl:Class;
+        rdfs:comment     "A request category from the Joint Consultation Command Control Information Exchange Data Model (JC3IEDM) developed by the Multilateral Interoperability Programme (MIP)."@en;
+        rdfs:label       "MIPRequestCategoryCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#metocgraphic>
+        a                owl:Class;
+        rdfs:comment     "Specifies the NATO APP6-C-based meteorological conditions of the environment."@en;
+        rdfs:label       "METOCGraphic"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#mapgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#locationobservation>
+        a                owl:Class;
+        rdfs:comment     "An observation of the location of a subject."@en;
+        rdfs:label       "LocationObservation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#location>
+        a                owl:Class;
+        rdfs:comment     "A representation of location in space. Can be a coordinate value, a reference to an entity location, or a location relative to another location. An optional altitude representation code indicates whether this is a fully specified point in 3 dimensions, or whether the altitude encoded in the class should be ignored or set to some other reference. If the code is not present, then the location is assumed to be a fully specified 3D point. The location of a CollectiveEntity may represent the center of mass or headquarters location in the case of an organization."@en;
+        rdfs:label       "Location"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#line>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a line."@en;
+        rdfs:label       "Line"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#tacticalgraphic> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#intervaltime>
+        a                owl:Class;
+        rdfs:comment     "An interval defined by a start and end dateTime. Note that 2 of the 3 properties must be specified."@en;
+        rdfs:label       "IntervalTime"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#temporalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationdatafile>
+        a                owl:Class;
+        rdfs:comment     "Defines a file of supplementary data that is used to initialize the scenario. This file is generally system-specific, for example a terrain database file or a mapping from C2SIM entity types to local entity type enumerations. It could apply to \"all\" systems."@en;
+        rdfs:label       "InitializationDataFile"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationconcept>
+        a             owl:Class;
+        rdfs:comment  "This parent class collects together classes that are necessary for the initialization of a scenario."@en;
+        rdfs:label    "InitializationConcept"@en .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#initializationcomplete>
+        a                owl:Class;
+        rdfs:comment     "This C2SIM message is sent by each participating system in a C2SIM coalition of systems in response to the C2SIM initialization message, after that system has completed its initialization processing."@en;
+        rdfs:label       "InitializationComplete"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#hostilitystatuscode>
+        a                owl:Class;
+        rdfs:comment     "Enumerations of possible hostility relationships in a military situation. Derived from JC3IEDM-v3.0.1.ObjectItemHostilityStatusCode"@en;
+        rdfs:label       "HostilityStatusCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#healthobservation>
+        a                owl:Class;
+        rdfs:comment     "An observation of the health state of a subject; for example operational status or resource count."@en;
+        rdfs:label       "HealthObservation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#heading>
+        a                owl:Class;
+        rdfs:comment     "Heading is the rotation clockwise relative to local grid north. This is a rotation about one axis; other axis orientations are unspecified, and if a system needs values they can be assumed to be zero or appropriate angles to clamp the entity to the ground."@en;
+        rdfs:label       "Heading"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#orientation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#geographicfeature>
+        a                owl:Class;
+        rdfs:comment     "A geographic feature generally used for location reference. For example a hill, river, etc."@en;
+        rdfs:label       "GeographicFeature"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#geodeticcoordinate>
+        a                owl:Class;
+        rdfs:comment     "A location defined by latitude, longitude, and altitude."@en;
+        rdfs:label       "GeodeticCoordinate"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#location> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#forcesiderelation>
+        a                owl:Class;
+        rdfs:comment     "This relation describes the hostility relationship of a military force toward another force. The force that has this relationship as its property is the \"military force\", while the force named in the hasOtherSide property of this relationship is \"another force.\""@en;
+        rdfs:label       "ForceSideRelation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relationship> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#forceside>
+        a                owl:Class;
+        rdfs:comment     "Class for a collection of Entities that have the same allegiance. I.e. they are all friendly to each other. For example, ForceSides could be defined for \"BLUFOR\", \"OPFOR\", and \"CIVILIAN.\" Entities could be associated with one of these ForceSides through the hasSide property of their EntityDescriptor object property."@en;
+        rdfs:label       "ForceSide"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#abstractobject> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#eventtrigger>
+        a                owl:Class;
+        rdfs:comment     "A trigger to start a plan phase that is based on the time of an event."@en;
+        rdfs:label       "EventTrigger"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#planphasetrigger> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#eventcode>
+        a                owl:Class;
+        rdfs:comment     "The type of event."@en;
+        rdfs:label       "EventCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actioncode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#event>
+        a                owl:Class;
+        rdfs:comment     "An ACTION that is an incident, phenomenon, or occasion. May or may not be the result of an agent's action."@en;
+        rdfs:label       "Event"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#action> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#eulerangles>
+        a                owl:Class;
+        rdfs:comment     "Representation of the orientation of an entity in 3D space expressed as Euler angles (DIS). This orientation will be used primarily for initialization of simulation entities, especially those that are not clamped to the ground. This orienation indicates rotations from a geocentric coordinate system."@en;
+        rdfs:label       "EulerAngles"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#orientation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#ethnicgroupcode>
+        a                owl:Class;
+        rdfs:comment     "Alphabetic code up to six letters, describing an ethnic group, obtained from JC3IEDM AffiliationEthnicGroupCode-3.0.2"@en;
+        rdfs:label       "EthnicGroupCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#organizationcode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#environmentalobject>
+        a                owl:Class;
+        rdfs:comment     "A specified region in which the environment (e.g. weather, ocean state) is defined by a particular Environmental State."@en;
+        rdfs:label       "EnvironmentalObject"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entitystate>
+        a                owl:Class;
+        rdfs:comment     "Dynamic state information for entities in the exercise."@en;
+        rdfs:label       "EntityState"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entityhealthstatus>
+        a                owl:Class;
+        rdfs:comment     "A representation of the health status of an entity. Subclasses for representing health as Operational Status, a count of some salient resource, or a percentage of full strength."@en;
+        rdfs:label       "EntityHealthStatus"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entitydescriptor>
+        a                owl:Class;
+        rdfs:comment     "The Descriptor defines static attributes of an entity, i.e. that do not change during the course of the simulation. This information is provided at initialization time. The friend/hostile/... relationship of this entity with others can be specfied with hasAllegianceRelationship properties and/or the hasSide property. The hasSide property can define this entity as a member of a \"Force\" or \"Side,\" i.e. a team of entities that are friendly to each other and are all friendly, hostile or neutral to other defined teams. ForceSides are abstract objects. The entity can also have friendly, hostile or neutral relationships with specific other objects as defined by its hasAllegianceRelationship properties. These can be used in place of ForceSide membership, or they can be used along with ForceSide memberships to define exceptions. The isAffiliatedWith property defines organizations that this entity is affiliated with. These organizations are abstract; they are not actors. C2 structures can be defined by using the hasSuperior property."@en;
+        rdfs:label       "EntityDescriptor"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entity>
+        a                owl:Class;
+        rdfs:comment     "An individually identified object. Objects may have physical properties, in which case they belong to the subclass ConcreteEntity. Objects may be able to perform actions, in which case they belong in the subclass ActorEntity. If they have physical properties AND can perform actions, then they inherit from both subclasses."@en;
+        rdfs:label       "Entity"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#echeloncode>
+        a                owl:Class;
+        rdfs:comment     "Enumerations of possible echelons for a military organization from JC3IEDM-v3.0.1.EchelonSizeCode"@en;
+        rdfs:label       "EchelonCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#duration>
+        a                owl:Class;
+        rdfs:comment     "A time duration expressed in ISO 8601:2000 duration format PnYnMnDTnHnMnS e.g. P00Y00M00DT00H00M00S. Note that this does not support fractions of seconds. From MSDL simple types."@en;
+        rdfs:label       "Duration"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#temporalconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#domainmessagebody>
+        a                owl:Class;
+        rdfs:comment     "The body of a message that is sent between actors in the domain. It is one subclass of MessageBody (other subclasses perform administrative functions in the C2SIM Coalition.)"@en;
+        rdfs:label       "DomainMessageBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#desiredeffectcode>
+        a                owl:Class;
+        rdfs:comment     "A code describing the intended effect of a task."@en;
+        rdfs:label       "DesiredEffectCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#datetime>
+        a                owl:Class;
+        rdfs:comment     "A date and time in ISO 8601:2000 DateTime Group format yyyy-mm-ddThh:mm:ssZ e.g. 1998-05-12T14:15:00Z. From MSDL simple types."@en;
+        rdfs:label       "DateTime"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#timeinstant> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#culturalfeature>
+        a                owl:Class;
+        rdfs:comment     "Any man-made feature in the environment"@en;
+        rdfs:label       "CulturalFeature"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#physicalentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#countrycode>
+        a                owl:Class;
+        rdfs:comment     "A unique three-letter code for each nation on Earth, defined in ISO 3166-1 standard and also found in JC3IEDM AffiliationGeopoliticalCode."@en;
+        rdfs:label       "CountryCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#organizationcode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#communicativeacttypecode>
+        a                owl:Class;
+        rdfs:comment     "Enumeration of different types of communications."@en;
+        rdfs:label       "CommunicativeActTypeCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#communicationnetwork>
+        a                owl:Class;
+        rdfs:comment     "An specific network over which an entity communicates. A logical entity. Will have data properties defining communication parameters. Networks are part of an EntityDescriptor. If a message is sent to a CommunicationsNetwork, all ActorEntities that have this network will receive the message."@en;
+        rdfs:label       "CommunicationNetwork"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#abstractobject> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#commandrelationcode>
+        a                owl:Class;
+        rdfs:comment     "Enumerations of possible relationships between a unit and the unit that commands it. Obtained from JC3IEDM-v3.0.1.ObjectItemAssociationSubcategoryCode"@en;
+        rdfs:label       "CommandRelationCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#commandrelation>
+        a                owl:Class;
+        rdfs:comment     "A relationship from some actor to an object actor, describing a relationship where one has some degree of command authority over the other"@en;
+        rdfs:label       "CommandRelation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relationship> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#collectiveentity>
+        a                owl:Class;
+        rdfs:comment     "This is an Entity that is normally thought of as having constituent entities, i.e. a Unit. CollectiveEntities may or may not hve their subordinates explicitly represented in the exercise (i.e., it may always be aggregated, or it may have subordinates that are themselves entities). If they are represented, then the hasSubordinate property will have at least one instance. The CollectivEntity may be an abstract actor, or it may have physical properties; if the latter, then the hasCurrentState property is present with a PhysicalState."@en;
+        rdfs:label       "CollectiveEntity"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actorentity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code>
+        a                owl:Class;
+        rdfs:comment     "A collection of enumerations used by various data types in C2SIM"@en;
+        rdfs:label       "Code"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#checkpointsave>
+        a                owl:Class;
+        rdfs:comment     "The CheckpointSave system command directs systems in a C2SIM coalition to save their current state. The name is used to distinguish the current set of saved data from other named checkpoints."@en;
+        rdfs:label       "CheckpointSave"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#checkpointrestore>
+        a                owl:Class;
+        rdfs:comment     "The CheckpointRestore system command directs systems in a C2SIM coalition to restore their state to the saved data in the named checkpoint file."@en;
+        rdfs:label       "CheckpointRestore"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#systemmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#cartesianoffset>
+        a                owl:Class;
+        rdfs:comment     "A spatial offset expressed in local flat earth coordinates."@en;
+        rdfs:label       "CartesianOffset"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#spatialoffset> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2siminitializationbody>
+        a                owl:Class;
+        rdfs:comment     "This message can initialize all of the objects in the scenario as well as the scenario setting."@en;
+        rdfs:label       "C2SIMInitializationBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simheader>
+        a                owl:Class;
+        rdfs:comment     "Indicates that the receiving system should submit its initialization data to the system identified in the"@en;
+        rdfs:label       "C2SIMHeader"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messageconcept> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent>
+        a             owl:Class;
+        rdfs:comment  "Class of all concepts for the content of messages in the core C2SIM data model."@en;
+        rdfs:label    "C2SIMContent"@en .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#boundary>
+        a                owl:Class;
+        rdfs:comment     "Specifies a NATO APP6-C-based tactical graphics symbol for a boundary line."@en;
+        rdfs:label       "Boundary"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#line> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#authorizationheader>
+        a                owl:Class;
+        rdfs:comment     "The Authorization header is a part of the C2SIM headers used in client-server communications. Its primary function is to authenticate a user-agent with a server, typically by carrying credentials in the form of a token or a set of credentials like username and password. This header is fundamental in implementing security measures for web applications and APIs."@en;
+        rdfs:label       "AuthorizationHeader"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#allegiancerelationshipcode>
+        a                owl:Class;
+        rdfs:comment     "This code defines the types of allegiance in an AllegianceRelationship."@en;
+        rdfs:label       "AllegianceRelationshipCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#allegiancerelationship>
+        a                owl:Class;
+        rdfs:comment     "This is a relationship of friendly, hostile, or neutral toward an actor entity. It is part of the definition of the hasAllegianceTo property of an EntityDescriptor."@en;
+        rdfs:label       "AllegianceRelationship"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relationship> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#aircraft>
+        a                owl:Class;
+        rdfs:comment     "Air vehicle assembled for military use"@en;
+        rdfs:label       "Aircraft"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#platform> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actorentity>
+        a                owl:Class;
+        rdfs:comment     "An ActorEntity is an entity that can send/receive orders and reports and/or perform tasks."@en;
+        rdfs:label       "ActorEntity"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#entity> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#activityobservation>
+        a                owl:Class;
+        rdfs:comment     "An observation of the activity of the subject."@en;
+        rdfs:label       "ActivityObservation"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#observation> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actiontemporalrelationship>
+        a                owl:Class;
+        rdfs:comment     "A temporal relationship between two actions. Some relationships involve a time duration."@en;
+        rdfs:label       "ActionTemporalRelationship"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#relationship> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actiontemporalassociationcode>
+        a                owl:Class;
+        rdfs:comment     "An enumeration describing the temporal relationship between two actions."@en;
+        rdfs:label       "ActionTemporalAssociationCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#actioncode>
+        a                owl:Class;
+        rdfs:comment     "An enumeration describing what the action is."@en;
+        rdfs:label       "ActionCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#code> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#action>
+        a                owl:Class;
+        rdfs:comment     "Any occurrence that occurs at a moment in time or over a period of time."@en;
+        rdfs:label       "Action"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#acknowledgementbody>
+        a                owl:Class;
+        rdfs:comment     "An acknowledgement from one Actor to another that a message was received."@en;
+        rdfs:label       "AcknowledgementBody"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#domainmessagebody> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#acknowledgetypecode>
+        a                owl:Class;
+        rdfs:comment     "Enumeration of different types of acknowledgements."@en;
+        rdfs:label       "AcknowledgeTypeCode"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#messagecode> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#abstractorganization>
+        a                owl:Class;
+        rdfs:comment     "A group that an actor can be affiliated with. Does not perform any actions and does not have a specific location. Subclasses of this class can be created for country, religion, etc. Each of these will have defined instances (one for each country, etc.)"@en;
+        rdfs:label       "AbstractOrganization"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#abstractobject> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#abstractobject>
+        a                owl:Class;
+        rdfs:comment     "An AbstractObject is an object in the system that does not have the full characteristics of an entity. For example, it does not have a location or an extent. It does however have a unique identifier."@en;
+        rdfs:label       "AbstractObject"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#app6csymbol>
+        a                owl:Class;
+        rdfs:comment     "Tactical graphic symbol as specified by NATO APP-6-C. Used to define the type of an Entity for its representation and depiction on C2 displays."@en;
+        rdfs:label       "APP6CSymbol"@en;
+        rdfs:subClassOf  <http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20#c2simcontent> .
+
+<http://iafactory.local/classes/5034e7fa-831f-42f4-8f56-99cd10ac7c20>
+        iafs:acceptsStructure  <urn:iaf:ns:structure-word> .

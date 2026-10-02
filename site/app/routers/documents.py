@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import class_merge, taxonomy_builder, type_reduction, worker
+from .. import class_lifecycle, class_merge, class_reduction, taxonomy_builder, type_reduction, worker
 from ..config import settings
 from ..db import get_db
 from ..deps import require_role
@@ -26,7 +26,12 @@ from ..ontology import (
     delete_class_ontology,
     delete_concept as ontology_delete_concept,
     delete_taxonomy as ontology_delete_taxonomy,
+    describe_structural_ontologies,
+    EXPORT_FORMATS,
     export_class_owl,
+    export_structural_ontology,
+    list_accepted_structures,
+    normalize_export_format,
     export_taxonomy_turtle,
     set_concept_metadata,
 )
@@ -389,8 +394,8 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
                 request, "creator_class_detail.html",
                 {
                     "class_id": class_id, "name": None, "status": None, "documents": [], "entity_types": [],
-                    "relations": [], "concepts": [], "profile": None, "threshold": settings.recognition_threshold,
-                    "user": user,
+                    "relations": [], "concepts": [], "structural_ontologies": [], "profile": None,
+                    "threshold": settings.recognition_threshold, "user": user,
                 },
                 status_code=404,
             )
@@ -450,6 +455,15 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
             "ORDER BY relation_count DESC",
             cid=class_id,
         ))
+    try:
+        structural_ontologies = describe_structural_ontologies(class_id)
+    except Exception:
+        structural_ontologies = []  # Fuseki indisponible : ne bloque pas l'ecran (meme principe que class_graph_has_content)
+    with driver.session() as session:
+        near_corpus = list(session.run(
+            "MATCH (:DocumentClass {id: $cid})-[r:NEAR_CORPUS]->(o:DocumentClass) "
+            "RETURN o.id AS id, o.name AS name, r.semantic_score AS score ORDER BY score DESC", cid=class_id,
+        ))
     return templates.TemplateResponse(
         request, "creator_class_detail.html",
         {
@@ -460,6 +474,10 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
             "entity_types": entity_types,
             "relations": relations,
             "concepts": concepts,
+            "structural_ontologies": structural_ontologies,
+            "near_corpus": near_corpus,
+            "document_count": len(documents),
+            "official_min_documents": settings.official_class_min_documents,
             "profile": profile,
             "threshold": settings.recognition_threshold,
             "user": user,
@@ -467,20 +485,90 @@ def class_detail(request: Request, class_id: str, user: User = Depends(require_r
     )
 
 
+@router.get("/classes/{class_id}/structure-ontology")
+def class_structure_ontology_download(class_id: str, uri: str, fmt: str = "ttl"):
+    """2026-10-02 (demande explicite) : telecharge, en Turtle, UNE des
+    ontologies structurelles acceptees par la classe. `uri` n'est servie que
+    si la classe l'accepte reellement (`iafs:acceptsStructure`) - jamais un
+    export arbitraire d'un graphe Fuseki choisi par l'appelant."""
+    try:
+        accepted = list_accepted_structures(class_id)
+        if uri not in accepted:
+            return Response("ontologie structurelle non acceptee par cette classe", status_code=404)
+        fmt = normalize_export_format(fmt)
+        content = export_structural_ontology(uri, fmt)
+    except Exception:
+        return Response("Fuseki indisponible", status_code=503)
+    if content is None:
+        return Response("ontologie structurelle introuvable", status_code=404)
+    filename = uri.rsplit(":", 1)[-1].replace("#", "-").replace("/", "-") or "ontologie-structurelle"
+    media_type, extension = EXPORT_FORMATS[fmt]
+    return Response(
+        content=content, media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}.{extension}"'},
+    )
+
+
+@router.get("/classes/{class_id}/ontology")
 @router.get("/classes/{class_id}/ontology.owl")
-def class_ontology_owl(class_id: str):
-    """US3.16 : export RDF/XML de l'ontologie semantique de la classe,
+def class_ontology_owl(class_id: str, fmt: str = "owl"):
+    """US3.16 : export de l'ontologie semantique de la classe,
     recupere directement depuis Fuseki (source de verite, ADR 0001) - pas
     regenere depuis Neo4j. Fusionne desormais le graphe de la classe
     (concepts) et le graphe global des proprietes (relations/attributs,
-    US7.9) - bug reel corrige le 2026-09-29, voir ontology.export_class_owl."""
+    US7.9) - bug reel corrige le 2026-09-29, voir ontology.export_class_owl.
+    2026-10-02 : format au choix (`fmt=ttl` ou `fmt=owl`, OWL/RDF-XML par
+    defaut comme avant ; l'ancienne URL `.owl` reste valable)."""
     if not class_graph_has_content(class_id):
         return Response("aucune ontologie pour cette classe", status_code=404)
-    content = export_class_owl(class_id)
+    fmt = normalize_export_format(fmt)
+    content = export_class_owl(class_id, fmt)
+    media_type, extension = EXPORT_FORMATS[fmt]
     return Response(
-        content=content, media_type="application/rdf+xml",
-        headers={"Content-Disposition": f'attachment; filename="classe-{class_id}.owl"'},
+        content=content, media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="classe-{class_id}.{extension}"'},
     )
+
+
+@router.get("/classes/{class_id}/reduce-ontology")
+def reduce_ontology_page(
+    request: Request, class_id: str, min_support: int | None = None, applied: int | None = None,
+    user: User = Depends(require_role(Role.creator)),
+):
+    """EPIC-IAF-E17 US17.5 : apercu de la reduction de l'ontologie (concepts
+    specifiques a peu de documents) AVANT toute ecriture."""
+    with get_driver().session() as session:
+        head = session.run("MATCH (c:DocumentClass {id: $cid}) RETURN c.name AS name", cid=class_id).single()
+        if head is None:
+            return templates.TemplateResponse(
+                request, "creator_reduce_ontology.html", {"class_id": class_id, "name": None, "user": user}, status_code=404,
+            )
+        plan = class_reduction.plan_reduction(session, class_id, min_support)
+    return templates.TemplateResponse(
+        request, "creator_reduce_ontology.html",
+        {"class_id": class_id, "name": head["name"], "plan": plan, "applied": applied, "user": user},
+    )
+
+
+@router.post("/classes/{class_id}/reduce-ontology/apply")
+def reduce_ontology_apply(class_id: str, min_support: int = Form(...), user: User = Depends(require_role(Role.creator))):
+    with get_driver().session() as session:
+        removed = class_reduction.apply_reduction(session, class_id, min_support)
+    return RedirectResponse(
+        f"/creator/classes/{class_id}/reduce-ontology?min_support={min_support}&applied={removed}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/classes/{class_id}/promote")
+def promote_class_route(
+    class_id: str, db: Session = Depends(get_db), user: User = Depends(require_role(Role.creator)),
+):
+    """EPIC-IAF-E17 US17.4 : promotion MANUELLE d'une classe provisoire (avant
+    le seuil automatique de documents)."""
+    with get_driver().session() as session:
+        class_lifecycle.promote_class(session, db, class_id)
+    return RedirectResponse(f"/creator/classes/{class_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/classes/{class_id}/ontology-graph")
@@ -707,12 +795,17 @@ def delete_concept_route(
     classe."""
     driver = get_driver()
     with driver.session() as session:
+        row = session.run(
+            "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept {label: $label}) RETURN concept.uri AS uri",
+            cid=class_id, label=label,
+        ).single()
         session.run(
             "MATCH (c:DocumentClass {id: $cid})-[:HAS_CONCEPT]->(concept:Concept {label: $label}) DETACH DELETE concept",
             cid=class_id, label=label,
         )
     try:
-        ontology_delete_concept(class_id, label)
+        # URI reelle du concept (celle de sa classe d'origine apres une fusion), voir ontology.delete_concept
+        ontology_delete_concept(class_id, label, row["uri"] if row else None)
     except Exception:
         pass
     return RedirectResponse(f"/creator/classes/{class_id}", status_code=status.HTTP_303_SEE_OTHER)
@@ -744,6 +837,70 @@ def list_corpus(request: Request, user: User = Depends(require_role(Role.creator
     return templates.TemplateResponse(
         request, "creator_corpus.html", {"corpus": corpus, "suggestions": suggestions, "user": user},
     )
+
+
+@router.get("/corpus/{class_id}")
+def corpus_detail(
+    request: Request, class_id: str, db: Session = Depends(get_db),
+    user: User = Depends(require_role(Role.creator)),
+):
+    """2026-10-02 (bug signale par l'utilisateur : "la page corpus donne une
+    liste des corpus mais qui dirige vers les details de la classe reliee,
+    ca semble etre un bug") : un corpus est bien le meme objet Neo4j qu'une
+    classe (decide le 2026-09-27), mais la vue CORPUS n'avait pas sa propre
+    page - chaque ligne renvoyait vers l'ecran de l'ONTOLOGIE de la classe.
+    Page dediee : documents du corpus (avec leur ligne Postgres, donc
+    ouvrables/telechargeables), taille, taxonomies construites depuis ce
+    corpus ; l'ecran classe reste accessible par un lien explicite."""
+    driver = get_driver()
+    with driver.session() as session:
+        head = session.run(
+            "MATCH (c:DocumentClass {id: $cid}) "
+            "OPTIONAL MATCH (c)-[:HAS_CONCEPT]->(concept:Concept) "
+            "RETURN c.name AS name, c.status AS status, count(DISTINCT concept) AS concept_count",
+            cid=class_id,
+        ).single()
+        if head is None or head["name"] is None:
+            return templates.TemplateResponse(
+                request, "creator_corpus_detail.html",
+                {"class_id": class_id, "name": None, "user": user}, status_code=404,
+            )
+        entity_count = session.run(
+            "MATCH (e:Entity {class_id: $cid}) RETURN count(e) AS c", cid=class_id,
+        ).single()["c"]
+        scores = {
+            r["sha256"]: dict(r) for r in session.run(
+                "MATCH (c:DocumentClass {id: $cid})<-[r:IN_CLASS]-(d:Document) "
+                "RETURN d.sha256 AS sha256, r.score AS score, r.structural_score AS structural_score, "
+                "       r.semantic_score AS semantic_score",
+                cid=class_id,
+            )
+        }
+        taxonomies = list(session.run(
+            "MATCH (t:Taxonomy)-[:FROM_CORPUS]->(c:DocumentClass {id: $cid}) "
+            "RETURN t.id AS id, t.name AS name, t.concept_count AS concept_count ORDER BY t.created_at DESC",
+            cid=class_id,
+        ))
+    documents = list(db.scalars(
+        select(Document).where(Document.neo4j_class_id == class_id).order_by(Document.created_at.desc())
+    ))
+    return templates.TemplateResponse(
+        request, "creator_corpus_detail.html",
+        {
+            "class_id": class_id, "name": head["name"], "status": head["status"],
+            "concept_count": head["concept_count"], "entity_count": entity_count,
+            "documents": documents, "scores": scores, "taxonomies": taxonomies,
+            "threshold": settings.recognition_threshold, "user": user,
+        },
+    )
+
+
+@router.post("/corpus/reevaluate-unknown")
+def reevaluate_unknown_route(user: User = Depends(require_role(Role.creator))):
+    """EPIC-IAF-E17 : rejoue fusion par densite et promotion sur toutes les
+    classes inconnues (apres un changement de seuil, par exemple)."""
+    class_lifecycle.reevaluate_provisional_classes()
+    return RedirectResponse("/creator/corpus", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/corpus/batch-cluster")
@@ -790,7 +947,18 @@ def settings_form(request: Request, db: Session = Depends(get_db), user: User = 
     """US7.6 (etendue) : "dans les parametres on peut autoriser le merge
     automatique et definir 2 seuils"."""
     platform = class_merge.get_platform_settings(db)
-    return templates.TemplateResponse(request, "creator_settings.html", {"platform": platform, "user": user})
+    lifecycle = {
+        "official_class_min_documents": settings.official_class_min_documents,
+        "merge_similarity_floor": settings.merge_similarity_floor,
+        "merge_density_k": settings.merge_density_k,
+        "merge_density_min_pairs": settings.merge_density_min_pairs,
+        "corpus_seed_min_similarity": settings.corpus_seed_min_similarity,
+        "ontology_reduction_min_support": settings.ontology_reduction_min_support,
+        "recognition_threshold": settings.recognition_threshold,
+    }
+    return templates.TemplateResponse(
+        request, "creator_settings.html", {"platform": platform, "lifecycle": lifecycle, "user": user},
+    )
 
 
 @router.post("/settings")
@@ -916,23 +1084,35 @@ def taxonomy_detail(request: Request, taxonomy_id: str, user: User = Depends(req
                 {"taxonomy_id": taxonomy_id, "name": None, "concepts": [], "corpus_names": [], "user": user},
                 status_code=404,
             )
-        # US3.19 : arbre a 2 niveaux (concepts de tete + leurs enfants
-        # NARROWER, vide pour un concept isole) - plus la liste plate
-        # HAS_TAXONOMY_CONCEPT seule (US3.18).
-        top_rows = list(session.run(
-            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(top:TaxonomyConcept) "
-            "OPTIONAL MATCH (top)-[:NARROWER]->(child:TaxonomyConcept) "
-            "RETURN top.pref_label AS pref_label, top.alt_labels AS alt_labels, "
-            "       collect(CASE WHEN child IS NULL THEN NULL ELSE "
-            "         {pref_label: child.pref_label, alt_labels: child.alt_labels} END) AS children "
-            "ORDER BY top.pref_label",
+        # 2026-10-02 : arbre a PROFONDEUR QUELCONQUE (relations NARROWER
+        # recursives) - plus seulement concepts de tete + enfants directs (US3.19).
+        top_ids = session.run(
+            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(top:TaxonomyConcept) RETURN top.id AS id",
+            id=taxonomy_id,
+        ).value()
+        rows = list(session.run(
+            "MATCH (t:Taxonomy {id: $id})-[:HAS_TAXONOMY_CONCEPT]->(:TaxonomyConcept)-[:NARROWER*0..]->(n:TaxonomyConcept) "
+            "OPTIONAL MATCH (p:TaxonomyConcept)-[:NARROWER]->(n) "
+            "RETURN DISTINCT n.id AS id, n.pref_label AS pref_label, n.alt_labels AS alt_labels, "
+            "       n.definition AS definition, p.id AS parent_id",
             id=taxonomy_id,
         ))
-        concepts = [
-            {"pref_label": r["pref_label"], "alt_labels": r["alt_labels"],
-             "children": sorted((c for c in r["children"] if c is not None), key=lambda c: c["pref_label"])}
-            for r in top_rows
-        ]
+        nodes = {
+            r["id"]: {"pref_label": r["pref_label"], "alt_labels": r["alt_labels"] or [],
+                      "definition": r["definition"], "children": []}
+            for r in rows
+        }
+        for r in rows:
+            if r["parent_id"] in nodes:
+                nodes[r["parent_id"]]["children"].append(nodes[r["id"]])
+
+        def _sort(node: dict) -> dict:
+            node["children"].sort(key=lambda c: (bool(c["children"]) is False, c["pref_label"]))
+            for child in node["children"]:
+                _sort(child)
+            return node
+
+        concepts = sorted((_sort(nodes[i]) for i in top_ids if i in nodes), key=lambda c: c["pref_label"])
     return templates.TemplateResponse(
         request, "creator_taxonomy_detail.html",
         {
@@ -942,12 +1122,15 @@ def taxonomy_detail(request: Request, taxonomy_id: str, user: User = Depends(req
     )
 
 
+@router.get("/taxonomies/{taxonomy_id}/export")
 @router.get("/taxonomies/{taxonomy_id}/skos.ttl")
-def taxonomy_export(taxonomy_id: str):
-    content = export_taxonomy_turtle(taxonomy_id)
+def taxonomy_export(taxonomy_id: str, fmt: str = "ttl"):
+    fmt = normalize_export_format(fmt)
+    content = export_taxonomy_turtle(taxonomy_id, fmt)
+    media_type, extension = EXPORT_FORMATS[fmt]
     return Response(
-        content=content, media_type="text/turtle",
-        headers={"Content-Disposition": f'attachment; filename="taxonomie-{taxonomy_id}.ttl"'},
+        content=content, media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="taxonomie-{taxonomy_id}.{extension}"'},
     )
 
 

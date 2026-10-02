@@ -1,0 +1,928 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:lrmlmm="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#"
+>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasJurisdictions">
+    <rdfs:label>has jurisdiction collection</rdfs:label>
+    <rdfs:comment>a collection of Jurisdictions.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Jurisdictions"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection">
+        <rdfs:label>has collection</rdfs:label>
+        <rdfs:comment>a collection.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collector"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasFunction">
+    <rdf:label>has function</rdf:label>
+    <rdfs:comment>the function of a Figure.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figure"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Function"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAgents">
+    <rdfs:label>has agent collection</rdfs:label>
+    <rdfs:comment>a collection of Agents.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Agents"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesAuthority">
+    <rdfs:label>applies authority</rdfs:label>
+    <rdfs:comment>an Authority applied by the Context or Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Authority"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies">
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associator"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+        <rdfs:label>applies</rdfs:label>
+        <rdfs:comment>an entity applied by the associator.</rdfs:comment>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasParaphrase">
+    <rdfs:label>has paraphrase</rdfs:label>
+    <rdfs:comment>a Paraphrase of the parent Node Element (e.g. a Legal Rule).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Expression"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Paraphrase"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAgent">
+    <rdf:label>has member agent</rdf:label>
+    <rdfs:comment>an Agent in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Agents"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Agent"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember">
+        <rdfs:label>has member</rdfs:label>
+        <rdfs:comment>an entity in the collection.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collectable"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAssociations">
+    <rdfs:label>has association collection</rdfs:label>
+    <rdfs:comment>a collection of Associations.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associations"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Defeater">
+    <rdfs:label>defeater</rdfs:label>
+    <rdfs:comment>an indication that, in the absence of information to the contrary and where the antecedent of a Legal Rule holds, the opposite of the conclusion of the Legal Rule does not hold.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Strength"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasComment">
+    <rdfs:label>has comment</rdfs:label>
+    <rdfs:comment>a Comment on the parent Node Element.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Comment"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#over">
+    <rdfs:label>over</rdfs:label>
+    <rdfs:comment>the Legal Rule with higher priority.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Override"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasQualification">
+    <rdfs:label>has qualifications</rdfs:label>
+    <rdfs:comment>a qualification (e.g. an Override) of the Statements.
+    </rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statements"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Formula"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#OverrideStatement">
+    <rdfs:label>override statement</rdfs:label>
+    <rdfs:comment>a Legal Statement of an Override.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LogicalFormulaStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#FactualStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#PenaltyStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#ReparationStatement"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#forExpression">
+    <rdfs:label>for expression</rdfs:label>
+    <rdfs:comment>a LegalRuleML expression for which the Role is responsible (e.g., the expression was created or endorsed by the role).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Role"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Expression"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAssociation">
+    <rdfs:label>has member association</rdfs:label>
+    <rdfs:comment>an Association in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associations"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Association"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMemberType">
+    <rdfs:label>has member type</rdfs:label>
+    <rdfs:comment>the type or class of members of the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasLegalReference">
+    <rdfs:label>has member legal reference</rdfs:label>
+    <rdfs:comment>a LegalReference in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalReferences"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalReference"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasReference">
+        <rdfs:label>has member reference</rdfs:label>
+        <rdfs:comment>a Reference in the collection.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#References"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference"/>
+        <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasStatusDevelopment">
+    <rdfs:label>has status development</rdfs:label>
+    <rdfs:comment>the Status Development of the qualification in a TemporalCharacteristic.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristic"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#StatusDevelopment"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasFigure">
+    <rdf:label>has member figure</rdf:label>
+    <rdfs:comment>a Figure in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figures"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figure"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAuthorities">
+    <rdfs:label>has authority collection</rdfs:label>
+    <rdfs:comment>A collection of authorities associated with the
+      subject LegalRuleML document.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Authorities"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#symbol">
+    <rdfs:label>symbol</rdfs:label>
+    <rdfs:comment>an XML literal that is the symbolic representation of the XMLLiteral wrapper.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#XMLLiteralWrapper"/>
+    <rdfs:range rdf:resource="rdfs:XMLLiteral"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#wraps">
+        <rdfs:label>wraps</rdfs:label>
+        <rdfs:comment>an entity contained by the wrapper.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Wrapper"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Thing"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasRole">
+    <rdf:label>has member role</rdf:label>
+    <rdfs:comment>a Role in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Roles"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Role"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasStrength">
+    <rdfs:label>hasStrength</rdfs:label>
+    <rdfs:comment>the Strength of the Legal Rule.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Strength"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasContext">
+    <rdfs:label>has context</rdfs:label>
+    <rdfs:comment>a Context described in the LegalRuleML document.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Context"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasFigures">
+    <rdfs:label>has figure collection</rdfs:label>
+    <rdfs:comment>a collection of Figures.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figures"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasJurisdiction">
+    <rdf:label>has member jurisdiction</rdf:label>
+    <rdfs:comment>a Jurisdiction in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Jurisdictions"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Jurisdiction"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAuthority">
+    <rdf:label>has member authority</rdf:label>
+    <rdfs:comment>An authority which is a member of the subject collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Authorities"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Authority"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasActor">
+    <rdf:label>has actor</rdf:label>
+    <rdfs:comment>an Actor that has the responsibility to fulfill the function of a Figure.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figure"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Actor"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasTimes">
+    <rdfs:label>has time collection</rdfs:label>
+    <rdfs:comment>a collection of Times.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Times"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesPenalty">
+    <rdfs:label>applies penalty</rdfs:label>
+    <rdfs:comment>the PenaltyStatement that is linked to a LegalRule in a Reparation.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reparation"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#PenaltyStatement"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAlternatives">
+    <rdfs:label>has alternative collection</rdfs:label>
+    <rdfs:comment>a collection of Alternatives.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternatives"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <lrmlmm:LegalStatus rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#InForce"/>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesTemporalCharacteristic">
+    <rdfs:label>applies temporal characteristic</rdfs:label>
+    <rdfs:comment>a TemporalCharacteristic applied by the Context or Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristic"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#content">
+    <rdfs:label>content</rdfs:label>
+    <rdfs:comment>An entity wrapped by the subject wrapper</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#DataWrapper"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Data"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#wraps"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCreationDate">
+    <rdfs:label>has creation date</rdfs:label>
+    <rdfs:comment>the creation date of the Context or LegalRuleML document.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Creatable"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Time"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://purl.org/dc/terms/created">
+        <rdfs:isDefinedBy rdf:resource="http://dublincore.org/documents/2012/06/14/dcmi-terms/"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasRoles">
+    <rdfs:label>has role collection</rdfs:label>
+    <rdfs:comment>a collection of Roles.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Roles"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasTime">
+    <rdfs:label>has time</rdfs:label>
+    <rdfs:comment>a Time in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Times"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Time"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticModality">
+    <rdfs:label>deontic modality</rdfs:label>
+    <rdfs:comment>a modality pertaining to Deontic Specifications.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Modality"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#filledBy">
+    <rdfs:label>filled by</rdfs:label>
+    <rdfs:comment>an Actor that fills the Role.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Role"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Actor"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#SuborderList">
+    <rdfs:label>suborder list</rdfs:label>
+    <rdfs:comment>a Deontic Specification for a sequence of Deontic Specifications, i.e., Obligations, Prohibitions, Permissions, Rights and/or Suborder Lists. When a SuborderList holds, a Deontic Specification in the SuborderList holds if all Deontic Specifications that precede it in the SuborderList have been violated.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Permission">
+    <rdfs:label>permission</rdfs:label>
+    <rdfs:comment>a Deontic Specification for a state, an act, or a course of action where the Bearer has no Obligation or Prohibition to the contrary. A weak Permission is the absence of the Obligation or Prohibition to the contrary; a strong Permission is an exception or derogation of the Obligation or Prohibition to the contrary.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesModality">
+    <rdfs:label>applies modality</rdfs:label>
+    <rdfs:comment>the deontic mode that applies to a Deontic Specification in a Context or 	Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Modality"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#forStatus">
+    <rdfs:label>for status</rdfs:label>
+    <rdfs:comment>the Legal Status of the qualification in a TemporalCharacteristic.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristic"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalStatus"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasStatement">
+    <rdfs:label>has member statement</rdfs:label>
+    <rdfs:comment>a Legal Statement in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statements"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesAssociations">
+    <rdfs:label>applies association collection</rdfs:label>
+    <rdfs:comment>a collection of Associations applied by the Context.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Context"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associations"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasLegalSource">
+    <rdfs:label>has member legal source</rdfs:label>
+    <rdfs:comment>a LegalSource in the collection of LegalSources.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalSources"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalSource"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasSource">
+        <rdfs:label>has member source</rdfs:label>
+        <rdfs:comment>a Source in the collection.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Sources"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Source"/>
+        <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#AtomicFormula">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#LogicalFormula"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#under">
+    <rdfs:label>under</rdfs:label>
+    <rdfs:comment>the Legal Rule with lower priority.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Override"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Violation">
+    <rdfs:label>violation</rdfs:label>
+    <rdfs:comment>an indication that an Obligation or Prohibition has been violated.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Prohibition">
+    <rdfs:label>prohibition</rdfs:label>
+    <rdfs:comment>a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and which, if it is achieved or performed, results in a Violation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Obligation">
+    <rdfs:label>obligation</rdfs:label>
+    <rdfs:comment>a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and which, if it is not achieved or performed, results in a Violation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#symbolForData">
+    <rdfs:label>symbol for data</rdfs:label>
+    <rdfs:comment>A literal that is the symbolic representation of the subject data entity.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Data"/>
+    <rdfs:range rdf:resource="rdfs:Literal"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#wraps"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasLegalSources">
+    <rdfs:label>has legal source collection</rdfs:label>
+    <rdfs:comment>Ta collection of LegalSources.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalSources"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasSources">
+        <rdfs:label>has legal source collection</rdfs:label>
+        <rdfs:comment>Ta collection of LegalSources.</rdfs:comment>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Sources"/>
+        <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#refIDSystemName">
+    <rdfs:label>reference ID system name</rdfs:label>
+    <rdfs:comment>the name of the ID system of the Reference (or of References contained by the References collection).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesSource">
+    <rdfs:label>applies source</rdfs:label>
+    <rdfs:comment>a Source or Reference applied by the Context or Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Source"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesAlternatives">
+    <rdfs:label>applies alternatives</rdfs:label>
+    <rdfs:comment>a collection of Alternatives applied by the Context.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Context"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternatives"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesAssociation">
+    <rdfs:label>applies association</rdfs:label>
+    <rdfs:comment>an Association applied by the Context.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Context"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Association"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#refersTo">
+    <rdfs:label>refersTo</rdfs:label>
+    <rdfs:comment>the internal ID of the Reference.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Source"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasStatements">
+    <rdfs:label>has statement collection</rdfs:label>
+    <rdfs:comment>a collection of Legal Statements.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statements"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasTemporalCharacteristics">
+    <rdfs:label>has temporal characteristic collection</rdfs:label>
+    <rdfs:comment>a collection of TemporalCharacteristics.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristics"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#toPrescriptiveStatement">
+    <rdfs:label>to prescriptive statement</rdfs:label>
+    <rdfs:comment>Athe PrescriptiveStatement that is linked to a PenaltyStatement in a Reparation.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reparation"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#PrescriptiveStatement"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasTemporalCharacteristic">
+    <rdfs:label>has member  temporal characteristic</rdfs:label>
+    <rdfs:comment>a TemporalCharacteristic in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristics"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristic"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasMember"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesJurisdiction">
+    <rdfs:label>applies jurisdiction</rdfs:label>
+    <rdfs:comment>a Jurisdiction applied by the Context or Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Jurisdiction"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#memberReferenceType">
+    <rdfs:label>has member reference type</rdfs:label>
+    <rdfs:comment>the conceptual type of references contained by the References collection).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#References"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DefeasibleStrength">
+    <rdfs:label>defeasible strength</rdfs:label>
+    <rdfs:comment>an indication that, in the absence of information to the contrary and where the antecedent of a Legal Rule holds, the conclusion of the Legal Rule holds.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Strength"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesStrength">
+    <rdfs:label>applies strength</rdfs:label>
+    <rdfs:comment>a Strength applied by the Context or Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Strength"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#toTarget">
+    <rdfs:label>to target</rdfs:label>
+    <rdfs:comment>the target to which properties are applied by the Association.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Association"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Expression"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#atTime">
+    <rdfs:label>at time</rdfs:label>
+    <rdfs:comment>the Time of the qualification of a TemporalCharacteristic.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristic"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Time"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Right">
+    <rdfs:label>right</rdfs:label>
+    <rdfs:comment>(see also Permission) a Deontic Specification that gives a Permission to a party (the Bearer) and implies there are Obligations or Prohibitions on other parties (the AuxiliaryParty) such that the Bearer can (eventually) exercise the Right.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <lrmlmm:StatusDevelopment rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Ends"/>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#StrictStrength">
+    <rdfs:label>strict strength</rdfs:label>
+    <rdfs:comment>an indication that where the antecedent of a Legal Rule is indisputable, the conclusion of the Legal Rule is indisputable.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Strength"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Author">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Role"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasTemplate">
+    <rdfs:label>has template</rdfs:label>
+    <rdfs:comment>the template of a Legal Statement.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Template"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasAlternative">
+    <rdfs:label>has member alternative</rdfs:label>
+    <rdfs:comment>an Alternative in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternatives"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternative"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#AuxiliaryParty">
+    <rdfs:label>auxiliary party</rdfs:label>
+    <rdfs:comment>a role in a Deontic Specification to which the Deontic Specification is related.</rdfs:comment>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticRole">
+        <rdfs:label>deontic role</rdfs:label>
+        <rdfs:comment>a role in a Deontic Specification</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Term"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#fromLegalSources">
+    <rdfs:label>from legal source collection</rdfs:label>
+    <rdfs:comment>the LegalSources from which the Alternatives are derived.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternatives"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalSources"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#refIDSystemSource">
+    <rdfs:label>reference ID system source</rdfs:label>
+    <rdfs:comment>the IRI source of the ID system of the Reference (or of References contained by the References collection).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Source"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#refID">
+    <rdfs:label>reference ID</rdfs:label>
+    <rdfs:comment>the external ID of the Reference.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#appliesTemporalCharacteristics">
+    <rdfs:label>applies temporal characteristic collection</rdfs:label>
+    <rdfs:comment>a collection of TemporalCharacteristics applied by the Context or  Association.</rdfs:comment>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristics"/>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#applies"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#XMLLiteralWrapper">
+    <rdfs:label>XML literal wrapper</rdfs:label>
+    <rdfs:comment>TBD</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Wrapper"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasLegalReferences">
+    <rdfs:label>has legal reference collection</rdfs:label>
+    <rdfs:comment>a collection of LegalReferences.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalReferences"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasReferences">
+        <rdfs:label>has reference collection</rdfs:label>
+        <rdfs:comment>a collection of References.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument"/>
+        <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#References"/>
+        <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#hasCollection"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#TimeTerm">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Term"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Editor">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Role"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#inScope">
+    <rdfs:label>in scope</rdfs:label>
+    <rdfs:comment>the Statement or (collection of) Statements that the Context is applied to.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Context"/>
+    <rdfs:range rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Scope"/>
+  </rdf:Property>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Compliance">
+    <rdfs:label>compliance</rdfs:label>
+    <rdfs:comment>an indication that an Obligation has been fulfilled or a Prohibition has not been violated.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification"/>
+  </rdfs:Class>
+  <lrmlmm:LegalStatus rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Efficacious"/>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#MetaFormula">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Formula"/>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Bearer">
+    <rdfs:label>bearer</rdfs:label>
+    <rdfs:comment>a role in a Deontic Specification to which the Deontic Specification is primarily directed.</rdfs:comment>
+    <rdfs:subPropertyOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticRole"/>
+  </rdf:Property>
+  <lrmlmm:LegalStatus rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Applicable"/>
+  <lrmlmm:StatusDevelopment rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Starts"/>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Formula">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#WellFormedExpression"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Template">
+    <rdfs:label>template</rdfs:label>
+    <rdfs:comment>an entity wrapping an XML literal with root element in the RuleML or LegalRuleML namespace.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#XMLLiteralWrapper"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Agents">
+    <rdfs:label>agent collection</rdfs:label>
+    <rdfs:comment>a collection where every member is an Agent </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Jurisdiction">
+    <rdfs:label>jurisdiction</rdfs:label>
+    <rdfs:comment>a geographic area or subject-matter over which an Authority applies its legal power.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+    <rdfs:subClassOf rdf:resource="http://purl.org/dc/terms/Jurisdiction"/>
+    <rdfs:subClassOf rdf:resource="http://purl.org/vocab/frbr/core#Concept"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Override">
+    <rdfs:label>override</rdfs:label>
+    <rdfs:comment>an indication that a Legal Rule takes precedence over another Legal Rule. The ordered pair of Legal Rules is an instance in a defeasible priority relation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Atom"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Function">
+    <rdfs:label>function</rdfs:label>
+    <rdfs:comment>TBD</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Thing"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalRuleMLDocument">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collector"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Creatable"/>
+    <rdfs:subClassOf rdf:resource="http://purl.org/vocab/frbr/core#Expression"/>
+    <rdfs:label>LegalRuleML document</rdfs:label>
+    <rdfs:comment>a formal representation of one or more LegalSources using the LegalRuleML Specifications.</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristic">
+    <rdfs:label>temporal characteristic</rdfs:label>
+    <rdfs:comment>a pair of Time with a qualification, which consists of a Legal Status and a Status Development, such that the qualification holds at the Time.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reparation">
+    <rdfs:label>reparation</rdfs:label>
+    <rdfs:comment>an indication that a PenaltyStatement is linked with a PrescriptiveStatement. It indicates that a sanction may apply where the PrescriptiveStatement entails a Deontic Specification and when there is a Violation of the Deontic Specification.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Atom"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#XMLLiteralWrapper">
+    <rdfs:label>XML literal wrapper</rdfs:label>
+    <rdfs:comment>a container for an XMLLiteral.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Wrapper"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Association">
+    <rdfs:label>association</rdfs:label>
+    <rdfs:comment>a partial description of the extension of some relations where each non-target entity is paired with every target entity.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associator"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Times">
+    <rdfs:label>temporal entity collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Time.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statements">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternative"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collector"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Scope"/>
+    <rdfs:label>statement collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Legal Statement or a FactualStatement.</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LogicalFormulaStatement">
+    <rdfs:label>logical formula statement</rdfs:label>
+    <rdfs:comment>a statement modelled by a logical formula.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#RuleStatement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associator">
+    <rdfs:label>associator</rdfs:label>
+    <rdfs:comment>an entity that can apply properties to other entities.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection">
+    <rdfs:label>collection</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#List"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Wrapper">
+    <rdfs:label>wrapper</rdfs:label>
+    <rdfs:comment>TBD</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Source">
+    <rdfs:label>source</rdfs:label>
+    <rdfs:comment>a source formulated in any format.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collectable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Role">
+    <rdfs:label>role</rdfs:label>
+    <rdfs:comment>a function of or part played by an Actor relative to a LegalRuleML expression.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Thing"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Context">
+    <rdfs:label>context</rdfs:label>
+    <rdfs:comment>an application of Associations to their target entities within a Scope.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associator"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#ReparationStatement">
+    <rdfs:label>reparation statement</rdfs:label>
+    <rdfs:comment>a Legal Statement of a Reparation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LogicalFormulaStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#FactualStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#PenaltyStatement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Wrapper">
+    <rdfs:label>wrapper</rdfs:label>
+    <rdfs:comment>a conceptual container.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Thing"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#WellFormedExpression">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Thing"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable">
+    <rdfs:label>associable</rdfs:label>
+    <rdfs:comment>an entity that can be applied to other entities.</rdfs:comment>
+    <rdfs:comment>an entity that can be applied by an association</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Scope">
+    <rdfs:label>scope</rdfs:label>
+    <rdfs:comment>a Statement or Collection of Statements</rdfs:comment>
+    <rdfs:comment>a statement or statement collection</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Expression"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Sources">
+    <rdfs:label>source collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Source.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collector"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Authority">
+    <rdfs:label>authority</rdfs:label>
+    <rdfs:comment>a person or organization with the power to create, endorse, or enforce Legal Norms.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#ConstitutiveStatement">
+    <rdfs:label>constitutive statement</rdfs:label>
+    <rdfs:comment>a Legal Statement that defines concepts and does not prescribe behaviours.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#RuleStatement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternative"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Scope"/>
+    <rdfs:label>statement</rdfs:label>
+    <rdfs:comment>a Legal Statement or a FactualStatement.</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#FactualStatement">
+    <rdfs:label>factual statement</rdfs:label>
+    <rdfs:comment>an expression of fact.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LogicalFormulaStatement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalReferences">
+    <rdfs:label>legal reference collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a LegalReference.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#References"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Agent">
+    <rdfs:label>agent</rdfs:label>
+    <rdfs:comment>an entity that acts or has the capability to act.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Actor"/>
+    <rdfs:subClassOf rdf:resource="http://purl.org/dc/terms/Agent"/>
+    <rdfs:type rdf:resource="http://purl.org/dc/terms/AgentClass"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figures">
+    <rdfs:label>figure collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Figure</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Actor">
+    <rdfs:label>actor</rdfs:label>
+    <rdfs:comment>an Agent or a Figure.</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collector">
+    <rdfs:label>collector</rdfs:label>
+    <rdfs:comment>an entity that can have a collection</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#TemporalCharacteristics">
+    <rdfs:label>temporal characteristic collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a TemporalCharacteristic</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#StatusDevelopment">
+    <rdfs:label>status development</rdfs:label>
+    <rdfs:comment>a kind of event (e.g., start, end) that changes the Legal Status of a Legal Norm, e.g. making a Legal Norm in force.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Event"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternatives">
+    <rdfs:label>alternative collection</rdfs:label>
+    <rdfs:comment>a mutually exclusive collection where every member is a LegalRuleML rendering of one or more Legal Norms.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Creatable">
+    <rdfs:label>creatable</rdfs:label>
+    <rdfs:comment>an entity that can have a creation date</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalSource">
+    <rdfs:label>legal source</rdfs:label>
+    <rdfs:comment>a source of one or more Legal Norms formulated in any format and endorsed by an Authority.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Source"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#RuleStatement">
+    <rdfs:label>rule statement</rdfs:label>
+    <rdfs:comment>a Legal Statement modelled by a Legal Rule.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Statement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Term">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#WellFormedExpression"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Strength">
+    <rdfs:label>strength</rdfs:label>
+    <rdfs:comment>the quality of a Legal Rule to resist or not to resist a rebuttal.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Figure">
+    <rdfs:label>figure</rdfs:label>
+    <rdfs:comment>an instantiation of a function by an Actor.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Actor"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#PrescriptiveStatement">
+    <rdfs:label>prescriptive statement</rdfs:label>
+    <rdfs:comment>a Legal Statement which prescribes behaviours, e.g. with Permissions, Obligations, or Prohibitions on states, actions, or courses of actions.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#RuleStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#ConstitutiveStatement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Authorities">
+    <rdfs:label>authority collection</rdfs:label>
+    <rdfs:comment>a collection where every member is an Authority</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#References">
+    <rdfs:label>reference collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Reference.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference">
+    <rdfs:label>reference</rdfs:label>
+    <rdfs:comment>a pair consisting of an internal ID and an enriched non-IRI identifier, where the non-IRI is paired with some additional information that is sufficient to disambiguate the non-IRI to a unique Source.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collectable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#LogicalFormula">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Formula"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associations">
+    <rdfs:label>association collection</rdfs:label>
+    <rdfs:comment>a collection where every member is an Assocation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Associable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Comment">
+    <rdfs:label>comment</rdfs:label>
+    <rdfs:comment>a comment, which has no semantic effect.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#XMLLiteralWrapper"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Expression">
+    <rdfs:label>expression</rdfs:label>
+    <rdfs:comment>a rendering of one or more Legal Norms or a fragment of a Legal Norm</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#DeonticSpecification">
+    <rdfs:label>deontic specification</rdfs:label>
+    <rdfs:comment>an Obligation, Permission, Prohibition, Right, ....</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#LogicalFormula"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collectable">
+    <rdfs:label>collectable</rdfs:label>
+    <rdfs:comment>an entity that can be a member of a LegalRuleML collection</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalStatus">
+    <rdfs:label>legal status</rdfs:label>
+    <rdfs:comment>a standing that can apply to a Legal Norm at a Time, e.g.,  "is applicable", "is in force", "has efficacy", "is valid".</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Standing"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Paraphrase">
+    <rdfs:label>paraphrase</rdfs:label>
+    <rdfs:comment>a natural language rendering of a Legal Rule or fragment of it that is an alternative to its Legal Source(s).</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#XMLLiteralWrapper"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Atom">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Formula"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#DataWrapper">
+    <rdfs:label>data wrapper</rdfs:label>
+    <rdfs:comment>TBD</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Wrapper"/>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Expression"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalReference">
+    <rdfs:label>legal reference</rdfs:label>
+    <rdfs:comment>a Reference whose Source is a LegalSource.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Reference"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#PenaltyStatement">
+    <rdfs:label>penalty statement</rdfs:label>
+    <rdfs:comment>a Legal Statement of a sanction (e.g. a punishment or a correction).</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LogicalFormulaStatement"/>
+    <owl:disjointWith rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#FactualStatement"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Alternative">
+    <rdfs:label>alternative</rdfs:label>
+    <rdfs:comment>a LegalRuleML rendering of one or more Legal Norms.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Expression"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#LegalSources">
+    <rdfs:label>legal source collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a LegalSource.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Sources"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Roles">
+    <rdfs:label>role collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Role.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Data">
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel#Term"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Jurisdictions">
+    <rdfs:label>jursidiction collection</rdfs:label>
+    <rdfs:comment>a collection where every member is a Jurisdiction.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Collection"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel#Commentable">
+    <rdfs:label>commentable</rdfs:label>
+    <rdfs:comment>an entity that can have an attached comment</rdfs:comment>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://purl.org/dc/terms/Jurisdiction"/>
+</rdf:RDF>

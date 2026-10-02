@@ -71,10 +71,37 @@ class Settings(BaseSettings):
 
     # Seuil du score COMBINE (structurel + semantique, IAF-E7 US7.4 decide le
     # 2026-09-28) pour rattacher un document a une classe existante plutot que
-    # d'en creer une nouvelle (US7.5). 0.90 decide par l'utilisateur ; reste a
-    # calibrer reellement via le banc d'evaluation (US7.7, non fait) - ce
-    # chiffre est le seuil RUNTIME, pas la preuve que l'algorithme l'atteint.
-    recognition_threshold: float = 0.90
+    # d'en creer une nouvelle (US7.5). Baisse de 0.90 a 0.50 le 2026-10-01
+    # (demande explicite de l'utilisateur, suite a la mesure reelle IAF-125 :
+    # un document reellement rattache a sa classe - structurel 1.0, semantique
+    # 0.417 - combine a 0.709, reste sous 0.90 a cause de termes generiques
+    # qui diluent le score semantique, voir EPIC-IAF-E7 US7.2). Reste a
+    # calibrer reellement via le banc d'evaluation (US7.7, toujours non fait) -
+    # ce chiffre est le seuil RUNTIME, pas la preuve que l'algorithme l'atteint.
+    recognition_threshold: float = 0.50
+
+    # EPIC-IAF-E17 (2026-10-02) : cycle de vie des classes INCONNUES. Tous ces
+    # parametres sont NON calibres (US7.7) - voir
+    # docs/epics/EPIC-IAF-E17-classes-inconnues-cycle-de-vie.md.
+    # Nombre de documents integres au-dela duquel une classe provisoire devient
+    # OFFICIELLE (et entre dans la reconnaissance, US7.4).
+    official_class_min_documents: int = 3
+    # Fusion de classes provisoires par DENSITE de similarite : seuil adaptatif
+    # max(plancher, moyenne + k * ecart-type) des similarites semantiques entre
+    # paires de classes provisoires ; `merge_density_min_pairs` paires au moins
+    # pour estimer la densite (sinon le plancher seul).
+    # 0.30 (et non 0.50 initialement) apres mesure reelle du 2026-10-02 : documents
+    # d'un meme domaine = 36 a 51 % de similarite entre classes, domaines sans
+    # rapport = 0 a 12 % ; un plancher a 50 % laissait 2 documents d'astronomie isoles.
+    merge_similarity_floor: float = 0.30
+    merge_density_k: float = 1.0
+    merge_density_min_pairs: int = 3
+    # Recherche de corpus connus : score semantique minimal pour amorcer le
+    # normaliseur de concepts avec le vocabulaire du corpus officiel le plus proche.
+    corpus_seed_min_similarity: float = 0.30
+    # Reduction de l'ontologie : un concept INDUIT mentionne par moins de ce
+    # nombre de documents est "rare" (concepts importes jamais mentionnes : proteges).
+    ontology_reduction_min_support: int = 2
 
     # Observabilite (ajoute le 2026-09-29, demande explicite : "genere le
     # code, l'infra... mais ne l'active pas"). Vide par defaut = handler Loki

@@ -10,7 +10,13 @@
   <div class="page-header">
     <h1>{{ name }}</h1>
     <div class="actions">
-      <a class="btn btn-primary" href="/creator/taxonomies/{{ taxonomy_id }}/skos.ttl">Exporter (SKOS/Turtle)</a>
+      <form class="inline" method="get" action="/creator/taxonomies/{{ taxonomy_id }}/export">
+        <select name="fmt" aria-label="Format d'export SKOS">
+          <option value="ttl">SKOS / Turtle (.ttl)</option>
+          <option value="owl">SKOS / RDF-XML (.owl)</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Exporter</button>
+      </form>
       <form class="inline" method="post" action="/creator/taxonomies/{{ taxonomy_id }}/delete"
             onsubmit="return confirm('Supprimer la taxonomie {{ name }} ?');">
         <button type="submit" class="btn btn-danger">Effacer</button>
@@ -19,23 +25,25 @@
   </div>
   <p class="muted">Corpus sources : {{ corpus_names|reject("none")|join(", ") }}</p>
 
-  <p class="muted">Hierarchie a 2 niveaux (US3.19, classification ascendante hierarchique sur les embeddings des libelles).
-     Un concept sans enfant est isole : aucun regroupement plus general n'a ete trouve pour lui.</p>
+  <p class="muted">Hierarchie a profondeur variable (US3.19, etendue le 2026-10-02) : hierarchie reelle de l'ontologie
+     quand elle existe, sinon regroupement en categories sur plusieurs niveaux (induction par LLM validee, ou
+     classification ascendante hierarchique en repli). Un concept sans parent ni enfant est isole : aucun
+     regroupement plus general n'a ete trouve pour lui.</p>
+  {% macro render_node(node, level) %}
+  <tr>
+    <td style="padding-left: {{ 0.75 + level * 1.5 }}em;">
+      {% if level > 0 %}&#8627; {% endif %}{% if node.children %}<strong>{{ node.pref_label }}</strong>
+      <span class="muted">({{ node.children|length }})</span>{% else %}{{ node.pref_label }}{% endif %}
+    </td>
+    <td class="muted">{{ node.definition or "" }}{% set alts = node.alt_labels|reject("equalto", node.pref_label)|list %}{% if alts %} &middot; variantes : {{ alts|join(", ") }}{% endif %}</td>
+  </tr>
+  {% for child in node.children %}{{ render_node(child, level + 1) }}{% endfor %}
+  {% endmacro %}
   <div class="card" style="padding: 0;">
     <table class="table">
-      <thead><tr><th>Concept (skos:prefLabel)</th><th>Variantes (skos:altLabel)</th></tr></thead>
+      <thead><tr><th>Concept (skos:prefLabel)</th><th>Definition (skos:definition) et variantes</th></tr></thead>
       <tbody>
-        {% for c in concepts %}
-        <tr>
-          <td><strong>{{ c.pref_label }}</strong></td>
-          <td class="muted">{{ (c.alt_labels|reject("equalto", c.pref_label)|list)|join(", ") }}</td>
-        </tr>
-        {% for child in c.children %}
-        <tr>
-          <td style="padding-left: 2em;">&#8627; {{ child.pref_label }}</td>
-          <td class="muted">{{ (child.alt_labels|reject("equalto", child.pref_label)|list)|join(", ") }}</td>
-        </tr>
-        {% endfor %}
+        {% for c in concepts %}{{ render_node(c, 0) }}
         {% else %}
         <tr><td colspan="2" class="table-empty">Aucun concept.</td></tr>
         {% endfor %}

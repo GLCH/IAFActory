@@ -20,11 +20,11 @@ import yaml  # noqa: E402
 
 from app.doc_generator import (  # noqa: E402
     ALLOWED_VOCABULARY_SIZES, DEFAULT_VOCABULARY_SIZE, DEFAULT_WORDS, STRUCTURE_STYLES,
-    generate_document, load_class_material, write_docx, write_markdown,
+    generate_document, load_class_material, write_docx, write_markdown, write_pdf,
 )
 from app.graph import get_driver  # noqa: E402
 
-WRITERS = {"md": write_markdown, "docx": write_docx}
+WRITERS = {"md": write_markdown, "docx": write_docx, "pdf": write_pdf}
 
 
 def main() -> None:

@@ -3,11 +3,12 @@ combine structurel+semantique que US7.4, applique cette fois a deux classes
 plutot qu'a un document et une classe) et fusion automatique ou suggeree
 selon deux seuils reglables (PlatformSettings).
 
-Limite assumee : les entites/relations extraites (Entity.class_id, IAF-E7
-US7.5) ne sont PAS migrees vers la classe cible lors d'une fusion - seuls les
-documents (Postgres + IN_CLASS) et les concepts (HAS_CONCEPT) le sont. Une
-classe fusionnee garde donc ses entites propres, invisibles depuis l'ecran de
-la classe cible. A corriger si le besoin se confirme."""
+Limite levee le 2026-10-02 (EPIC-IAF-E17 US17.2) : les entites extraites
+(Entity.class_id, IAF-E7 US7.5) SONT desormais migrees vers la classe cible -
+une entite de meme nom deja presente dans la cible est fusionnee avec elle
+(`apoc.refactor.mergeNodes`, relations REL et mentions conservees), sinon elle
+change simplement de classe. Si APOC refuse une fusion, l'entite reste dans la
+classe source (ancien comportement) au lieu de faire echouer la fusion."""
 from __future__ import annotations
 
 from sqlalchemy import update as sa_update
@@ -72,10 +73,11 @@ def class_similarity(session, class_a: str, class_b: str) -> tuple[float, float,
     return structural, semantic, (structural + semantic) / 2
 
 
-def merge_classes(session, db: Session, source_id: str, target_id: str) -> None:
+def merge_classes(session, db: Session, source_id: str, target_id: str) -> tuple[str, str] | None:
     """Fusionne `source_id` DANS `target_id` (la classe la plus petite - par
     nombre de documents - vers la plus grande ; egalite -> ordre alphabetique
-    d'id pour un resultat deterministe)."""
+    d'id pour un resultat deterministe). Renvoie (source, cible) EFFECTIFS
+    apres ce choix de sens, ou None si la cible est introuvable."""
     counts = {
         r["id"]: r["n"] for r in session.run(
             "MATCH (c:DocumentClass) WHERE c.id IN $ids "
@@ -83,14 +85,25 @@ def merge_classes(session, db: Session, source_id: str, target_id: str) -> None:
             ids=[source_id, target_id],
         )
     }
-    if counts.get(source_id, 0) > counts.get(target_id, 0) or (
+    statuses = {
+        r["id"]: r["status"] for r in session.run(
+            "MATCH (c:DocumentClass) WHERE c.id IN $ids RETURN c.id AS id, coalesce(c.status, '') AS status",
+            ids=[source_id, target_id],
+        )
+    }
+    if (statuses.get(source_id) == "provisoire") != (statuses.get(target_id) == "provisoire"):
+        # EPIC-IAF-E17 : une classe OFFICIELLE n'est jamais absorbee par une
+        # provisoire, quelle que soit la taille respective.
+        if statuses.get(target_id) == "provisoire":
+            source_id, target_id = target_id, source_id
+    elif counts.get(source_id, 0) > counts.get(target_id, 0) or (
         counts.get(source_id, 0) == counts.get(target_id, 0) and source_id < target_id
     ):
         source_id, target_id = target_id, source_id
 
     target_row = session.run("MATCH (c:DocumentClass {id: $id}) RETURN c.name AS name", id=target_id).single()
     if target_row is None:
-        return
+        return None
     target_name = target_row["name"]
 
     db.execute(
@@ -122,6 +135,7 @@ def merge_classes(session, db: Session, source_id: str, target_id: str) -> None:
         "DETACH DELETE sc",
         source=source_id, target=target_id,
     )
+    _migrate_entities(session, source_id, target_id)
     session.run(
         "MATCH (s:DocumentClass {id: $source}) SET s.status = 'fusionnee_dans:' + $target",
         source=source_id, target=target_id,
@@ -131,6 +145,34 @@ def merge_classes(session, db: Session, source_id: str, target_id: str) -> None:
         a=source_id, b=target_id,
     )
     ontology.merge_class_ontology(source_id, target_id)
+    return source_id, target_id
+
+
+def _migrate_entities(session, source_id: str, target_id: str) -> int:
+    """US17.2 : entites (et leurs relations REL / mentions) de la classe source
+    vers la cible. Renvoie le nombre d'entites migrees."""
+    rows = list(session.run(
+        "MATCH (se:Entity {class_id: $source}) "
+        "OPTIONAL MATCH (te:Entity {name: se.name, class_id: $target}) "
+        "RETURN elementId(se) AS se_id, elementId(te) AS te_id",
+        source=source_id, target=target_id,
+    ))
+    migrated = 0
+    for row in rows:
+        try:
+            if row["te_id"] is None:
+                session.run("MATCH (se) WHERE elementId(se) = $id SET se.class_id = $target", id=row["se_id"], target=target_id)
+            else:
+                session.run(
+                    "MATCH (te), (se) WHERE elementId(te) = $te AND elementId(se) = $se "
+                    "CALL apoc.refactor.mergeNodes([te, se], {properties: 'discard', mergeRels: true}) YIELD node "
+                    "RETURN node",
+                    te=row["te_id"], se=row["se_id"],
+                )
+            migrated += 1
+        except Exception:
+            continue  # entite laissee dans la classe source (ancien comportement)
+    return migrated
 
 
 def batch_cluster_classes() -> int:
@@ -188,10 +230,16 @@ def check_and_act_on_class(new_class_id: str) -> None:
     try:
         platform = get_platform_settings(db)
         with driver.session() as session:
+            row = session.run(
+                "MATCH (c:DocumentClass {id: $cid}) RETURN coalesce(c.status, '') AS status", cid=new_class_id,
+            ).single()
+            if row is None or row["status"] == "provisoire" or row["status"].startswith("fusionnee"):
+                return  # EPIC-IAF-E17 : le sort d'une classe provisoire releve de class_lifecycle
             other_ids = [
                 r["id"] for r in session.run(
                     "MATCH (c:DocumentClass) "
                     "WHERE c.id <> $cid AND NOT coalesce(c.status, '') STARTS WITH 'fusionnee' "
+                    "  AND coalesce(c.status, '') <> 'provisoire' "
                     "RETURN c.id AS id",
                     cid=new_class_id,
                 )

@@ -1,0 +1,74 @@
+@prefix iafs: <urn:iaf:ns:structure#> .
+@prefix iafw: <urn:iaf:ns:structure-word#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontologie structurelle "Word" (dissertation) - ajoutee le 2026-10-01,
+# demande explicite : "Pour un word on attend des structures de type :
+# introduction, chapitres, sous chapitre, discussion et conclusion [...] on
+# peut avoir des contraintes, axiomes pour definir le nombre de structures
+# attendues (max, min, ...)". Specialise iafs:Section (meme principe que
+# iaf-structure-livre.ttl) et contraint via des restrictions OWL2 a
+# cardinalite qualifiee (owl:onClass + owl:qualifiedCardinality/
+# minQualifiedCardinality/maxQualifiedCardinality sur iafs:hasPart) - LUES
+# reellement par app/structure_matcher.py (SPARQL), pas juste documentaires :
+# un raisonneur OWL n'est PAS utilise (coherent avec le reste du projet, voir
+# iaf-structure-livre.ttl : "les .ttl restent des vocabulaires, pas des
+# raisonneurs actifs") - c'est le code Python qui verifie les cardinalites.
+# Cardinalites NON calibrees (comme le reste du projet, US7.7) - choix
+# raisonnable documente, pas une mesure.
+
+<urn:iaf:ns:structure-word> a owl:Ontology ;
+    rdfs:label "Ontologie structurelle Word IAFactory"@fr ;
+    rdfs:comment "Forme dissertation attendue pour un document Word : introduction, chapitres (avec sous-chapitres), discussion, conclusion."@fr ;
+    owl:imports <urn:iaf:ns:structure> ;
+    owl:versionInfo "1" ;
+    iafs:appliesToFormat "docx" .
+
+# --- Classes (roles), specialisent iafs:Section -----------------------------
+
+iafw:Introduction a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Introduction"@fr ;
+    skos:altLabel "Introduction"@en .
+
+iafw:Chapter a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Chapitre"@fr ;
+    skos:altLabel "Chapter"@en .
+
+iafw:SubChapter a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Sous-chapitre"@fr ;
+    skos:altLabel "Subchapter"@en ;
+    skos:altLabel "Sub-chapter"@en .
+
+iafw:Discussion a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Discussion"@fr ;
+    skos:altLabel "Discussion"@en .
+
+iafw:Conclusion a owl:Class ;
+    rdfs:subClassOf iafs:Section ;
+    rdfs:label "Conclusion"@fr ;
+    skos:altLabel "Conclusion"@en .
+
+# --- Axiomes de cardinalite (contraintes, lues par structure_matcher.py) ---
+# Introduction : exactement 1, en tete. Chapitre : au moins 1. Sous-chapitre :
+# libre (0..n, imbrique dans un chapitre). Discussion et Conclusion :
+# exactement 1 chacune, jamais absentes d'une dissertation complete.
+
+iafw:WordForm a owl:Class ;
+    rdfs:subClassOf iafs:Document ;
+    rdfs:label "Forme Word (dissertation)"@fr ;
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iafw:Introduction ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iafw:Chapter ;
+          owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iafw:Discussion ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ a owl:Restriction ; owl:onProperty iafs:hasPart ; owl:onClass iafw:Conclusion ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ] .

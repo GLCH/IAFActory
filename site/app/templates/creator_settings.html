@@ -28,5 +28,22 @@
       <button type="submit" class="btn btn-primary">Enregistrer</button>
     </form>
   </div>
+
+  <div class="card" style="max-width: 520px;">
+    <h2>Cycle de vie des classes inconnues</h2>
+    <p class="muted">Lecture seule (EPIC-IAF-E17) : valeurs de <code>app/config.py</code>, surchargeables par variables
+       d'environnement, NON calibrees (US7.7).</p>
+    <table class="table">
+      <tbody>
+        <tr><td>Seuil de reconnaissance (classes officielles)</td><td>{{ "%.0f"|format(lifecycle.recognition_threshold * 100) }}%</td></tr>
+        <tr><td>Documents pour devenir officielle</td><td>{{ lifecycle.official_class_min_documents }}</td></tr>
+        <tr><td>Fusion : plancher de similarite</td><td>{{ "%.0f"|format(lifecycle.merge_similarity_floor * 100) }}%</td></tr>
+        <tr><td>Fusion : k (moyenne + k x ecart-type)</td><td>{{ lifecycle.merge_density_k }}</td></tr>
+        <tr><td>Fusion : paires minimales pour la densite</td><td>{{ lifecycle.merge_density_min_pairs }}</td></tr>
+        <tr><td>Reprise du vocabulaire d'un corpus proche (score minimal)</td><td>{{ "%.0f"|format(lifecycle.corpus_seed_min_similarity * 100) }}%</td></tr>
+        <tr><td>Reduction : support minimal d'un concept (documents)</td><td>{{ lifecycle.ontology_reduction_min_support }}</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

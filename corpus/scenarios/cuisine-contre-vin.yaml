@@ -1,0 +1,17 @@
+name: cuisine-contre-vin
+description: >
+  Cas limite constate le 2026-10-02 : des recettes de cuisine sont reconnues
+  comme Vin avec recognition_threshold = 0,50 (structure 68-96 %, semantique
+  32-53 %, score combine 60-64 %). Sert a evaluer une future porte semantique
+  minimale. Attention : ces documents s'ajoutent a la classe Vin ; utiliser
+  --reset-learned (qui supprime les documents du scenario) pour les retirer.
+seeds: [Vin]
+steps:
+  - document: documents/inconnus/cuisine/cuisine-1.docx
+    note: "reconnu Vin 62 %"
+  - document: documents/inconnus/cuisine/cuisine-2.docx
+    note: "reconnu Vin 64 %"
+  - document: documents/inconnus/cuisine/cuisine-3.docx
+    note: "reconnu Vin 60 %"
+  - document: documents/inconnus/cuisine/cuisine-4.docx
+    note: "reconnu Vin 64 %"

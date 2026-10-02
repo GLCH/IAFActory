@@ -69,3 +69,21 @@ def test_extraction_excludes_anonymous_blank_node_classes(wine_graph):
     assert len(material.concepts) == 74
     assert not any(c.startswith("N") and len(c) == 33 for c in material.concepts)
     assert not any(e["name"].startswith("N") and len(e["name"]) == 33 for e in material.entities)
+
+
+def test_extracts_real_subclass_hierarchy_between_named_classes(wine_graph):
+    # 2026-10-02 : hierarchie REELLE (rdfs:subClassOf entre classes nommees,
+    # mesure : 13 relations dans wine.rdf - la plupart des classes Wine sont
+    # definies par des restrictions anonymes, pas par un parent nomme).
+    material = extract_ontology_material(wine_graph, source="wine.rdf")
+    edges = set(material.subclass_of)
+    assert ("DessertWine", "Wine") in edges
+    assert ("Sauternes", "Bordeaux") in edges
+    assert ("WineBody", "WineTaste") in edges
+    assert all(child in material.concepts and parent in material.concepts for child, parent in edges)
+
+
+def test_concept_definitions_only_come_from_real_comments(wine_graph):
+    material = extract_ontology_material(wine_graph, source="wine.rdf")
+    assert len(material.concept_definitions) <= len(material.concepts)
+    assert set(material.concept_definitions) <= set(material.concepts)

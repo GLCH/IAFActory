@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import class_merge
+from . import class_lifecycle, class_merge
 from .db import SessionLocal
 from .models import Document, DocumentStatus, PipelineRun, PipelineRunStatus, PipelineStep
 from .pdf_struct import ScannedDocument
@@ -101,6 +101,12 @@ def _execute(run_id: uuid.UUID, document_id: uuid.UUID, stored_path: Path) -> No
     # ci-dessus (sa propre session Postgres/Neo4j) - un echec ici ne doit pas
     # invalider le document deja ingere.
     if class_id_to_check:
+        # EPIC-IAF-E17 : classe PROVISOIRE -> fusion par densite de similarite
+        # puis promotion (class_lifecycle) ; classe OFFICIELLE -> US7.6 inchange.
+        try:
+            class_lifecycle.run_after_ingest(class_id_to_check, run_id)
+        except Exception:
+            pass
         try:
             class_merge.check_and_act_on_class(class_id_to_check)
         except Exception:

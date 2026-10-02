@@ -1,0 +1,48 @@
+name: reconnaissance-vin
+description: >
+  Classe connue (Vin, ontologie semantique W3C Wine, structures base/livre/word/pdf) :
+  10 recits Word et 10 brochures PDF generes par Gemini a partir de vrais vins de
+  l'ontologie (rotation sur 53 vins). Attendu : reconnus dans Vin. Les documents
+  s'ajoutent a la classe ; --reset-learned supprime les documents du scenario.
+seeds: [Vin]
+steps:
+  - document: documents/vin/vin-recit-01.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-02.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-03.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-04.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-05.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-06.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-07.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-08.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-09.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-recit-10.docx
+    note: "recit : 2-3 vins et leurs regions"
+  - document: documents/vin/vin-brochure-01.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-02.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-03.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-04.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-05.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-06.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-07.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-08.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-09.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"
+  - document: documents/vin/vin-brochure-10.pdf
+    note: "brochure PDF sur un vin, tables reelles et analyse fictive etiquetee"

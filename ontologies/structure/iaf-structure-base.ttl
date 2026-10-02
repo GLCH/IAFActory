@@ -6,7 +6,11 @@
 # Ontologie structurelle de base d'IAFActory : le vocabulaire commun qui decrit
 # l'ORGANISATION d'un document (pas son contenu). Les ontologies structurelles des
 # classes documentaires la specialisent (roles de sections, imbrications attendues).
-# Formats couverts : PDF, PowerPoint, Word. Version 1, non chargee dans Fuseki.
+# Formats couverts : PDF, PowerPoint, Word. Version 1.
+# Chargee dans un graphe nomme Fuseki (US3.11, IAF-92) depuis le 2026-09-30 par
+# site/scripts/create_class.py (app/ontology.py:load_turtle_file), graphe
+# http://iafactory.local/ontology/structure/base - vocabulaire COMMUN, un seul
+# exemplaire partage par toutes les classes (jamais duplique par classe).
 
 <urn:iaf:ns:structure> a owl:Ontology ;
     rdfs:label "Ontologie structurelle de base IAFactory"@fr ;
@@ -145,3 +149,29 @@ iafs:role a owl:DatatypeProperty ;
     rdfs:range xsd:string ;
     rdfs:label "role dans la classe documentaire"@fr ;
     rdfs:comment "Renseigne par le profil structurel d'une classe (ex. caracteristiques, normes)."@fr .
+
+# --- Lien classe documentaire -> ontologie(s) structurelle(s) (US3.11) ------
+# Ajoute le 2026-09-30 : une classe documentaire peut accepter PLUSIEURS
+# formes structurelles (0..n, ex. "flat" et "livre" pour une meme classe) -
+# generalisation de la relation HAS_STRUCTURAL_ONTOLOGY (US3.11 la
+# supposait a une seule ontologie par classe), demande explicite ("une
+# classe 'Vin' avec 2 ontologies structurelles"). Le sujet en pratique est le
+# graphe nomme Fuseki de la classe documentaire (IRI = son propre graphe,
+# ADR 0001), l'objet est l'IRI de l'owl:Ontology structurelle acceptee
+# (ex. <urn:iaf:ns:structure> ou <urn:iaf:ns:structure-livre>).
+iafs:acceptsStructure a owl:ObjectProperty ;
+    rdfs:range owl:Ontology ;
+    rdfs:label "accepte la forme structurelle"@fr ;
+    rdfs:comment "Relie une classe documentaire (son graphe nomme Fuseki) a une ontologie structurelle dans laquelle ses documents peuvent se presenter - repetable (0..n) pour une classe acceptant plusieurs formes."@fr .
+
+# --- Contrainte de format de fichier (US7.2-structurel, 2026-10-01) ---------
+# Une ontologie structurelle ne s'applique qu'a certains formats de fichier
+# (le vocabulaire de roles "Chapitre/Sous-chapitre" d'un Word n'a pas de sens
+# pour verifier un PDF, dont l'analyse structurelle reelle est bien plus
+# grossiere - voir pdf_struct.py). Contraint la recherche de l'algorithme de
+# reconnaissance structurelle (app/structure_matcher.py) au bon vocabulaire.
+iafs:appliesToFormat a owl:DatatypeProperty ;
+    rdfs:domain owl:Ontology ;
+    rdfs:range xsd:string ;
+    rdfs:label "s'applique au format de fichier"@fr ;
+    rdfs:comment "Extension de fichier (docx, pdf, tex...) a laquelle cette ontologie structurelle s'applique - repetable si plusieurs formats partagent la meme forme."@fr .

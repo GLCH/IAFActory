@@ -1,0 +1,24 @@
+name: apprentissage-classe-inconnue
+description: >
+  [Un rejeu avec les parametres actuels (plancher 30 %) fusionnera plus tot que l'enregistrement ci-dessous, fait en partie avec 50 %.]
+  EPIC-IAF-E17 : documents d'un domaine inconnu (astronomie) deposes un par un,
+  plus un document d'un autre domaine inconnu (droit). Attendu : classes
+  provisoires, fusion par densite de similarite, promotion en classe officielle
+  a 3 documents, reconnaissance du document suivant dans la classe promue ;
+  le document de droit reste provisoire. Observations du 2026-10-02 en notes.
+seeds: [Vin, C2SIM]
+steps:
+  - document: documents/inconnus/astro/astro-1.docx
+    note: "classe provisoire (37 %), corpus Vin a 5 %"
+  - document: documents/inconnus/astro/astro-2.docx
+    note: "enregistre avec un plancher de fusion a 50 % : provisoire (46 %), similarite 44 % avec astro-1, pas de fusion. Avec le plancher actuel (30 %), 44 % fusionne des ce depot"
+  - document: documents/inconnus/droit/droit-1.docx
+    note: "provisoire (37-40 %), similarite 0 % avec les classes astro. ATTENTION : a la reevaluation (etape 6) du rejeu du 2026-10-02 il a ete ABSORBE par la classe astronomie (score combine >= 0,50 grace a la structure) ; lors du premier enregistrement il etait reste isole"
+  - document: documents/inconnus/astro/astro-3.docx
+    note: "provisoire (39 %), similarite 51 % avec astro-2"
+  - document: documents/inconnus/astro/astro-4.docx
+    note: "provisoire (43 %), meilleure similarite 36 %"
+  - action: reevaluate
+    note: "enregistre apres passage du plancher a 30 % : astro-1/2/3 fusionnent (promotion a 3 documents), astro-4 rattache a la classe officielle"
+  - document: documents/inconnus/astro/astro-5.docx
+    note: "reconnu dans la classe promue (67 %), pas de nouvelle classe provisoire"
