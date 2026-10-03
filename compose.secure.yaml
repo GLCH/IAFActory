@@ -31,6 +31,9 @@ services:
   # sortie Internet des conteneurs).
   site:
     networks: [data]
+  # Le service d'exposition ne parle qu'a Neo4j et a la passerelle LLM (reseau data) ; aucun port publie.
+  exposition:
+    networks: [data]
 
 networks:
   # internal: true coupe toute sortie vers Internet : un service compromis sur

@@ -15,6 +15,16 @@ from .config import settings
 _driver: Driver | None = None
 
 
+class TruncatedReply(ValueError):
+    """Reponse du modele coupee par `max_tokens` (finish_reason = "length"). `text` garde la partie recue.
+    Constat du 2026-10-03 : sur des lignes de separation dactylographiees, un modele de vision part en boucle de
+    repetition et epuise son budget avant la fin de la page."""
+
+    def __init__(self, text: str):
+        super().__init__("reponse tronquee (max_tokens atteint)")
+        self.text = text
+
+
 def get_driver() -> Driver:
     global _driver
     if _driver is None:
@@ -80,6 +90,39 @@ def chat(
         # comme une erreur normale (les appelants traitent deja un echec de
         # chat() comme non bloquant) au cas ou.
         raise ValueError("reponse vide du modele (max_tokens probablement insuffisant face au raisonnement interne)")
+    return content
+
+
+def chat_with_image(
+    prompt: str, image_png: bytes, model: str, system: str | None = None, timeout: int = 120, max_tokens: int = 3000,
+    reasoning_effort: str | None = "disable",
+) -> str:
+    """Comme `chat()` avec UNE image PNG jointe (format OpenAI `image_url` en data URI, accepte par la
+    passerelle LiteLLM pour les modeles de vision). Ajoute le 2026-10-03 pour l'OCR (EPIC-IAF-E18 US18.6)."""
+    import base64
+
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    data_uri = "data:image/png;base64," + base64.b64encode(image_png).decode("ascii")
+    messages.append({"role": "user", "content": [
+        {"type": "text", "text": prompt},
+        {"type": "image_url", "image_url": {"url": data_uri}},
+    ]})
+    payload = {"model": model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
+    if reasoning_effort:
+        payload["reasoning_effort"] = reasoning_effort
+    r = requests.post(
+        f"{settings.llm_gateway_url}/v1/chat/completions",
+        headers={"Authorization": f"Bearer {settings.litellm_master_key}"}, json=payload, timeout=timeout,
+    )
+    r.raise_for_status()
+    choice = r.json()["choices"][0]
+    content = choice["message"]["content"]
+    if content is None:
+        raise ValueError("reponse vide du modele de vision")
+    if choice.get("finish_reason") == "length":
+        raise TruncatedReply(content)
     return content
 
 

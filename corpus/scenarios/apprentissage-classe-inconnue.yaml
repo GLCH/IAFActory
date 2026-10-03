@@ -13,7 +13,7 @@ steps:
   - document: documents/inconnus/astro/astro-2.docx
     note: "enregistre avec un plancher de fusion a 50 % : provisoire (46 %), similarite 44 % avec astro-1, pas de fusion. Avec le plancher actuel (30 %), 44 % fusionne des ce depot"
   - document: documents/inconnus/droit/droit-1.docx
-    note: "provisoire (37-40 %), similarite 0 % avec les classes astro. ATTENTION : a la reevaluation (etape 6) du rejeu du 2026-10-02 il a ete ABSORBE par la classe astronomie (score combine >= 0,50 grace a la structure) ; lors du premier enregistrement il etait reste isole"
+    note: "provisoire (37-40 %), semantique 11 % sous la porte de 15 %, similarite 0 % avec les classes astro : reste isole. Sans la porte semantique (rejeu du 2026-10-02 avant correction) il etait absorbe par la classe astronomie a la reevaluation"
   - document: documents/inconnus/astro/astro-3.docx
     note: "provisoire (39 %), similarite 51 % avec astro-2"
   - document: documents/inconnus/astro/astro-4.docx

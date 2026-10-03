@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Connecteurs - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/settings">Parametres</a> / Connecteurs</div>
+  <div class="page-header">
+    <h1>Connecteurs</h1>
+  </div>
+
+  <p class="muted">Un connecteur importe des documents depuis une source externe, en lecture seule. Il reste inactif
+    tant qu'un admin ne l'a pas approuve (EPIC-IAF-E18, E9).</p>
+
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Nom</th><th>Type</th><th>Etat</th><th>Derniere synchronisation</th></tr></thead>
+      <tbody>
+        {% for c in connectors %}
+        <tr>
+          <td><a href="/creator/connectors/{{ c.id }}">{{ c.name }}</a></td>
+          <td>{{ catalog_map[c.type].label if c.type in catalog_map else c.type }}</td>
+          <td>
+            <span class="badge badge-{{ {'brouillon': 'received', 'en_attente': 'provisional', 'approuve': 'recognized', 'rejete': 'error'}[c.status.value] }}">{{ c.status.value }}</span>
+          </td>
+          <td class="muted">{{ c.last_sync_at.strftime("%Y-%m-%d %H:%M") if c.last_sync_at else "jamais" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">Aucun connecteur.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="max-width: 620px;">
+    <h2>Types de connecteurs</h2>
+    <ul class="hint-list">
+      {% for key, label, description, enabled, pause_reason in catalog %}
+      <li><b>{{ label }}</b> : {{ description }}
+        {% if not enabled %}<br><span class="muted">Non disponible, {{ pause_reason }}.</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+    {% if catalog | selectattr(3) | list %}
+    <form method="post" action="/creator/connectors">
+      <div class="field">
+        <label>Type</label>
+        <select name="type" required>
+          {% for key, label, description, enabled, pause_reason in catalog %}{% if enabled %}<option value="{{ key }}">{{ label }}</option>{% endif %}{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" name="name" maxlength="120" required>
+      </div>
+      <div class="field">
+        <label>URL de base de l'API</label>
+        <input type="text" name="base_url" placeholder="https://...">
+        <small>Seul l'hote de cette URL sera joignable par le connecteur.</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Creer (brouillon)</button>
+    </form>
+    {% else %}
+    <p class="muted">Aucun type n'est ouvert a la creation pour le moment : la creation de connecteur est desactivee.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

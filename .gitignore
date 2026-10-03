@@ -20,3 +20,4 @@ build/
 .idea/
 .vscode/
 .claude/settings.local.json
+exposition/.pytest_cache/

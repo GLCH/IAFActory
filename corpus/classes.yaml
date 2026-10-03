@@ -18,6 +18,13 @@ seeds:
     language: en
     structures: [word]
 
+# Disponible, chargeable par create_class.py (OWL, 109 classes nommees extraites), mais PAS seedee :
+# RiC-O 1.1 (Records in Contexts Ontology, ICA, CC BY 4.0), telechargee le 2026-10-03.
+available_not_seeded:
+  - name: RiC-O
+    semantic: ontologies/semantic-examples/RiC-O_1-1.rdf
+    source: https://www.ica.org/standards/RiC/RiC-O_1-1.rdf
+
 # Ontologie fournie mais SANS classe de depart : LegalRuleML (OASIS CSPRD02,
 # 12 fichiers RDFS agreges). Elle utilise rdfs:Class/rdf:Property et non
 # owl:Class ; ontology_import.py n'en extrait rien tel quel, donc create_class.py

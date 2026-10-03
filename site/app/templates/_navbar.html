@@ -4,8 +4,10 @@
     {% if user.role.value == "admin" %}
       <a href="/admin/users/new"{% if active == "admin_new" %} class="active"{% endif %}>Nouvel utilisateur</a>
       <a href="/admin/users"{% if active == "admin_users" %} class="active"{% endif %}>Utilisateurs</a>
+      <a href="/admin/connectors"{% if active == "admin_connectors" %} class="active"{% endif %}>Connecteurs</a>
       <a href="/admin/archive"{% if active == "admin_archive" %} class="active"{% endif %}>Archivage</a>
     {% elif user.role.value == "creator" %}
+      <a href="/knowledge"{% if active == "knowledge" %} class="active"{% endif %}>Connaissances</a>
       <a href="/creator/documents/new"{% if active == "creator_new" %} class="active"{% endif %}>Deposer</a>
       <a href="/creator/documents"{% if active == "creator_documents" %} class="active"{% endif %}>Documents</a>
       <a href="/creator/processes"{% if active == "creator_processes" %} class="active"{% endif %}>Processus</a>
@@ -15,6 +17,7 @@
       <a href="/creator/taxonomies"{% if active == "creator_taxonomies" %} class="active"{% endif %}>Taxonomies</a>
       <a href="/creator/settings"{% if active == "creator_settings" %} class="active"{% endif %}>Parametres</a>
     {% else %}
+      <a href="/knowledge"{% if active == "knowledge" %} class="active"{% endif %}>Connaissances</a>
       <a href="/ask"{% if active == "ask" %} class="active"{% endif %}>Poser une question</a>
     {% endif %}
   </div>

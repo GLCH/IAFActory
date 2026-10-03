@@ -1,0 +1,18 @@
+name: apprentissage-legalruleml
+description: >
+  10 documents Word juridiques generes a partir de l'ontologie LegalRuleML (structure : introduction, 3 chapitres
+  explications / exemple detaille / clarification, conclusion). LegalRuleML n'a pas de classe de depart (RDFS, pas
+  chargeable par create_class.py) : attendu, des classes provisoires qui fusionnent par similarite semantique,
+  puis une promotion a 3 documents. Jamais rejoue : aucune observation enregistree.
+seeds: [Vin, C2SIM]
+steps:
+  - document: documents/legalruleml/legal-01-obligation-violation-conformite.docx
+  - document: documents/legalruleml/legal-02-permission-droit-interdiction.docx
+  - document: documents/legalruleml/legal-03-force-stricte-defaisable.docx
+  - document: documents/legalruleml/legal-04-priorite-override.docx
+  - document: documents/legalruleml/legal-05-sanction-reparation.docx
+  - document: documents/legalruleml/legal-06-temporalite-statut-juridique.docx
+  - document: documents/legalruleml/legal-07-autorite-juridiction-source.docx
+  - document: documents/legalruleml/legal-08-acteurs-roles-figures.docx
+  - document: documents/legalruleml/legal-09-enonces-constitutifs-prescriptifs.docx
+  - document: documents/legalruleml/legal-10-contexte-alternatives-paraphrase.docx

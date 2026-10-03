@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from .observability import configure_logging
-from .routers import admin, ask, auth, dashboard, documents
+from .routers import admin, ask, auth, connectors, dashboard, documents, knowledge
 
 configure_logging()  # inert par defaut (LOKI_URL non definie) - voir observability.py
 
@@ -20,6 +20,9 @@ app.include_router(dashboard.router)
 app.include_router(admin.router)
 app.include_router(documents.router)
 app.include_router(ask.router)
+app.include_router(connectors.router)
+app.include_router(connectors.admin_router)
+app.include_router(knowledge.router)
 
 
 @app.get("/healthz")

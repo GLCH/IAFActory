@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ c.name }} - Connaissances - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/knowledge">Connaissances</a> / {{ c.name }}</div>
+  <div class="page-header">
+    <h1>{{ c.name }}</h1>
+    <div class="actions">
+      <span class="badge badge-{{ 'provisional' if c.status == 'provisoire' else 'recognized' }}">{{ c.status or "officielle" }}</span>
+      {% if user.role.value == "creator" %}<a class="btn" href="/creator/classes/{{ c.id }}">Editer la classe</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <h2 style="padding: 1rem 1rem 0;">Concepts ({{ c.concepts|length }})</h2>
+    <table class="table">
+      <thead><tr><th>Concept</th><th>Definition</th><th>Documents</th></tr></thead>
+      <tbody>
+        {% for k in c.concepts %}
+        <tr><td><b>{{ k.label }}</b></td><td class="muted">{{ k.definition or "" }}</td><td>{{ k.support }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">Aucun concept.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <h2 style="padding: 1rem 1rem 0;">Entites par type</h2>
+    <table class="table">
+      <thead><tr><th>Type</th><th>Nombre</th><th>Exemples</th></tr></thead>
+      <tbody>
+        {% for t in c.entity_types %}
+        <tr><td>{{ t.type }}</td><td>{{ t.count }}</td><td class="muted">{{ t.examples | join(", ") }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">Aucune entite extraite.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <h2 style="padding: 1rem 1rem 0;">Documents sources ({{ c.documents|length }})</h2>
+    <table class="table">
+      <thead><tr><th>Document</th><th>Langue</th><th>Ingere le</th></tr></thead>
+      <tbody>
+        {% for d in c.documents %}
+        <tr><td>{{ d.title or d.filename }}{% if d.title %}<br><span class="muted">{{ d.filename }}</span>{% endif %}</td>
+            <td class="muted">{{ d.language or "" }}</td><td class="muted">{{ (d.ingested_at or "")[:16] }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">Aucun document.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

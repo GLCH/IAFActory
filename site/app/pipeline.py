@@ -316,6 +316,25 @@ def _ensure_vector_index(session, dimensions: int) -> None:
     )
 
 
+def recognition_verdict(has_class: bool, combined: float, semantic: float, n_concepts: int) -> tuple[bool, str]:
+    """Decision de reconnaissance (EPIC-IAF-E17, E18) : (rattache a la meilleure classe ?, methode).
+    Trois conditions cumulees : score combine >= `recognition_threshold` ; semantique >=
+    `recognition_min_semantic` (la structure seule ne suffit pas) ; au moins
+    `recognition_min_concepts` concepts dans le document (mesure du 2026-10-03 : des notices de 1 a 3
+    concepts obtenaient jusqu'a 55 % de semantique face a une classe, la moitie « document dans classe »
+    de la mesure valant 100 % des qu'un concept correspond). La methode explique pourquoi un document
+    n'est pas rattache alors que son score combine suffisait."""
+    if not has_class:
+        return False, "score_combine_insuffisant_creation_provisoire"
+    if combined < settings.recognition_threshold:
+        return False, "score_combine_insuffisant_creation_provisoire"
+    if n_concepts < settings.recognition_min_concepts:
+        return False, "concepts_insuffisants_creation_provisoire"
+    if semantic < settings.recognition_min_semantic:
+        return False, "porte_semantique_creation_provisoire"
+    return True, "score_combine_structure_semantique"
+
+
 def _find_best_class(
     session, struct_profile: dict[str, float], concept_vectors: list[tuple[str, list[float]]],
     candidate_class_ids: list[str] | None = None, structural_prefilter_score: float | None = None,
@@ -382,7 +401,9 @@ def _find_best_class(
             "                             THEN {label: concept.label, embedding: concept.embedding} END) AS concepts"
         ))
     best = (None, None, 0.0, 0.0, 0.0)
-    best_combined = 0.0
+    # (passe la porte semantique, score combine) : une classe qui passe la porte est toujours
+    # preferee a une qui ne la passe pas, meme si son score combine est plus bas (2026-10-02).
+    best_key = (False, 0.0)
     for row in rows:
         profiles = [p for p in row["profiles"] if p.get("section") is not None]
         if profiles:
@@ -405,8 +426,9 @@ def _find_best_class(
         semantic_score = _concept_set_similarity(class_concepts, concept_vectors)
 
         combined = (structural_score + semantic_score) / 2
-        if combined > best_combined:
-            best_combined = combined
+        key = (semantic_score >= settings.recognition_min_semantic, combined)
+        if combined > 0.0 and key > best_key:
+            best_key = key
             best = (row["id"], row["name"], structural_score, semantic_score, combined)
     return best
 
@@ -561,6 +583,23 @@ def ingest_document(
 
     step("Ingestion", "Analyse structurelle", filename)
     metadata, root = parse(str(stored_path))
+    # US18.6 : pages transcrites par OCR (pdf_struct.py) - trace et avertissements pour le creator.
+    ocr_warnings: list[str] = []
+    if metadata.get("ocr_pages") or metadata.get("ocr_errors") or metadata.get("ocr_skipped_pages"):
+        n_ok = len(metadata.get("ocr_pages", []))
+        n_err = len(metadata.get("ocr_errors", []))
+        n_skip = metadata.get("ocr_skipped_pages", 0)
+        step(
+            "Ingestion", "OCR (US18.6)",
+            f"{n_ok} page(s) transcrite(s)" + (f", {n_err} en echec" if n_err else "")
+            + (f", {n_skip} au-dela du plafond" if n_skip else ""),
+        )
+        ocr_warnings.append(f"OCR : {n_ok} page(s) transcrite(s) par modele de vision, transcription non verifiee (US18.6)")
+        if n_skip:
+            ocr_warnings.append(f"OCR : {n_skip} page(s) ignoree(s), plafond de {settings.ocr_max_pages} pages atteint")
+        ocr_warnings.extend(metadata.get("ocr_errors", []))
+        if metadata.get("ocr_truncated_pages"):
+            ocr_warnings.append(f"OCR : transcription incomplete (reponse coupee) pour les pages {metadata['ocr_truncated_pages']}")
     elements = flatten(root)
     # "citation_count" ajoute le 2026-09-29 dans latex_struct.py uniquement
     # (organisation du contenu LaTeX - citations, cf. module docstring) ; 0
@@ -580,7 +619,7 @@ def ingest_document(
     )
 
     driver = get_driver()
-    warnings: list[str] = []
+    warnings: list[str] = list(ocr_warnings)
     with driver.session() as session:
         session.run(
             "MERGE (d:Document {sha256: $sha256}) "
@@ -686,9 +725,11 @@ def ingest_document(
             session, struct_profile, concept_vectors, candidate_class_ids, structural_prefilter_score,
         )
 
-        if recognized_id is not None and combined >= settings.recognition_threshold:
+        # Porte semantique (2026-10-02) : la structure seule ne suffit jamais a reconnaitre ;
+        # nombre minimal de concepts (2026-10-03) : un document trop pauvre en vocabulaire ne prouve rien.
+        accepted, method = recognition_verdict(recognized_id is not None, combined, semantic_score, len(concept_vectors))
+        if accepted:
             class_id, class_name, status = recognized_id, recognized_name, DocumentStatus.recognized
-            method = "score_combine_structure_semantique"
             session.run(
                 "MATCH (d:Document {sha256: $sha256}), (c:DocumentClass {id: $cid}) "
                 "MERGE (d)-[r:IN_CLASS]->(c) "
@@ -701,7 +742,6 @@ def ingest_document(
             class_id = str(uuid.uuid4())
             class_name = f"Provisoire - {metadata.get('title') or filename}"
             status = DocumentStatus.provisional
-            method = "score_combine_insuffisant_creation_provisoire"
             session.run(
                 "MATCH (d:Document {sha256: $sha256}) "
                 "CREATE (c:DocumentClass {id: $cid, name: $name, status: 'provisoire', created_at: datetime()}) "
@@ -720,7 +760,9 @@ def ingest_document(
                     pass  # Fuseki indisponible : la classe reste sans ontologie structurelle liee, pas bloquant
         step(
             "Ingestion", "Reconnaissance de classe (US7.4)",
-            f"{method} -> {class_name} ({combined:.0%})",
+            f"{method} -> {class_name} ({combined:.0%}) [structure {structural_score:.0%}, "
+            f"semantique {semantic_score:.0%}, porte semantique {settings.recognition_min_semantic:.0%}, "
+            f"{len(concept_vectors)} concept(s), minimum {settings.recognition_min_concepts}]",
         )
         session.run("MATCH (d:Document {sha256: $sha256}) SET d.language = $language", sha256=sha256, language=language)
 

@@ -132,6 +132,33 @@ services:
   # Applique les migrations Alembic a chaque demarrage (entrypoint.sh),
   # idempotent. Premier admin : docker compose exec -it site python
   # scripts/create_admin.py <email> (aucune inscription libre, US5.1/US5.7).
+  # Service d'EXPOSITION (EPIC-IAF-E19, ADR 0009) : agent de lecture des connaissances, serveur MCP (Streamable
+  # HTTP). Seul a lire Neo4j pour le site ; aucun acces a Postgres ni a Fuseki. Pas de port publie : joignable
+  # uniquement par le site, sur le reseau interne, avec le jeton EXPOSITION_TOKEN.
+  exposition:
+    build:
+      context: ./exposition
+    restart: unless-stopped
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      llm-gateway:
+        condition: service_healthy
+    environment:
+      NEO4J_HOST: neo4j
+      NEO4J_PORT: "7687"
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?voir .env.example}
+      LLM_GATEWAY_HOST: llm-gateway
+      LLM_GATEWAY_PORT: "4000"
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?voir .env.example}
+      EXPOSITION_TOKEN: ${EXPOSITION_TOKEN:?voir .env.example}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=5)"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
   site:
     build:
       context: ./site
@@ -145,7 +172,12 @@ services:
         condition: service_healthy
       fuseki:
         condition: service_healthy
+      exposition:
+        condition: service_healthy
     environment:
+      # Service d'exposition (ADR 0009) : le site lit les connaissances par MCP, avec le jeton partage.
+      EXPOSITION_URL: http://exposition:8000/mcp
+      EXPOSITION_TOKEN: ${EXPOSITION_TOKEN:?voir .env.example}
       # Reseau interne Docker : toujours le nom de service et le port interne
       # de Postgres, jamais POSTGRES_PORT (qui remappe le port HOTE et peut
       # avoir ete decale pour eviter un conflit local, voir .env).
@@ -171,6 +203,10 @@ services:
       # Observabilite (2026-09-29) : vide par defaut (voir profil
       # "observability" ci-dessous) - handler Loki inert tant que non definie.
       LOKI_URL: ${LOKI_URL:-}
+      # Connecteurs (EPIC-IAF-E18, 2026-10-03) : cle maitre (32 octets base64 urlsafe) qui chiffre les
+      # secrets des connecteurs - vide = secrets refuses, jamais de valeur par defaut.
+      CONNECTOR_MASTER_KEY: ${CONNECTOR_MASTER_KEY:-}
+      CONNECTOR_MAX_ITEMS_PER_SYNC: ${CONNECTOR_MAX_ITEMS_PER_SYNC:-20}
     volumes:
       - site_documents:/data/documents
     ports:

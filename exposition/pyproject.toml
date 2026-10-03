@@ -1,0 +1,24 @@
+[project]
+name = "iaf-exposition"
+version = "0.1.0"
+description = "Service d'exposition IAFActory (agent, serveur MCP) : acces aux connaissances, RAG et graphe semantique, avec reponse ancree sur les donnees enregistrees (EPIC-IAF-E19, ADR 0009)."
+requires-python = ">=3.12"
+dependencies = [
+    "mcp==2.3.0",
+    "neo4j==6.3.1",
+    "requests==2.34.2",
+    "pydantic-settings==2.15.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["exposition_service*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

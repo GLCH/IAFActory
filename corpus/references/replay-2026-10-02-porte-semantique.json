@@ -1,0 +1,220 @@
+{
+  "scenario": "apprentissage-classe-inconnue",
+  "at": "2026-10-02T17:33:25.187571+00:00",
+  "results": [
+    {
+      "document": "documents/inconnus/astro/astro-1.docx",
+      "http": 303,
+      "status": "provisional",
+      "class": "Provisoire - astro-1.docx",
+      "seconds": 89,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "aucune restriction"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_insuffisant_creation_provisoire -> Provisoire - astro-1.docx (29%) [structure 58%, semantique 0%, porte semantique 15%]"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Recherche de corpus proches (US17.1)",
+          "detail": "aucun corpus officiel proche"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Classe provisoire (US17.4)",
+          "detail": "1/3 document(s) avant promotion"
+        }
+      ]
+    },
+    {
+      "document": "documents/inconnus/astro/astro-2.docx",
+      "http": 303,
+      "status": "provisional",
+      "class": "Provisoire - astro-1.docx",
+      "seconds": 79,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "aucune restriction"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_insuffisant_creation_provisoire -> Provisoire - astro-2.docx (38%) [structure 63%, semantique 13%, porte semantique 15%]"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Recherche de corpus proches (US17.1)",
+          "detail": "Vin (13%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Similarite avec les classes inconnues (US17.2)",
+          "detail": "meilleure 39% vs seuil de densite 30% (1 paire(s), moyenne 0%, ecart-type 0%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Fusion de classes inconnues (US17.2)",
+          "detail": "6924ffe6 -> 1efac83e (similarite 39%) ; ontologies structurelles identiques, fusionnees"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Classe provisoire (US17.4)",
+          "detail": "2/3 document(s) avant promotion"
+        }
+      ]
+    },
+    {
+      "document": "documents/inconnus/droit/droit-1.docx",
+      "http": 303,
+      "status": "provisional",
+      "class": "Provisoire - droit-1.docx",
+      "seconds": 99,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "aucune restriction"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_insuffisant_creation_provisoire -> Provisoire - droit-1.docx (37%) [structure 63%, semantique 11%, porte semantique 15%]"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Recherche de corpus proches (US17.1)",
+          "detail": "Vin (11%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Similarite avec les classes inconnues (US17.2)",
+          "detail": "meilleure 0% vs seuil de densite 30% (1 paire(s), moyenne 0%, ecart-type 0%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Classe provisoire (US17.4)",
+          "detail": "1/3 document(s) avant promotion"
+        }
+      ]
+    },
+    {
+      "document": "documents/inconnus/astro/astro-3.docx",
+      "http": 303,
+      "status": "recognized",
+      "class": "astro-1.docx",
+      "seconds": 74,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "aucune restriction"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_insuffisant_creation_provisoire -> Provisoire - astro-3.docx (29%) [structure 58%, semantique 0%, porte semantique 15%]"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Recherche de corpus proches (US17.1)",
+          "detail": "C2SIM (6%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Similarite avec les classes inconnues (US17.2)",
+          "detail": "meilleure 38% vs seuil de densite 31% (3 paire(s), moyenne 13%, ecart-type 18%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Fusion de classes inconnues (US17.2)",
+          "detail": "5e12a45e -> 1efac83e (similarite 38%) ; ontologies structurelles identiques, fusionnees"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Similarite avec les classes inconnues (US17.2)",
+          "detail": "meilleure 0% vs seuil de densite 30% (1 paire(s), moyenne 0%, ecart-type 0%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Promotion en classe officielle (US17.4)",
+          "detail": "'astro-1.docx' : 3 document(s) >= seuil 3 - la classe entre dans la reconnaissance"
+        }
+      ]
+    },
+    {
+      "document": "documents/inconnus/astro/astro-4.docx",
+      "http": 303,
+      "status": "recognized",
+      "class": "astro-1.docx",
+      "seconds": 84,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "aucune restriction"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_structure_semantique -> astro-1.docx (60%) [structure 97%, semantique 23%, porte semantique 15%]"
+        }
+      ]
+    },
+    {
+      "action": "reevaluate",
+      "http": 303
+    },
+    {
+      "document": "documents/inconnus/astro/astro-5.docx",
+      "http": 303,
+      "status": "recognized",
+      "class": "astro-1.docx",
+      "seconds": 69,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "aucune restriction"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_structure_semantique -> astro-1.docx (68%) [structure 93%, semantique 43%, porte semantique 15%]"
+        }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "id": "5034e7fa-831f-42f4-8f56-99cd10ac7c20",
+      "name": "C2SIM",
+      "status": "exemple-importe",
+      "docs": 0
+    },
+    {
+      "id": "665015d4-ad01-497c-b058-60d40b26389d",
+      "name": "Provisoire - droit-1.docx",
+      "status": "provisoire",
+      "docs": 1
+    },
+    {
+      "id": "5da4fb57-f1d0-4737-ab8d-745c741bf10f",
+      "name": "Vin",
+      "status": "exemple-importe",
+      "docs": 2
+    },
+    {
+      "id": "1efac83e-f39d-466d-9fbf-3844b0e468ac",
+      "name": "astro-1.docx",
+      "status": "officielle",
+      "docs": 5
+    }
+  ]
+}

@@ -14,6 +14,8 @@ ontologies semantique et structurelles, des scenarios, et les etats de reference
 | `documents/vin/` | 10 recits Word + 10 brochures PDF (Gemini, ancres sur 53 vrais vins de l'ontologie) + 3 documents de demonstration |
 | `documents/c2sim/` | 2 documents Word generes a partir des definitions reelles de C2SIM |
 | `documents/inconnus/` | domaines SANS classe : `astro/` (5), `cuisine/` (4), `droit/` (1), rediges par Gemini |
+| `documents/legalruleml/` | 10 documents Word juridiques ancres sur des concepts reels de LegalRuleML (introduction, 3 chapitres, conclusion), avec `manifest.json` (concepts d'ancrage et definitions) |
+| `documents/scannes/` | PDF scanne (images seules) en ecriture manuscrite SIMULEE par une police, pour l'OCR (`site/scripts/make_scanned_sample.py`) |
 | `documents/demo-generateur/` | sorties de `doc_generator.py` (sans LLM) avec `manifest.json` (verite terrain) ; les `class_id` du manifest viennent d'instances disparues |
 | `scenarios/*.yaml` | scenarios rejouables (ci-dessous) |
 | `references/classes/*.ttl` | export Turtle des ontologies de classe observees le 2026-10-02 (Vin, C2SIM, astronomie apprise, droit provisoire) |
@@ -24,6 +26,8 @@ ontologies semantique et structurelles, des scenarios, et les etats de reference
 |---|---|
 | `apprentissage-classe-inconnue` | astro x5 + droit x1 : classes provisoires, fusion par densite, promotion, reconnaissance dans la classe promue |
 | `cuisine-contre-vin` | 4 recettes reconnues comme Vin au seuil 0,50 (cas limite, base d'une future porte semantique) |
+| `apprentissage-legalruleml` | 10 documents juridiques, jamais rejoue : classes provisoires, fusion, promotion attendues |
+| `ocr-scanne-manuscrit` | PDF image-seul transcrit par OCR (modele de vision) puis classe construite ; rapport `references/replay-ocr-2026-10-03.json` |
 | `reconnaissance-vin` | 20 documents sur une classe connue |
 | `reconnaissance-c2sim` | 2 documents sur C2SIM (jamais mesure) |
 
@@ -52,12 +56,12 @@ Regenerer des documents inconnus neufs : `python scripts/generate_unknown_domain
 
 ## Limites a connaitre
 
-- **Rejeu complet valide le 2026-10-02** (`references/replay-2026-10-02.json`) : fusion des deux premiers
-  documents d'astronomie, promotion a 3 documents, astro-4 et astro-5 reconnus dans la classe promue.
-  Mais le document de droit a ete absorbe par la classe astronomie a la reevaluation : la formule
-  combinee (structure Word identique, semantique faible) franchit 0,50, comme pour les recettes
-  reconnues comme Vin. Meme cause, meme remede envisage (porte semantique minimale), non implemente.
-
+- **Rejeu complet, avant puis apres la porte semantique** (`references/replay-2026-10-02-avant-porte.json`,
+  `references/replay-2026-10-02-porte-semantique.json`) : avant la porte, le document de droit etait absorbe par la
+  classe astronomie (structure identique, semantique 11 %). Avec `recognition_min_semantic = 0,15`, il reste
+  provisoire, et astro-4 (semantique 23 %) et astro-5 (43 %) sont reconnus.
+- **La porte ne regle pas le cas cuisine** : des recettes face a Vin ont une semantique mesuree de 32 a 53 %, au-dessus
+  de documents legitimes (astro-4 : 23 %). Aucune porte unique ne separe les deux avec cette mesure.
 - Les resultats ne sont pas deterministes : extraction de vocabulaire, entites et redaction des
   documents passent par Gemini. Les notes des scenarios et `references/` sont des observations
   du 2026-10-02, pas des valeurs attendues.

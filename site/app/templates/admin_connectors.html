@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Connecteurs - Admin - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Connecteurs</div>
+  <div class="page-header"><h1>Approbation des connecteurs</h1></div>
+  <p class="muted">Tout connecteur, meme d'un type deja approuve, exige une decision de l'admin avant usage (E9 US9.1).
+    Un rejet doit etre motive.</p>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Creator</th><th>Nom</th><th>Type</th><th>Configuration</th><th>Etat</th><th>Decision</th></tr></thead>
+      <tbody>
+        {% for c, email in rows %}
+        <tr>
+          <td>{{ email }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ catalog_map[c.type].label }}</td>
+          <td><code>{{ c.config }}</code></td>
+          <td><span class="badge badge-{{ {'brouillon': 'received', 'en_attente': 'provisional', 'approuve': 'recognized', 'rejete': 'error'}[c.status.value] }}">{{ c.status.value }}</span></td>
+          <td>
+            {% if c.status.value == "en_attente" %}
+            <form class="inline" method="post" action="/admin/connectors/{{ c.id }}/decide">
+              <input type="text" name="reason" placeholder="motif (obligatoire pour un rejet)" size="26">
+              <button type="submit" name="decision" value="approve" class="btn btn-primary btn-sm">Approuver</button>
+              <button type="submit" name="decision" value="reject" class="btn btn-sm">Rejeter</button>
+            </form>
+            {% else %}<span class="muted">{{ c.decision_reason or "" }}</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="6" class="muted">Aucun connecteur.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

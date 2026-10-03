@@ -1,0 +1,45 @@
+{# Reponse du service d'exposition : savoir extrait, explication, limites, preuves ; ou aveu d'ignorance. #}
+{% set kind_label = {"definition": "definition", "hierarchie": "hierarchie", "attribut": "attribut", "relation": "relation", "passage": "passage de document"} %}
+{% if result.status == "repondu" %}
+<div class="card">
+  <h2>Savoir extrait du systeme</h2>
+  <p>{{ result.answer }}</p>
+  {% if result.explanation %}<h3>Explication</h3><p>{{ result.explanation }}</p>{% endif %}
+  {% if result.limits %}<p class="muted"><b>Limites :</b> {{ result.limits }}</p>{% endif %}
+  <p class="muted">
+    {% for route in result.routes %}<span class="badge">{{ "graphe semantique" if route == "graphe" else "RAG (passages)" }}</span> {% endfor %}
+    {% if result.enrichment == "deterministe" %}<span class="badge badge-provisional">donnees brutes, sans explication</span>{% endif %}
+    Chaque phrase renvoie a une donnee enregistree [n] ; rien n'est ajoute en dehors de ces donnees.
+  </p>
+  {% for note in result.notes %}<p class="muted">{{ note }}</p>{% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <h2>Le systeme ne sait pas</h2>
+  <p>{{ result.ignorance }}</p>
+  {% if result.limits %}<p class="muted"><b>Pourquoi :</b> {{ result.limits }}</p>{% endif %}
+  {% for note in result.notes %}<p class="muted">{{ note }}</p>{% endfor %}
+</div>
+{% endif %}
+
+{% if result.evidence %}
+<div class="card" style="padding: 0;">
+  <h2 style="padding: 1rem 1rem 0;">{{ "Donnees utilisees" if result.status == "repondu" else "Donnees voisines (ne repondent pas a la question)" }}</h2>
+  <table class="table">
+    <thead><tr><th>[n]</th><th>Type</th><th>Donnee</th><th>Source</th></tr></thead>
+    <tbody>
+      {% for e in result.evidence %}
+      <tr>
+        <td>[{{ e.n }}]</td>
+        <td><span class="badge">{{ kind_label[e.kind] }}</span></td>
+        <td>{{ e.text[:400] }}{% if e.text|length > 400 %}...{% endif %}</td>
+        <td class="muted">
+          {% if e.source %}<a href="/knowledge/classes/{{ e.source.class_id }}">{{ e.source.class_name }}</a>
+          {% if e.source.document %}<br>{{ e.source.document }}{% if e.source.section %} / {{ e.source.section }}{% endif %}{% endif %}{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}

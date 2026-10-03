@@ -29,6 +29,29 @@
     </form>
   </div>
 
+  <div class="card" style="max-width: 760px;">
+    <h2>Connecteurs</h2>
+    <p class="muted">Sources externes qui alimentent le service (lecture seule). Chaque connecteur reste inactif tant
+      qu'un admin ne l'a pas approuve ; les connecteurs approuves sont visibles de tous sur la page
+      <a href="/knowledge">Connaissances</a>.</p>
+    <table class="table">
+      <thead><tr><th>Nom</th><th>Type</th><th>Etat</th><th>Derniere synchronisation</th></tr></thead>
+      <tbody>
+        {% for c in connectors %}
+        <tr>
+          <td><a href="/creator/connectors/{{ c.id }}">{{ c.name }}</a></td>
+          <td>{{ catalog_map[c.type].label if c.type in catalog_map else c.type }}</td>
+          <td><span class="badge badge-{{ {'brouillon': 'received', 'en_attente': 'provisional', 'approuve': 'recognized', 'rejete': 'error'}[c.status.value] }}">{{ c.status.value }}</span></td>
+          <td class="muted">{{ c.last_sync_at.strftime("%Y-%m-%d %H:%M") if c.last_sync_at else "jamais" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">Aucun connecteur.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 0.75rem;"><a class="btn btn-primary" href="/creator/connectors">Gerer les connecteurs</a></p>
+  </div>
+
   <div class="card" style="max-width: 520px;">
     <h2>Cycle de vie des classes inconnues</h2>
     <p class="muted">Lecture seule (EPIC-IAF-E17) : valeurs de <code>app/config.py</code>, surchargeables par variables
@@ -36,6 +59,8 @@
     <table class="table">
       <tbody>
         <tr><td>Seuil de reconnaissance (classes officielles)</td><td>{{ "%.0f"|format(lifecycle.recognition_threshold * 100) }}%</td></tr>
+        <tr><td>Reconnaissance : porte semantique minimale (la structure seule ne suffit pas)</td><td>{{ "%.0f"|format(lifecycle.recognition_min_semantic * 100) }}%</td></tr>
+        <tr><td>Reconnaissance : nombre minimal de concepts du document</td><td>{{ lifecycle.recognition_min_concepts }}</td></tr>
         <tr><td>Documents pour devenir officielle</td><td>{{ lifecycle.official_class_min_documents }}</td></tr>
         <tr><td>Fusion : plancher de similarite</td><td>{{ "%.0f"|format(lifecycle.merge_similarity_floor * 100) }}%</td></tr>
         <tr><td>Fusion : k (moyenne + k x ecart-type)</td><td>{{ lifecycle.merge_density_k }}</td></tr>

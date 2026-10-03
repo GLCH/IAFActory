@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Connaissances - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / Connaissances</div>
+  <div class="page-header">
+    <h1>Connaissances</h1>
+  </div>
+
+  <p class="muted">Ce que le service sait : classes de documents, concepts et leurs definitions, entites extraites
+    et documents sources. {% if user.role.value == "viewer" %}Seules les classes officielles sont affichees.{% else %}Les classes provisoires sont incluses.{% endif %}
+    La recherche retourne le savoir extrait (graphe semantique et passages de documents), explique, uniquement a partir des
+    donnees enregistrees ; sans donnee, le systeme le dit.</p>
+
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+
+  <div class="card" style="max-width: 640px;">
+    <form method="get" action="/knowledge">
+      <div class="field">
+        <label>Rechercher ou poser une question</label>
+        <input type="text" name="q" value="{{ q }}" placeholder="par exemple : qu'est-ce qu'un trou noir ?">
+      </div>
+      <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+  </div>
+
+  {% if result %}
+    {% include "_answer_panel.html" %}
+    {% if result.matches %}
+    <div class="card" style="padding: 0;">
+      <h2 style="padding: 1rem 1rem 0;">Correspondances</h2>
+      <table class="table">
+        <thead><tr><th>Type</th><th>Element</th><th>Classe</th></tr></thead>
+        <tbody>
+          {% for m in result.matches %}
+          <tr>
+            <td>{{ {"concept": "Concept", "entite": "Entite", "document": "Document"}[m.kind] }}{% if m.kind == "entite" and m.detail %} ({{ m.detail }}){% endif %}</td>
+            <td><b>{{ m.label }}</b>{% if m.kind == "concept" and m.detail %}<br><span class="muted">{{ m.detail }}</span>{% endif %}</td>
+            <td><a href="/knowledge/classes/{{ m.class_id }}">{{ m.class_name }}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  {% endif %}
+
+  <div class="card" style="padding: 0;">
+    <h2 style="padding: 1rem 1rem 0;">Classes de documents</h2>
+    <table class="table">
+      <thead><tr><th>Classe</th><th>Statut</th><th>Documents</th><th>Concepts</th><th>Entites</th></tr></thead>
+      <tbody>
+        {% for c in classes %}
+        <tr>
+          <td><a href="/knowledge/classes/{{ c.id }}">{{ c.name }}</a></td>
+          <td class="muted">{{ c.status or "officielle" }}</td>
+          <td>{{ c.documents }}</td><td>{{ c.concepts }}</td><td>{{ c.entities }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">Aucune classe pour le moment.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <h2 style="padding: 1rem 1rem 0;">Sources connectees</h2>
+    <table class="table">
+      <thead><tr><th>Connecteur</th><th>Type</th><th>Derniere synchronisation</th></tr></thead>
+      <tbody>
+        {% for c in connectors %}
+        <tr>
+          <td>{{ c.name }}</td><td>{{ c.type }}</td>
+          <td class="muted">{{ c.last_sync_at.strftime("%Y-%m-%d %H:%M") if c.last_sync_at else "jamais" }}{% if c.last_sync_summary %} : {{ c.last_sync_summary }}{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="muted">Aucun connecteur actif : les connaissances viennent uniquement des documents deposes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

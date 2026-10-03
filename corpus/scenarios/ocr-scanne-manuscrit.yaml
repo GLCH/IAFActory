@@ -1,0 +1,10 @@
+name: ocr-scanne-manuscrit
+description: >
+  EPIC-IAF-E18 US18.6 : un PDF scanne (images seules, sans couche de texte) en ecriture manuscrite
+  SIMULEE par une police (scripts/make_scanned_sample.py), sur le theme de l'apiculture. Attendu :
+  etape OCR tracee, transcription ingeree, puis classe reconnue ou creee comme pour tout document
+  (ici une classe provisoire, aucun corpus apicole connu). Une vraie ecriture manuscrite n'a pas ete mesuree.
+seeds: [Vin, C2SIM]
+steps:
+  - document: documents/scannes/note-apiculture-manuscrite.pdf
+    note: "2 pages image, transcription mesuree a 99,8 % de similarite de caracteres hors pipeline"

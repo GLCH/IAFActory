@@ -60,7 +60,7 @@ CONTENT_TYPES = {
     ".tex": "application/x-tex",
     ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 }
-TRACED_LABELS = ("Reconnaissance", "Pre-filtrage", "Recherche de corpus", "Similarite", "Fusion", "Promotion", "Classe provisoire", "Rattachement")
+TRACED_LABELS = ("OCR", "Reconnaissance", "Pre-filtrage", "Recherche de corpus", "Similarite", "Fusion", "Promotion", "Classe provisoire", "Rattachement")
 
 
 def load_yaml(path: Path) -> dict:

@@ -4,7 +4,12 @@
 {% include "_navbar.html" %}
 <div class="page">
   <div class="breadcrumb"><a href="/">IAFActory</a> / Poser une question</div>
-  <div class="page-header"><h1>Poser une question</h1></div>
+  <div class="page-header">
+    <h1>Poser une question</h1>
+    <div class="actions"><a class="btn" href="/knowledge">Parcourir les connaissances</a></div>
+  </div>
+
+  <p class="muted">La reponse vient uniquement de ce que le systeme a enregistre. S'il ne sait pas, il le dit.</p>
 
   <div class="card">
     {% if error %}<p class="alert">{{ error }}</p>{% endif %}
@@ -17,26 +22,6 @@
     </form>
   </div>
 
-  {% if answer %}
-  <div class="card">
-    <h2>Reponse</h2>
-    <p>{{ answer }}</p>
-  </div>
-
-  <div class="card">
-    <h2>Passages utilises</h2>
-    <div class="stack">
-      {% for h in hits %}
-      <div>
-        <strong>{{ h.doc }}</strong> <span class="muted">/ {{ h.section }}</span>
-        &middot; score {{ "%.3f"|format(h.score) }}
-        &middot; <span class="badge">{{ h.route }}</span>
-        {% if h.entities %}&middot; entites : {{ h.entities|join(", ") }}{% endif %}
-        <br><small>{{ h.text[:200] }}{% if h.text|length > 200 %}...{% endif %}</small>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
+  {% if result %}{% include "_answer_panel.html" %}{% endif %}
 </div>
 {% endblock %}

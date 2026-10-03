@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ connector.name }} - Connecteurs - IAFActory{% endblock %}
+{% block body %}
+{% include "_navbar.html" %}
+<div class="page">
+  <div class="breadcrumb"><a href="/">IAFActory</a> / <a href="/creator/settings">Parametres</a> / <a href="/creator/connectors">Connecteurs</a> / {{ connector.name }}</div>
+  <div class="page-header">
+    <h1>{{ connector.name }}</h1>
+    <div class="actions">
+      <span class="badge badge-{{ {'brouillon': 'received', 'en_attente': 'provisional', 'approuve': 'recognized', 'rejete': 'error'}[connector.status.value] }}">{{ connector.status.value }}</span>
+    </div>
+  </div>
+
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  {% if message %}<p class="notice">{{ message }}</p>{% endif %}
+
+  <div class="card" style="max-width: 760px;">
+    <h2>{{ catalog_entry.label }}</h2>
+    <p class="muted">{{ catalog_entry.description }}</p>
+    {% if not catalog_entry.enabled %}
+    <p class="alert">Ce type de connecteur est {{ catalog_entry.pause_reason }} : aucune activation ni synchronisation possible.</p>
+    {% endif %}
+    <table class="table"><tbody>
+      {% for key, value in connector.config.items() %}<tr><td>{{ key }}</td><td><code>{{ value }}</code></td></tr>{% endfor %}
+      <tr><td>Secret</td><td>{{ "defini (jamais affiche)" if secret_defined else "non defini" }}</td></tr>
+      {% if connector.decision_reason %}<tr><td>Motif de la decision</td><td>{{ connector.decision_reason }}</td></tr>{% endif %}
+      <tr><td>Derniere synchronisation</td><td>{{ connector.last_sync_at.strftime("%Y-%m-%d %H:%M") if connector.last_sync_at else "jamais" }}{% if connector.last_sync_summary %} : {{ connector.last_sync_summary }}{% endif %}</td></tr>
+    </tbody></table>
+
+    <div class="actions" style="margin-top: 1rem;">
+      {% if catalog_entry.enabled and connector.status.value in ("brouillon", "rejete") %}
+      <form class="inline" method="post" action="/creator/connectors/{{ connector.id }}/request-activation">
+        <button type="submit" class="btn btn-primary">Demander l'activation a l'admin</button>
+      </form>
+      {% endif %}
+      {% if connector.status.value == "en_attente" %}<span class="muted">En attente de la decision de l'admin.</span>{% endif %}
+      {% if connector.status.value == "approuve" and catalog_entry.enabled %}
+        <form class="inline" method="post" action="/creator/connectors/{{ connector.id }}/sync">
+          <button type="submit" class="btn btn-primary">Synchroniser (max {{ max_items }} elements)</button>
+        </form>
+        <form class="inline" method="post" action="/creator/connectors/{{ connector.id }}/revoke"
+              onsubmit="return confirm('Detruire le secret et repasser en brouillon ?');">
+          <button type="submit" class="btn">Revoquer</button>
+        </form>
+      {% endif %}
+      <form class="inline" method="post" action="/creator/connectors/{{ connector.id }}/delete"
+            onsubmit="return confirm('Supprimer ce connecteur et son secret ?');">
+        <button type="submit" class="btn btn-sm">Supprimer</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead><tr><th>Date</th><th>Action</th><th>Detail</th></tr></thead>
+      <tbody>
+        {% for e in events %}
+        <tr><td class="muted">{{ e.at.strftime("%Y-%m-%d %H:%M:%S") }}</td><td>{{ e.action }}</td><td class="muted">{{ e.detail or "" }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">Aucun evenement.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

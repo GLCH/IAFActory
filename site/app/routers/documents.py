@@ -955,9 +955,16 @@ def settings_form(request: Request, db: Session = Depends(get_db), user: User = 
         "corpus_seed_min_similarity": settings.corpus_seed_min_similarity,
         "ontology_reduction_min_support": settings.ontology_reduction_min_support,
         "recognition_threshold": settings.recognition_threshold,
+        "recognition_min_semantic": settings.recognition_min_semantic,
+        "recognition_min_concepts": settings.recognition_min_concepts,
     }
+    # Connecteurs (2026-10-03) : l'acces se fait desormais depuis cette page (plus de lien dans la barre).
+    from ..connectors import CATALOG
+    from ..models import Connector
+    connectors = list(db.scalars(select(Connector).where(Connector.owner_id == user.id).order_by(Connector.created_at.desc())))
     return templates.TemplateResponse(
-        request, "creator_settings.html", {"platform": platform, "lifecycle": lifecycle, "user": user},
+        request, "creator_settings.html",
+        {"platform": platform, "lifecycle": lifecycle, "user": user, "connectors": connectors, "catalog_map": CATALOG},
     )
 
 

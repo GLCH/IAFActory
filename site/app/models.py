@@ -6,7 +6,7 @@ import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, BigInteger, Boolean, DateTime, Enum, Float, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -140,3 +140,54 @@ class PlatformSettings(Base):
     auto_merge_threshold: Mapped[float] = mapped_column(Float, default=0.97, nullable=False)
     # Seuil de suggestion (entre les deux : proposition, jamais automatique).
     suggest_merge_threshold: Mapped[float] = mapped_column(Float, default=0.90, nullable=False)
+
+
+class ConnectorStatus(str, enum.Enum):
+    """EPIC-IAF-E18 US18.2 / E9 US9.1 (decide le 2026-09-27, US5.6) : tout connecteur est cree a
+    `brouillon`, passe a `en_attente` quand le creator demande l'activation, puis `approuve` ou
+    `rejete` par un admin. Un connecteur non approuve ne peut ni lire ni ecrire."""
+
+    brouillon = "brouillon"
+    en_attente = "en_attente"
+    approuve = "approuve"
+    rejete = "rejete"
+
+
+class Connector(Base):
+    """Connecteur vers une source externe (catalogue ferme : app/connectors). `config` ne contient
+    JAMAIS de secret ; `secret_encrypted` est un blob d'enveloppe (app/secret_store.py), en
+    ecriture seule : aucune route ne le renvoie."""
+
+    __tablename__ = "connectors"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    type: Mapped[str] = mapped_column(String(32), nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    status: Mapped[ConnectorStatus] = mapped_column(
+        Enum(ConnectorStatus, name="connector_status"), default=ConnectorStatus.brouillon, nullable=False
+    )
+    config: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    secret_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    decided_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    decision_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_sync_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_sync_summary: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
+class ConnectorEvent(Base):
+    """Journal d'audit en AJOUT SEUL (E9 US9.6) : aucune route ne modifie ni ne supprime ces lignes.
+    `connector_id` n'est volontairement pas une cle etrangere : le journal survit a la suppression du
+    connecteur (dont le secret est detruit)."""
+
+    __tablename__ = "connector_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    connector_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
+    connector_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    actor_id: Mapped[uuid.UUID | None] = mapped_column(nullable=True)
+    action: Mapped[str] = mapped_column(String(40), nullable=False)
+    detail: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)

@@ -1,0 +1,214 @@
+[
+  {
+    "file": "legal-01-obligation-violation-conformite.docx",
+    "title": "Obligations, violation et conformité dans un contrat de livraison",
+    "scenario": "un contrat de livraison de marchandises entre deux societes fictives, avec delai de livraison",
+    "anchor_concepts": [
+      "Obligation",
+      "Violation",
+      "Compliance",
+      "DeonticSpecification",
+      "Bearer"
+    ],
+    "definitions": {
+      "Obligation": "a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and which, if it is not achieved or performed, results in a Violation.",
+      "Violation": "an indication that an Obligation or Prohibition has been violated.",
+      "Compliance": "an indication that an Obligation has been fulfilled or a Prohibition has not been violated.",
+      "DeonticSpecification": "an Obligation, Permission, Prohibition, Right, ....",
+      "Bearer": "a role in a Deontic Specification to which the Deontic Specification is primarily directed."
+    },
+    "words": 871,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-02-permission-droit-interdiction.docx",
+    "title": "Permissions, droits et interdictions dans un règlement d'accès aux données",
+    "scenario": "le reglement interieur fictif d'un organisme qui gere des donnees de sante",
+    "anchor_concepts": [
+      "Permission",
+      "Right",
+      "Prohibition",
+      "DeonticSpecification",
+      "AuxiliaryParty"
+    ],
+    "definitions": {
+      "Permission": "a Deontic Specification for a state, an act, or a course of action where the Bearer has no Obligation or Prohibition to the contrary. A weak Permission is the absence of the Obligation or Prohibition to the contrary; a strong Permission is an exception or derogation of the Obligation or Prohibition to the contrary.",
+      "Right": "(see also Permission) a Deontic Specification that gives a Permission to a party (the Bearer) and implies there are Obligations or Prohibitions on other parties (the AuxiliaryParty) such that the Bearer can (eventually) exercise the Right.",
+      "Prohibition": "a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and which, if it is achieved or performed, results in a Violation.",
+      "DeonticSpecification": "an Obligation, Permission, Prohibition, Right, ....",
+      "AuxiliaryParty": "a role in a Deontic Specification to which the Deontic Specification is related."
+    },
+    "words": 1074,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-03-force-stricte-defaisable.docx",
+    "title": "Règles strictes, défaisables et exceptions dans un régime de remboursement",
+    "scenario": "un regime fictif de remboursement de frais avec des cas d'exception",
+    "anchor_concepts": [
+      "StrictStrength",
+      "DefeasibleStrength",
+      "Defeater",
+      "Strength",
+      "RuleStatement"
+    ],
+    "definitions": {
+      "StrictStrength": "an indication that where the antecedent of a Legal Rule is indisputable, the conclusion of the Legal Rule is indisputable.",
+      "DefeasibleStrength": "an indication that, in the absence of information to the contrary and where the antecedent of a Legal Rule holds, the conclusion of the Legal Rule holds.",
+      "Defeater": "an indication that, in the absence of information to the contrary and where the antecedent of a Legal Rule holds, the opposite of the conclusion of the Legal Rule does not hold.",
+      "Strength": "the quality of a Legal Rule to resist or not to resist a rebuttal.",
+      "RuleStatement": "a Legal Statement modelled by a Legal Rule."
+    },
+    "words": 1091,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-04-priorite-override.docx",
+    "title": "Priorité entre règles : la loi spéciale l'emporte sur la loi générale",
+    "scenario": "deux textes fictifs sur la duree d'un preavis, l'un general, l'autre sectoriel",
+    "anchor_concepts": [
+      "Override",
+      "OverrideStatement",
+      "RuleStatement",
+      "Strength",
+      "Statement"
+    ],
+    "definitions": {
+      "Override": "an indication that a Legal Rule takes precedence over another Legal Rule. The ordered pair of Legal Rules is an instance in a defeasible priority relation.",
+      "OverrideStatement": "a Legal Statement of an Override.",
+      "RuleStatement": "a Legal Statement modelled by a Legal Rule.",
+      "Strength": "the quality of a Legal Rule to resist or not to resist a rebuttal.",
+      "Statement": "a Legal Statement or a FactualStatement."
+    },
+    "words": 893,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-05-sanction-reparation.docx",
+    "title": "Sanctions et réparations liées à une obligation",
+    "scenario": "une clause penale fictive en cas de retard de paiement",
+    "anchor_concepts": [
+      "PenaltyStatement",
+      "Reparation",
+      "ReparationStatement",
+      "PrescriptiveStatement",
+      "Obligation"
+    ],
+    "definitions": {
+      "PenaltyStatement": "a Legal Statement of a sanction (e.g. a punishment or a correction).",
+      "Reparation": "an indication that a PenaltyStatement is linked with a PrescriptiveStatement. It indicates that a sanction may apply where the PrescriptiveStatement entails a Deontic Specification and when there is a Violation of the Deontic Specification.",
+      "ReparationStatement": "a Legal Statement of a Reparation.",
+      "PrescriptiveStatement": "a Legal Statement which prescribes behaviours, e.g. with Permissions, Obligations, or Prohibitions on states, actions, or courses of actions.",
+      "Obligation": "a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and which, if it is not achieved or performed, results in a Violation."
+    },
+    "words": 902,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-06-temporalite-statut-juridique.docx",
+    "title": "Temps et statut juridique d'une norme : entrée en vigueur et abrogation",
+    "scenario": "un decret fictif qui entre en vigueur, est modifie puis abroge",
+    "anchor_concepts": [
+      "TemporalCharacteristic",
+      "LegalStatus",
+      "StatusDevelopment",
+      "Times",
+      "Context"
+    ],
+    "definitions": {
+      "TemporalCharacteristic": "a pair of Time with a qualification, which consists of a Legal Status and a Status Development, such that the qualification holds at the Time.",
+      "LegalStatus": "a standing that can apply to a Legal Norm at a Time, e.g., \"is applicable\", \"is in force\", \"has efficacy\", \"is valid\".",
+      "StatusDevelopment": "a kind of event (e.g., start, end) that changes the Legal Status of a Legal Norm, e.g. making a Legal Norm in force.",
+      "Times": "a collection where every member is a Time.",
+      "Context": "an application of Associations to their target entities within a Scope."
+    },
+    "words": 956,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-07-autorite-juridiction-source.docx",
+    "title": "Autorités, juridictions et sources du droit",
+    "scenario": "une competence territoriale fictive entre deux regions et leurs autorites",
+    "anchor_concepts": [
+      "Authority",
+      "Jurisdiction",
+      "LegalSource",
+      "LegalReference",
+      "Source"
+    ],
+    "definitions": {
+      "Authority": "a person or organization with the power to create, endorse, or enforce Legal Norms.",
+      "Jurisdiction": "a geographic area or subject-matter over which an Authority applies its legal power.",
+      "LegalSource": "a source of one or more Legal Norms formulated in any format and endorsed by an Authority.",
+      "LegalReference": "a Reference whose Source is a LegalSource.",
+      "Source": "a source formulated in any format."
+    },
+    "words": 841,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-08-acteurs-roles-figures.docx",
+    "title": "Acteurs, agents, rôles et figures dans un contrat de location",
+    "scenario": "un bail d'habitation fictif entre un bailleur, un locataire et un mandataire",
+    "anchor_concepts": [
+      "Actor",
+      "Agent",
+      "Figure",
+      "Role",
+      "Bearer"
+    ],
+    "definitions": {
+      "Actor": "an Agent or a Figure.",
+      "Agent": "an entity that acts or has the capability to act.",
+      "Figure": "an instantiation of a function by an Actor.",
+      "Role": "a function of or part played by an Actor relative to a LegalRuleML expression.",
+      "Bearer": "a role in a Deontic Specification to which the Deontic Specification is primarily directed."
+    },
+    "words": 839,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-09-enonces-constitutifs-prescriptifs.docx",
+    "title": "Énoncés constitutifs, prescriptifs et factuels dans un code de conduite",
+    "scenario": "un code de conduite fictif qui definit des termes, prescrit des comportements et constate des faits",
+    "anchor_concepts": [
+      "ConstitutiveStatement",
+      "PrescriptiveStatement",
+      "FactualStatement",
+      "LogicalFormulaStatement",
+      "Statement"
+    ],
+    "definitions": {
+      "ConstitutiveStatement": "a Legal Statement that defines concepts and does not prescribe behaviours.",
+      "PrescriptiveStatement": "a Legal Statement which prescribes behaviours, e.g. with Permissions, Obligations, or Prohibitions on states, actions, or courses of actions.",
+      "FactualStatement": "an expression of fact.",
+      "LogicalFormulaStatement": "a statement modelled by a logical formula.",
+      "Statement": "a Legal Statement or a FactualStatement."
+    },
+    "words": 920,
+    "parsed_top_level_sections": 6
+  },
+  {
+    "file": "legal-10-contexte-alternatives-paraphrase.docx",
+    "title": "Contextes, lectures alternatives et paraphrases d'un même article",
+    "scenario": "un article fictif de loi lu de deux manieres par deux autorites differentes",
+    "anchor_concepts": [
+      "Context",
+      "Association",
+      "Alternative",
+      "Alternatives",
+      "Paraphrase",
+      "LegalRuleMLDocument"
+    ],
+    "definitions": {
+      "Context": "an application of Associations to their target entities within a Scope.",
+      "Association": "a partial description of the extension of some relations where each non-target entity is paired with every target entity.",
+      "Alternative": "a LegalRuleML rendering of one or more Legal Norms.",
+      "Alternatives": "a mutually exclusive collection where every member is a LegalRuleML rendering of one or more Legal Norms.",
+      "Paraphrase": "a natural language rendering of a Legal Rule or fragment of it that is an alternative to its Legal Source(s).",
+      "LegalRuleMLDocument": "a formal representation of one or more LegalSources using the LegalRuleML Specifications."
+    },
+    "words": 852,
+    "parsed_top_level_sections": 6
+  }
+]

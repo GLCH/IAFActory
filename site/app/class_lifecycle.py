@@ -26,7 +26,7 @@ from .config import settings
 from .db import SessionLocal
 from .graph import get_driver
 from .models import Document, DocumentStatus, PipelineStep
-from .pipeline import OFFICIAL_CLASS_FILTER, _concept_set_similarity
+from .pipeline import OFFICIAL_CLASS_FILTER, _concept_set_similarity, _profile_similarity
 
 PROVISIONAL_PREFIX = "Provisoire - "
 MAX_MERGE_ROUNDS = 5
@@ -50,6 +50,29 @@ def density_threshold(
     mean = statistics.fmean(pair_similarities)
     std = statistics.pstdev(pair_similarities)
     return max(floor, mean + k * std), mean, std, n
+
+
+def promotion_decision(n_documents: int, n_concepts: int) -> tuple[bool, str | None]:
+    """Une classe provisoire devient officielle (donc cible de reconnaissance) quand elle a assez de
+    documents ET assez de concepts. Constat reel du 2026-10-03 : trois notices d'archives d'1 a 3
+    concepts ont fusionne en une classe de 3 concepts, promue a 3 documents ; une cible aussi pauvre
+    fausserait la reconnaissance (semantique gonflee). La promotion est alors differee, pas refusee :
+    la classe grossit tant que de nouveaux documents l'enrichissent. Renvoie (pret, motif du report)."""
+    if n_documents < settings.official_class_min_documents:
+        return False, None
+    if n_concepts < settings.recognition_min_concepts:
+        return False, (
+            f"{n_documents} document(s) mais {n_concepts} concept(s) : minimum {settings.recognition_min_concepts} "
+            "pour entrer dans la reconnaissance"
+        )
+    return True, None
+
+
+def same_evidence_tier(n_concepts_a: int, n_concepts_b: int) -> bool:
+    """Deux classes sont comparables si elles sont toutes deux au moins aussi riches que
+    `recognition_min_concepts`, ou toutes deux plus pauvres."""
+    minimum = settings.recognition_min_concepts
+    return (n_concepts_a >= minimum) == (n_concepts_b >= minimum)
 
 
 def _provisional_ids(session) -> list[str]:
@@ -89,6 +112,85 @@ def promote_class(session, db: Session, class_id: str) -> str | None:
     return new_name
 
 
+def rescore_class_members(session, class_id: str) -> int:
+    """Recalcule le score (structure, semantique, combine) des documents entres dans la classe
+    par FUSION ou creation, face au RESTE de la classe (les autres documents, le document
+    evalue est exclu pour ne pas se comparer a lui-meme).
+
+    Constat du 2026-10-02 (question de l'utilisateur : deux documents d'astrophysique affiches a 0 %
+    de semantique dans la classe astronomie) : `IN_CLASS.semantic_score` gardait le score calcule AU
+    DEPOT, face aux AUTRES classes officielles (la classe astronomie n'existait pas encore comme
+    officielle), donc 0 % apres la fusion alors que les concepts des documents sont bien agreges dans
+    la classe. L'ancien score est conserve dans `deposit_*`. Les documents reconnus normalement
+    (methode score_combine_structure_semantique) gardent leur score : il compare deja a CETTE classe.
+    Renvoie le nombre de documents recalcules."""
+    rows = list(session.run(
+        "MATCH (d:Document)-[r:IN_CLASS]->(c:DocumentClass {id: $cid}) "
+        "OPTIONAL MATCH (d)-[:MENTIONS_CONCEPT]->(k:Concept) WHERE k.embedding IS NOT NULL "
+        "RETURN d.sha256 AS sha, r.method AS method, r.score AS score, r.structural_score AS st, r.semantic_score AS se, "
+        "       d.profile_section AS section, d.profile_paragraph AS paragraph, d.profile_table AS tbl, "
+        "       d.profile_equation AS equation, d.profile_citation_density AS citation, "
+        "       collect(DISTINCT {label: k.label, embedding: k.embedding}) AS concepts", cid=class_id,
+    ))
+    members = []
+    for r in rows:
+        profile = None
+        if r["section"] is not None:
+            profile = {
+                "Section": r["section"], "Paragraph": r["paragraph"] or 0.0, "Table": r["tbl"] or 0.0,
+                "Equation": r["equation"] or 0.0, "citation_density": r["citation"] or 0.0,
+            }
+        concepts = [(c["label"], c["embedding"]) for c in r["concepts"] if c["label"] and c["embedding"]]
+        members.append({"row": r, "profile": profile, "concepts": concepts})
+    rescored = 0
+    for member in members:
+        row = member["row"]
+        if row["method"] == "score_combine_structure_semantique":
+            continue
+        others = [m for m in members if m is not member]
+        if not others:
+            continue
+        other_concepts: dict[str, list[float]] = {}
+        for m in others:
+            for label, embedding in m["concepts"]:
+                other_concepts.setdefault(label, embedding)
+        semantic = _concept_set_similarity(member["concepts"], list(other_concepts.items()))
+        other_profiles = [m["profile"] for m in others if m["profile"]]
+        if member["profile"] and other_profiles:
+            average = {k: sum(p[k] for p in other_profiles) / len(other_profiles) for k in other_profiles[0]}
+            structural = _profile_similarity(member["profile"], average)
+        else:
+            structural = 0.0
+        session.run(
+            "MATCH (d:Document {sha256: $sha})-[r:IN_CLASS]->(c:DocumentClass {id: $cid}) "
+            "SET r.deposit_score = coalesce(r.deposit_score, r.score), "
+            "    r.deposit_structural_score = coalesce(r.deposit_structural_score, r.structural_score), "
+            "    r.deposit_semantic_score = coalesce(r.deposit_semantic_score, r.semantic_score), "
+            "    r.deposit_method = coalesce(r.deposit_method, r.method), "
+            "    r.structural_score = $st, r.semantic_score = $se, r.score = $sc, r.method = 'fusion_de_classe_reevalue'",
+            sha=row["sha"], cid=class_id, st=structural, se=semantic, sc=(structural + semantic) / 2,
+        )
+        rescored += 1
+    return rescored
+
+
+def _structurally_compatible(class_id: str, official_ids: list[str]) -> list[str]:
+    """Reduit les classes officielles testees semantiquement a celles qui acceptent une des
+    ontologies structurelles de la classe provisoire (meme principe que le pre-filtre
+    structurel du pipeline : tester peu d'ontologies semantiques quand elles seront nombreuses).
+    Degradation gracieuse : si la classe n'a aucune ontologie structurelle liee, si aucune
+    officielle n'en partage une, ou si Fuseki est indisponible, toutes les officielles sont testees."""
+    from . import ontology
+    try:
+        shared: set[str] = set()
+        for structure_uri in ontology.list_accepted_structures(class_id):
+            shared.update(ontology.classes_accepting_structure(structure_uri))
+    except Exception:
+        return official_ids
+    compatible = [c for c in official_ids if c in shared]
+    return compatible or official_ids
+
+
 def _try_absorb_into_official(session, db: Session, class_id: str, trace) -> str | None:
     """Une classe provisoire qui n'a plus de voisine provisoire proche est
     comparee aux classes OFFICIELLES (meme formule combinee structurel +
@@ -97,16 +199,37 @@ def _try_absorb_into_official(session, db: Session, class_id: str, trace) -> str
     constate le 2026-10-02 : un document d'astronomie reste isole parce que sa
     classe voisine est devenue officielle entre-temps (une classe provisoire
     ne fusionne jamais avec une autre provisoire devenue officielle). Renvoie
-    l'id de la classe officielle, ou None."""
+    l'id de la classe officielle, ou None.
+
+    Nombre minimal de concepts (2026-10-03) : une classe provisoire de moins de
+    `recognition_min_concepts` concepts ne prouve rien (semantique gonflee), elle n'est pas comparee."""
+    n_concepts = len(class_merge._class_profile_and_concepts(session, class_id)[1])
+    if n_concepts < settings.recognition_min_concepts:
+        trace(
+            "Rattachement refuse (concepts insuffisants)",
+            f"{class_id[:8]} : {n_concepts} concept(s), minimum {settings.recognition_min_concepts}",
+        )
+        return None
     officials = [r["id"] for r in session.run(
         "MATCH (c:DocumentClass) WHERE " + OFFICIAL_CLASS_FILTER + " RETURN c.id AS id"
     )]
-    best_id, best = None, 0.0
+    officials = _structurally_compatible(class_id, officials)
+    # Porte semantique (2026-10-02) : la structure restreint les candidates, elle ne decide pas ;
+    # une officielle qui passe la porte est preferee a une autre au score combine plus haut.
+    best_id, best, best_semantic, best_key = None, 0.0, 0.0, (False, 0.0)
     for official in officials:
-        _structural, _semantic, combined = class_merge.class_similarity(session, class_id, official)
-        if combined > best:
-            best_id, best = official, combined
+        _structural, semantic, combined = class_merge.class_similarity(session, class_id, official)
+        key = (semantic >= settings.recognition_min_semantic, combined)
+        if combined > 0.0 and key > best_key:
+            best_id, best, best_semantic, best_key = official, combined, semantic, key
     if best_id is None or best < settings.recognition_threshold:
+        return None
+    if best_semantic < settings.recognition_min_semantic:
+        trace(
+            "Rattachement refuse (porte semantique)",
+            f"{class_id[:8]} : combine {best:.0%} >= seuil {settings.recognition_threshold:.0%} mais "
+            f"semantique {best_semantic:.0%} < porte {settings.recognition_min_semantic:.0%}",
+        )
         return None
     merged = class_merge.merge_classes(session, db, class_id, best_id)
     if merged is None:
@@ -165,7 +288,18 @@ def run_after_ingest(class_id: str, run_id: uuid.UUID | None = None) -> dict:
                         similarity[(a, b)] = similarity[(b, a)] = _concept_set_similarity(concepts[a], concepts[b])
                 pair_values = [v for (a, b), v in similarity.items() if a < b]
                 threshold, mean, std, n_pairs = density_threshold(pair_values)
-                best_id = max(others, key=lambda o: similarity[(class_id, o)])
+                # Meme niveau de preuve (2026-10-03) : une classe de moins de `recognition_min_concepts`
+                # concepts ne fusionne qu'avec une classe tout aussi pauvre, et inversement ; la
+                # similarite entre tailles tres differentes est mecaniquement gonflee.
+                comparable = [o for o in others if same_evidence_tier(len(concepts[class_id]), len(concepts[o]))]
+                if not comparable:
+                    trace(
+                        "Similarite avec les classes inconnues (US17.2)",
+                        f"aucune classe de meme niveau de preuve ({len(concepts[class_id])} concept(s), "
+                        f"minimum {settings.recognition_min_concepts})",
+                    )
+                    break
+                best_id = max(comparable, key=lambda o: similarity[(class_id, o)])
                 best_sim = similarity[(class_id, best_id)]
                 summary["threshold"] = threshold
                 trace(
@@ -188,13 +322,20 @@ def run_after_ingest(class_id: str, run_id: uuid.UUID | None = None) -> dict:
                 )
                 class_id = target  # la classe survivante peut encore fusionner au tour suivant
 
+            if summary["merged"]:
+                rescore_class_members(session, class_id)  # les scores de depot ne valent plus apres fusion
             status, _name, docs = _class_status_and_docs(session, class_id)
             if status == "provisoire":
                 absorbed = _try_absorb_into_official(session, db, class_id, trace)
                 if absorbed:
                     summary["absorbed_into"] = absorbed
+                    rescore_class_members(session, absorbed)
                     return summary
-            if status == "provisoire" and docs >= settings.official_class_min_documents:
+            n_class_concepts = len(class_merge._class_profile_and_concepts(session, class_id)[1]) if status == "provisoire" else 0
+            ready, deferral = promotion_decision(docs, n_class_concepts)
+            if status == "provisoire" and not ready and deferral:
+                trace("Promotion differee (US17.4)", deferral)
+            if status == "provisoire" and ready:
                 new_name = promote_class(session, db, class_id)
                 if new_name:
                     summary["promoted"] = class_id
@@ -207,7 +348,7 @@ def run_after_ingest(class_id: str, run_id: uuid.UUID | None = None) -> dict:
                     # etre proches de cette nouvelle classe officielle.
                     for other in _provisional_ids(session):
                         _try_absorb_into_official(session, db, other, lambda *a: None)
-            elif status == "provisoire":
+            elif status == "provisoire" and not deferral:
                 trace(
                     "Classe provisoire (US17.4)",
                     f"{docs}/{settings.official_class_min_documents} document(s) avant promotion",

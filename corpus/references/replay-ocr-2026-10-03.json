@@ -1,0 +1,83 @@
+{
+  "scenario": "ocr-scanne-manuscrit",
+  "at": "2026-10-03T14:05:25.193521+00:00",
+  "results": [
+    {
+      "document": "documents/scannes/note-apiculture-manuscrite.pdf",
+      "http": 303,
+      "status": "provisional",
+      "class": "Provisoire - note-apiculture-manuscrite",
+      "seconds": 69,
+      "steps": [
+        {
+          "phase": "Ingestion",
+          "label": "OCR (US18.6)",
+          "detail": "2 page(s) transcrite(s)"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Pre-filtrage structurel",
+          "detail": "1 classe(s) candidate(s) (score 100%)"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Reconnaissance de classe (US7.4)",
+          "detail": "score_combine_insuffisant_creation_provisoire -> Provisoire - note-apiculture-manuscrite (46%) [structure 92%, semantique 0%, porte semantique 15%]"
+        },
+        {
+          "phase": "Ingestion",
+          "label": "Recherche de corpus proches (US17.1)",
+          "detail": "astro-1.docx (14%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Similarite avec les classes inconnues (US17.2)",
+          "detail": "meilleure 0% vs seuil de densite 30% (3 paire(s), moyenne 6%, ecart-type 8%)"
+        },
+        {
+          "phase": "Cycle de vie",
+          "label": "Classe provisoire (US17.4)",
+          "detail": "1/3 document(s) avant promotion"
+        }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "id": "5034e7fa-831f-42f4-8f56-99cd10ac7c20",
+      "name": "C2SIM",
+      "status": "exemple-importe",
+      "docs": 0
+    },
+    {
+      "id": "665015d4-ad01-497c-b058-60d40b26389d",
+      "name": "Provisoire - droit-1.docx",
+      "status": "provisoire",
+      "docs": 1
+    },
+    {
+      "id": "7c091c81-8344-4985-824a-c5b44783892e",
+      "name": "Provisoire - legal-01-obligation-violation-conformite.docx",
+      "status": "provisoire",
+      "docs": 1
+    },
+    {
+      "id": "74e66302-ac70-476d-b629-fa92af63ff04",
+      "name": "Provisoire - note-apiculture-manuscrite",
+      "status": "provisoire",
+      "docs": 1
+    },
+    {
+      "id": "5da4fb57-f1d0-4737-ab8d-745c741bf10f",
+      "name": "Vin",
+      "status": "exemple-importe",
+      "docs": 2
+    },
+    {
+      "id": "1efac83e-f39d-466d-9fbf-3844b0e468ac",
+      "name": "astro-1.docx",
+      "status": "officielle",
+      "docs": 5
+    }
+  ]
+}
